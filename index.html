@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS Warung Es Mambo & Jus</title>
+    <title>POS Warung Es Mambo & Jus - Pro</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -14,10 +14,11 @@
     <!-- Header / Navbar Navigasi -->
     <header class="bg-blue-600 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-bold">Warung Es Mambo & Jus (POS System)</h1>
-            <nav class="space-x-2">
-                <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'" class="px-4 py-2 rounded font-medium transition">Kasir POS</button>
-                <button @click="currentTab = 'hpp'" :class="currentTab === 'hpp' ? 'bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'" class="px-4 py-2 rounded font-medium transition">Kalkulator HPP</button>
+            <h1 class="text-xl font-bold">Warung Es Mambo & Jus (POS Pro)</h1>
+            <nav class="space-x-1 sm:space-x-2 flex">
+                <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'" class="px-3 py-2 rounded text-sm font-medium transition">Kasir POS</button>
+                <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'" class="px-3 py-2 rounded text-sm font-medium transition">Riwayat</button>
+                <button @click="currentTab = 'report'" :class="currentTab === 'report' ? 'bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'" class="px-3 py-2 rounded text-sm font-medium transition">Laporan & HPP</button>
             </nav>
         </div>
     </header>
@@ -28,11 +29,10 @@
         <!-- MODUL 1: KASIR POS -->
         <div x-show="currentTab === 'cashier'" class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <!-- Sisi Kiri: Katalog Produk (2 Kolom) -->
+            <!-- Sisi Kiri: Katalog Produk -->
             <div class="md:col-span-2 bg-white p-4 rounded-lg shadow">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-gray-800">Katalog Produk</h2>
-                    <!-- Kanal Penjualan Switcher -->
                     <select x-model="salesChannel" class="border border-gray-300 rounded p-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="Offline">POS Tunai (Luring)</option>
                         <option value="GrabFood">GrabFood (+20%)</option>
@@ -50,7 +50,7 @@
                 <!-- Grid Tombol Produk -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <template x-for="product in filteredProducts" :key="product.id">
-                        <button @click="addToCart(product)" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 p-4 rounded-lg text-center transition flex flex-col justify-between h-28">
+                        <button @click="addToCart(product)" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 p-4 rounded-lg text-center transition flex flex-col justify-between h-28 shadow-sm">
                             <span class="font-semibold text-gray-800 text-sm" x-text="product.name"></span>
                             <span class="text-green-700 font-bold text-sm" x-text="formatRupiah(product.price)"></span>
                         </button>
@@ -64,7 +64,6 @@
                     <h2 class="text-lg font-bold text-gray-800 mb-2">Rincian Pesanan</h2>
                     <hr class="mb-3">
                     
-                    <!-- Daftar Item Keranjang -->
                     <div class="overflow-y-auto h-72 space-y-3">
                         <template x-for="(item, index) in cart" :key="index">
                             <div class="flex justify-between items-center text-sm border-b pb-2">
@@ -83,7 +82,6 @@
                     </div>
                 </div>
 
-                <!-- Bagian Total & Tombol Bayar -->
                 <div>
                     <hr class="my-3">
                     <div class="flex justify-between text-sm mb-1">
@@ -106,51 +104,88 @@
 
         </div>
 
-        <!-- MODUL 2: KALKULATOR HPP & RESEP -->
-        <div x-show="currentTab === 'hpp'" class="bg-white p-6 rounded-lg shadow max-w-2xl mx-auto">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Simulasi Harga Pokok Penjualan (HPP)</h2>
-            <p class="text-sm text-gray-600 mb-4">Contoh perhitungan modal bahan baku untuk produk: <span class="font-semibold">Es Mambo Coklat</span></p>
-
-            <div class="border rounded-lg overflow-hidden mb-6">
+        <!-- MODUL 2: RIWAYAT TRANSAKSI -->
+        <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-lg shadow max-w-4xl mx-auto">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Riwayat Transaksi Masuk</h2>
+            <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-gray-50 border-b">
-                            <th class="p-3">Bahan Baku</th>
-                            <th class="p-3">Kebutuhan</th>
-                            <th class="p-3">Harga Satuan</th>
-                            <th class="p-3 text-right">Subtotal</th>
+                            <th class="p-3">Waktu</th>
+                            <th class="p-3">Kanal</th>
+                            <th class="p-3">Jumlah Item</th>
+                            <th class="p-3 text-right">Total Transaksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="border-b">
-                            <td class="p-3">Gula Pasir & Coklat Bubuk</td>
-                            <td class="p-3">0.03 kg</td>
-                            <td class="p-3">Rp 25.000 / kg</td>
-                            <td class="p-3 text-right">Rp 750</td>
-                        </tr>
-                        <tr>
-                            <td class="p-3">Plastik Mambo + Karet</td>
-                            <td class="p-3">1 pcs</td>
-                            <td class="p-3">Rp 150 / pcs</td>
-                            <td class="p-3 text-right">Rp 150</td>
-                        </tr>
+                        <template x-for="trx in transactions" :key="trx.id">
+                            <tr class="border-b">
+                                <td class="p-3 text-gray-600" x-text="trx.date"></td>
+                                <td class="p-3">
+                                    <span class="px-2 py-1 rounded text-xs font-semibold" :class="trx.channel === 'Offline' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'" x-text="trx.channel"></span>
+                                </td>
+                                <td class="p-3" x-text="trx.totalItems + ' item'"></td>
+                                <td class="p-3 text-right font-bold text-blue-600" x-text="formatRupiah(trx.grandTotal)"></td>
+                            </tr>
+                        </template>
                     </tbody>
                 </table>
+                <p x-show="transactions.length === 0" class="text-gray-400 text-center py-8 text-sm">Belum ada transaksi pada sesi ini.</p>
+            </div>
+        </div>
+
+        <!-- MODUL 3: LAPORAN KEUANGAN & HPP -->
+        <div x-show="currentTab === 'report'" class="space-y-6 max-w-4xl mx-auto">
+            <!-- Ringkasan Finansial -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                    <p class="text-sm text-gray-500 font-medium">Total Omzet Penjualan</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1" x-text="formatRupiah(totalOmzet)"></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                    <p class="text-sm text-gray-500 font-medium">Estimasi Total HPP (Modal)</p>
+                    <p class="text-2xl font-bold text-red-600 mt-1" x-text="formatRupiah(totalHppModal)"></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                    <p class="text-sm text-gray-500 font-medium">Estimasi Keuntungan Bersih</p>
+                    <p class="text-2xl font-bold text-green-600 mt-1" x-text="formatRupiah(totalOmzet - totalHppModal)"></p>
+                </div>
             </div>
 
-            <div class="bg-blue-50 p-4 rounded-lg space-y-2 text-sm">
-                <div class="flex justify-between font-semibold">
-                    <span>Total HPP (Modal):</span>
-                    <span class="text-red-600">Rp 900</span>
-                </div>
-                <div class="flex justify-between font-semibold">
-                    <span>Harga Jual Standar:</span>
-                    <span>Rp 3.000</span>
-                </div>
-                <hr>
-                <div class="flex justify-between font-bold text-base">
-                    <span>Keuntungan Bersih (Margin):</span>
-                    <span class="text-green-600">Rp 2.100 (70.0%)</span>
+            <!-- Tabel Kalkulator HPP Menu -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Daftar HPP & Margin Produk Utama</h2>
+                <div class="border rounded-lg overflow-hidden">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 border-b">
+                                <th class="p-3">Nama Produk</th>
+                                <th class="p-3">Estimasi HPP (Modal)</th>
+                                <th class="p-3">Harga Jual</th>
+                                <th class="p-3 text-right">Margin Keuntungan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-3 font-semibold">Es Mambo Coklat</td>
+                                <td class="p-3 text-red-600">Rp 900</td>
+                                <td class="p-3">Rp 3.000</td>
+                                <td class="p-3 text-right font-bold text-green-600">Rp 2.100 (70%)</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-semibold">Es Mambo Alpukat</td>
+                                <td class="p-3 text-red-600">Rp 1.100</td>
+                                <td class="p-3">Rp 3.500</td>
+                                <td class="p-3 text-right font-bold text-green-600">Rp 2.400 (68.5%)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold">Jus Alpukat Segar</td>
+                                <td class="p-3 text-red-600">Rp 5.000</td>
+                                <td class="p-3">Rp 12.000</td>
+                                <td class="p-3 text-right font-bold text-green-600">Rp 7.000 (58.3%)</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -165,14 +200,15 @@
                 selectedCategory: 'All',
                 salesChannel: 'Offline',
                 products: [
-                    { id: 1, name: 'Es Mambo Coklat', price: 3000, category: 'Frozen' },
-                    { id: 2, name: 'Es Mambo Alpukat', price: 3500, category: 'Frozen' },
-                    { id: 3, name: 'Es Gabus Pelangi', price: 2500, category: 'Frozen' },
-                    { id: 4, name: 'Ice Cream Cup', price: 5000, category: 'Frozen' },
-                    { id: 5, name: 'Jus Alpukat Segar', price: 12000, category: 'Juice' },
-                    { id: 6, name: 'Jus Mangga Manis', price: 10000, category: 'Juice' },
+                    { id: 1, name: 'Es Mambo Coklat', price: 3000, category: 'Frozen', baseHpp: 900 },
+                    { id: 2, name: 'Es Mambo Alpukat', price: 3500, category: 'Frozen', baseHpp: 1100 },
+                    { id: 3, name: 'Es Gabus Pelangi', price: 2500, category: 'Frozen', baseHpp: 800 },
+                    { id: 4, name: 'Ice Cream Cup', price: 5000, category: 'Frozen', baseHpp: 2000 },
+                    { id: 5, name: 'Jus Alpukat Segar', price: 12000, category: 'Juice', baseHpp: 5000 },
+                    { id: 6, name: 'Jus Mangga Manis', price: 10000, category: 'Juice', baseHpp: 4000 },
                 ],
                 cart: [],
+                transactions: [],
 
                 get filteredProducts() {
                     if (this.selectedCategory === 'All') return this.products;
@@ -214,8 +250,29 @@
                 },
 
                 checkout() {
+                    let totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+                    let totalHppCart = this.cart.reduce((sum, item) => sum + (item.baseHpp * item.quantity), 0);
+                    
+                    let newTrx = {
+                        id: Date.now(),
+                        date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' - ' + new Date().toLocaleDateString('id-ID'),
+                        channel: this.salesChannel,
+                        totalItems: totalItems,
+                        grandTotal: this.grandTotal,
+                        totalHpp: totalHppCart
+                    };
+
+                    this.transactions.unshift(newTrx);
                     alert('Transaksi berhasil diproses sebesar ' + this.formatRupiah(this.grandTotal) + '!');
                     this.cart = [];
+                },
+
+                get totalOmzet() {
+                    return this.transactions.reduce((sum, trx) => sum + trx.grandTotal, 0);
+                },
+
+                get totalHppModal() {
+                    return this.transactions.reduce((sum, trx) => sum + trx.totalHpp, 0);
                 }
             }
         }
