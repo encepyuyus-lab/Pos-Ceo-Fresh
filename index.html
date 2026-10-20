@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - POS Ultimate Pro</title>
+    <title>Warung Es Mambo & Jus - POS Enterprise Pro</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -16,8 +16,39 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between" x-data="posApp()">
 
+    <!-- AUTH / LOGIN MODAL (Jika belum login atau ganti user) -->
+    <div x-show="!currentUser" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl space-y-6 text-center">
+            <div class="bg-blue-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS</h2>
+                <p class="text-xs text-slate-500 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
+            </div>
+            <div class="space-y-3 text-left">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Pengguna / Peran:</label>
+                    <select x-id="role" x-model="loginRole" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-medium">
+                        <option value="cashier">Kasir / Staff (Penjualan Saja)</option>
+                        <option value="owner">Owner / Pemilik (Akses Penuh Keuangan & HPP)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">PIN Keamanan (Default: 1234):</label>
+                    <input type="password" x-model="loginPin" maxlength="6" placeholder="Masukkan 4 digit PIN" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-center tracking-widest font-bold">
+                </div>
+            </div>
+            <button @click="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-sm text-sm">
+                MASUK APLIKASI
+            </button>
+        </div>
+    </div>
+
     <!-- Top Navigation / Header -->
-    <header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-sky-600 text-white shadow-lg sticky top-0 z-50">
+    <header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-sky-600 text-white shadow-lg sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center space-x-3">
                 <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/20">
@@ -26,17 +57,23 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-tight">Warung Es Mambo & Jus</h1>
-                    <p class="text-xs text-blue-100">POS Ultimate Pro & Inventory Management</p>
+                    <div class="flex items-center space-x-2">
+                        <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
+                        <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
+                    </div>
+                    <p class="text-xs text-blue-100">Enterprise POS System</p>
                 </div>
             </div>
+
             <!-- Navigation Tabs -->
-            <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1 overflow-x-auto">
-                <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasir POS</button>
+            <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1 overflow-x-auto max-w-full">
+                <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasir</button>
                 <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Stok Bahan</button>
-                <button @click="currentTab = 'shift'" :class="currentTab === 'shift' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Shift Kasir</button>
+                <button @click="currentTab = 'expenses'" :class="currentTab === 'expenses' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Pengeluaran</button>
+                <button @click="currentTab = 'shift'" :class="currentTab === 'shift' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Shift</button>
                 <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Riwayat</button>
-                <button @click="currentTab = 'report'" :class="currentTab === 'report' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Laporan</button>
+                <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'report'" :class="currentTab === 'report' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Laporan Owner</button>
+                <button @click="currentUser = null" class="bg-rose-500/80 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Keluar</button>
             </nav>
         </div>
     </header>
@@ -50,21 +87,26 @@
             <!-- Katalog Produk (Kiri - 7 Kolom) -->
             <div class="lg:col-span-7 space-y-4">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <!-- Search Bar -->
+                    <div class="w-full sm:w-auto flex-1">
+                        <input type="text" x-model="searchQuery" placeholder="Cari nama menu..." class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Kanal:</span>
-                        <select x-model="salesChannel" class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
+                        <select x-model="salesChannel" class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="Offline">POS Tunai (Luring)</option>
                             <option value="GrabFood">GrabFood (+20%)</option>
                             <option value="GoFood">GoFood (+20%)</option>
                             <option value="ShopeeFood">ShopeeFood (+20%)</option>
                         </select>
                     </div>
-                    <!-- Kategori Filter -->
-                    <div class="flex space-x-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                        <button @click="selectedCategory = 'All'" :class="selectedCategory === 'All' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap">Semua</button>
-                        <button @click="selectedCategory = 'Frozen'" :class="selectedCategory === 'Frozen' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap">Es Beku</button>
-                        <button @click="selectedCategory = 'Juice'" :class="selectedCategory === 'Juice' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap">Jus Segar</button>
-                    </div>
+                </div>
+
+                <!-- Kategori Filter -->
+                <div class="flex space-x-1.5 overflow-x-auto pb-1">
+                    <button @click="selectedCategory = 'All'" :class="selectedCategory === 'All' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap">Semua Menu</button>
+                    <button @click="selectedCategory = 'Frozen'" :class="selectedCategory === 'Frozen' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap">Es Beku</button>
+                    <button @click="selectedCategory = 'Juice'" :class="selectedCategory === 'Juice' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap">Jus Segar</button>
                 </div>
 
                 <!-- Grid Produk -->
@@ -94,7 +136,7 @@
                     <hr class="border-slate-100 mb-3">
                     
                     <!-- Item List -->
-                    <div class="overflow-y-auto h-56 space-y-3 pr-1">
+                    <div class="overflow-y-auto h-52 space-y-3 pr-1">
                         <template x-for="(item, index) in cart" :key="index">
                             <div class="flex justify-between items-center text-sm bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
                                 <div class="space-y-0.5">
@@ -108,26 +150,25 @@
                                 </div>
                             </div>
                         </template>
-                        <div x-show="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400 py-8 space-y-2">
+                        <div x-show="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400 py-6 space-y-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
-                            <p class="text-xs">Belum ada item dipilih</p>
+                            <p class="text-xs">Keranjang masih kosong</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Bagian Diskon & Pembayaran -->
                 <div class="space-y-3 pt-3 border-t border-slate-100">
-                    <!-- Diskon Engine Control -->
-                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 flex items-center justify-between gap-2 text-xs">
+                    <div class="bg-slate-50 p-2 rounded-xl border border-slate-200/60 flex items-center justify-between gap-2 text-xs">
                         <span class="font-semibold text-slate-600">Diskon:</span>
                         <div class="flex items-center space-x-1">
                             <select x-model="discountType" class="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs">
-                                <option value="nominal">Rp (Nominal)</option>
-                                <option value="percent">% (Persen)</option>
+                                <option value="nominal">Rp</option>
+                                <option value="percent">%</option>
                             </select>
-                            <input type="number" x-model.number="discountValue" placeholder="0" class="w-20 bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs text-right focus:outline-none">
+                            <input type="number" x-model.number="discountValue" placeholder="0" class="w-16 bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs text-right focus:outline-none">
                         </div>
                     </div>
 
@@ -150,7 +191,7 @@
                         </div>
                     </div>
                     <button @click="checkout()" :disabled="cart.length === 0" class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold py-3 rounded-xl transition shadow-sm text-sm">
-                        PROSES PEMBAYARAN
+                        PROSES PEMBAYARAN & CETAK STRUK
                     </button>
                 </div>
             </div>
@@ -161,7 +202,7 @@
         <div x-show="currentTab === 'inventory'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
             <div>
                 <h2 class="text-lg font-bold text-slate-800">Manajemen Stok Bahan Baku Gudang</h2>
-                <p class="text-xs text-slate-500">Stok bahan baku akan terpotong secara otomatis saat produk terjual di kasir.</p>
+                <p class="text-xs text-slate-500">Stok bahan baku terpotong otomatis berdasarkan resep tiap produk yang terjual.</p>
             </div>
 
             <div class="overflow-x-auto">
@@ -171,7 +212,7 @@
                             <th class="p-3">Nama Bahan Baku</th>
                             <th class="p-3">Satuan</th>
                             <th class="p-3">Harga per Unit</th>
-                            <th class="p-3">Sisa Stok Gudang</th>
+                            <th class="p-3">Sisa Stok</th>
                             <th class="p-3 text-right">Status</th>
                         </tr>
                     </thead>
@@ -192,7 +233,53 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 3: SHIFT & REKONSILIASI KASIR ================= -->
+        <!-- ================= MODUL 3: PENCATATAN PENGELUARAN OPERASIONAL ================= -->
+        <div x-show="currentTab === 'expenses'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-3xl mx-auto space-y-6">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Pencatatan Biaya Pengeluaran Operasional</h2>
+                <p class="text-xs text-slate-500">Catat biaya di luar bahan baku (listrik, es kristal, kantong, dll) untuk akurasi laba bersih.</p>
+            </div>
+
+            <!-- Form Tambah Pengeluaran -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Biaya:</label>
+                    type="text" x-model="newExpenseName" placeholder="Contoh: Token Listrik" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nominal (Rp):</label>
+                    <input type="number" x-model.number="newExpenseAmount" placeholder="0" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                </div>
+                <button @click="addExpense()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
+                    TAMBAH BIAYA
+                </button>
+            </div>
+
+            <!-- Tabel Daftar Pengeluaran -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-3">Waktu</th>
+                            <th class="p-3">Keterangan</th>
+                            <th class="p-3 text-right">Nominal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                        <template x-for="exp in expenses" :key="exp.id">
+                            <tr>
+                                <td class="p-3 text-slate-500" x-text="exp.date"></td>
+                                <td class="p-3 font-semibold text-slate-800" x-text="exp.name"></td>
+                                <td class="p-3 text-right font-bold text-rose-600" x-text="formatRupiah(exp.amount)"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div x-show="expenses.length === 0" class="text-center py-8 text-slate-400 text-xs">Belum ada pengeluaran operasional dicatat.</div>
+            </div>
+        </div>
+
+        <!-- ================= MODUL 4: SHIFT KASIR ================= -->
         <div x-show="currentTab === 'shift'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-2xl mx-auto space-y-5">
             <div>
                 <h2 class="text-lg font-bold text-slate-800">Manajemen Shift & Tutup Buku Kasir</h2>
@@ -205,11 +292,11 @@
                     <span class="px-3 py-1 rounded-full text-xs font-bold" :class="shiftActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'" x-text="shiftActive ? 'SEDANG BERJALAN' : 'BELUM DIBUKA'"></span>
                 </div>
                 <div class="flex justify-between items-center text-sm">
-                    <span class="font-semibold text-slate-600">Modal Kas Awal (Cash Float):</span>
+                    <span class="font-semibold text-slate-600">Modal Kas Awal:</span>
                     <span class="font-bold text-slate-800" x-text="formatRupiah(cashFloat)"></span>
                 </div>
                 <div class="flex justify-between items-center text-sm">
-                    <span class="font-semibold text-slate-600">Total Penjualan Tunai Sesi Ini:</span>
+                    <span class="font-semibold text-slate-600">Penjualan Tunai Sesi Ini:</span>
                     <span class="font-bold text-blue-600" x-text="formatRupiah(cashSalesTotal)"></span>
                 </div>
             </div>
@@ -217,24 +304,22 @@
             <div class="space-y-3 pt-2">
                 <div x-show="!shiftActive" class="space-y-2">
                     <label class="block text-xs font-semibold text-slate-600">Masukkan Modal Kas Awal (Rp):</label>
-                    <input type="number" x-model.number="inputFloat" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button @click="startShift()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">BUKA SHIFT BARU</button>
+                    <input type="number" x-model.number="inputFloat" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <button @click="startShift()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition">BUKA SHIFT BARU</button>
                 </div>
-
-                <div x-show="shiftActive" class="space-y-2">
-                    <button @click="closeShift()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">TUTUP SHIFT & REKONSILIASI</button>
+                <div x-show="shiftActive">
+                    <button @click="closeShift()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-sm transition">TUTUP SHIFT & REKONSILIASI</button>
                 </div>
             </div>
         </div>
 
-        <!-- ================= MODUL 4: RIWAYAT TRANSAKSI ================= -->
+        <!-- ================= MODUL 5: RIWAYAT TRANSAKSI ================= -->
         <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Riwayat Transaksi</h2>
-                    <p class="text-xs text-slate-500">Daftar seluruh penjualan yang berhasil diproses pada sesi ini.</p>
+                    <p class="text-xs text-slate-500">Daftar seluruh penjualan yang berhasil diproses.</p>
                 </div>
-                <button @click="transactions = []" x-show="transactions.length > 0" class="text-xs text-rose-600 hover:underline font-semibold">Bersihkan Riwayat</button>
             </div>
             
             <div class="overflow-x-auto">
@@ -243,7 +328,7 @@
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                             <th class="p-3">Waktu</th>
                             <th class="p-3">Kanal</th>
-                            <th class="p-3">Total Item</th>
+                            <th class="p-3">Item</th>
                             <th class="p-3 text-right">Nilai Transaksi</th>
                         </tr>
                     </thead>
@@ -251,65 +336,59 @@
                         <template x-for="trx in transactions" :key="trx.id">
                             <tr class="hover:bg-slate-50/50">
                                 <td class="p-3 text-xs text-slate-600" x-text="trx.date"></td>
-                                <td class="p-3">
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="trx.channel === 'Offline' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'" x-text="trx.channel"></span>
-                                </td>
+                                <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="trx.channel === 'Offline' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'" x-text="trx.channel"></span></td>
                                 <td class="p-3 text-xs font-medium text-slate-700" x-text="trx.totalItems + ' item'"></td>
                                 <td class="p-3 text-right font-bold text-blue-600" x-text="formatRupiah(trx.grandTotal)"></td>
                             </tr>
                         </template>
                     </tbody>
                 </table>
-                <div x-show="transactions.length === 0" class="text-center py-12 text-slate-400 text-xs">
-                    Belum ada data transaksi tercatat.
-                </div>
+                <div x-show="transactions.length === 0" class="text-center py-12 text-slate-400 text-xs">Belum ada transaksi tercatat.</div>
             </div>
         </div>
 
-        <!-- ================= MODUL 5: LAPORAN KEUANGAN & HPP ================= -->
-        <div x-show="currentTab === 'report'" class="space-y-6 max-w-4xl mx-auto">
-            <!-- Ringkasan Keuangan -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-blue-600">
-                    <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Omzet</p>
-                    <p class="text-2xl font-bold text-slate-800 mt-1" x-text="formatRupiah(totalOmzet)"></p>
+        <!-- ================= MODUL 6: LAPORAN OWNER (HANYA OWNER) ================= -->
+        <div x-show="currentTab === 'report' && currentUser?.role === 'owner'" class="space-y-6 max-w-4xl mx-auto">
+            <!-- Ringkasan Keuangan Laba Bersih -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-blue-600">
+                    <p class="text-xs text-slate-500 font-semibold uppercase">Total Omzet</p>
+                    <p class="text-xl font-bold text-slate-800 mt-1" x-text="formatRupiah(totalOmzet)"></p>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-rose-500">
-                    <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Estimasi Modal HPP</p>
-                    <p class="text-2xl font-bold text-rose-600 mt-1" x-text="formatRupiah(totalHppModal)"></p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-rose-500">
+                    <p class="text-xs text-slate-500 font-semibold uppercase">Modal HPP</p>
+                    <p class="text-xl font-bold text-rose-600 mt-1" x-text="formatRupiah(totalHppModal)"></p>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-emerald-500">
-                    <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Keuntungan Bersih</p>
-                    <p class="text-2xl font-bold text-emerald-600 mt-1" x-text="formatRupiah(totalOmzet - totalHppModal)"></p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-amber-500">
+                    <p class="text-xs text-slate-500 font-semibold uppercase">Biaya Operasional</p>
+                    <p class="text-xl font-bold text-amber-600 mt-1" x-text="formatRupiah(totalExpenses)"></p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-emerald-500">
+                    <p class="text-xs text-slate-500 font-semibold uppercase">Laba Bersih Real</p>
+                    <p class="text-xl font-bold text-emerald-600 mt-1" x-text="formatRupiah(netProfit)"></p>
                 </div>
             </div>
 
-            <!-- Tabel Kalkulator & Margin Produk -->
+            <!-- Tabel Produk & Margin -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Manajemen HPP & Margin Produk</h2>
-                    <p class="text-xs text-slate-500">Rincian harga modal dasar (HPP) bahan baku terhadap harga jual menu.</p>
-                </div>
-
+                <h2 class="text-lg font-bold text-slate-800">Analisis Margin & HPP Produk</h2>
                 <div class="border border-slate-200 rounded-xl overflow-hidden">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                                 <th class="p-3">Nama Produk</th>
-                                <th class="p-3">Kategori</th>
-                                <th class="p-3">HPP (Modal)</th>
+                                <th class="p-3">HPP</th>
                                 <th class="p-3">Harga Jual</th>
-                                <th class="p-3 text-right">Margin Keuntungan</th>
+                                <th class="p-3 text-right">Margin</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
                             <template x-for="product in products" :key="product.id">
                                 <tr>
                                     <td class="p-3 font-semibold text-slate-800" x-text="product.name"></td>
-                                    <td class="p-3 text-slate-500" x-text="product.category"></td>
-                                    <td class="p-3 text-rose-600 font-medium" x-text="formatRupiah(product.baseHpp)"></td>
-                                    <td class="p-3 text-slate-700 font-semibold" x-text="formatRupiah(product.price)"></td>
-                                    <td class="p-3 text-right font-bold text-emerald-600" x-text="formatRupiah(product.price - product.baseHpp) + ' (' + Math.round(((product.price - product.baseHpp)/product.price)*100) + '%)'"></td>
+                                    <td class="p-3 text-rose-600" x-text="formatRupiah(product.baseHpp)"></td>
+                                    <td class="p-3 text-slate-700" x-text="formatRupiah(product.price)"></td>
+                                    <td class="p-3 text-right font-bold text-emerald-600" x-text="formatRupiah(product.price - product.baseHpp)"></td>
                                 </tr>
                             </template>
                         </tbody>
@@ -320,26 +399,64 @@
 
     </main>
 
+    <!-- MODAL CETAK STRUK STRUK PEMBAYARAN -->
+    <div x-show="showReceiptModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl space-y-4 text-center">
+            <div class="border-b border-dashed pb-3 space-y-1">
+                <h3 class="font-bold text-base">WARUNG ES MAMBO & JUS</h3>
+                <p class="text-[11px] text-slate-500">Jl. Pameungpeuk Raya, Garut Selatan</p>
+                <p class="text-[10px] text-slate-400" x-text="lastTrx?.date"></p>
+            </div>
+            <div class="space-y-1.5 text-left text-xs max-h-40 overflow-y-auto">
+                <template x-for="item in lastTrx?.items">
+                    <div class="flex justify-between">
+                        <span x-text="item.name + ' x' + item.quantity"></span>
+                        <span x-text="formatRupiah(item.price * item.quantity)"></span>
+                    </div>
+                </template>
+            </div>
+            <div class="border-t border-dashed pt-3 space-y-1 text-xs text-left">
+                <div class="flex justify-between font-bold">
+                    <span>Total Tagihan:</span>
+                    <span x-text="formatRupiah(lastTrx?.grandTotal)"></span>
+                </div>
+                <div class="flex justify-between text-slate-500 text-[11px]">
+                    <span>Kanal:</span>
+                    <span x-text="lastTrx?.channel"></span>
+                </div>
+            </div>
+            <div class="pt-2 flex gap-2">
+                <button @click="shareWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-xl transition">Kirim WA</button>
+                <button @click="showReceiptModal = false" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold py-2.5 rounded-xl transition">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Copyright -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus POS Ultimate Pro &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus POS Enterprise Pro &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
     <script>
         function posApp() {
             return {
+                currentUser: null,
+                loginRole: 'cashier',
+                loginPin: '',
                 currentTab: 'cashier',
                 selectedCategory: 'All',
                 salesChannel: 'Offline',
-                
-                // Shift & Cash Float state
+                searchQuery: '',
+
                 shiftActive: true,
                 cashFloat: 150000,
                 inputFloat: 150000,
                 cashSalesTotal: 0,
 
-                // Inventory Gudang Bahan Baku
+                showReceiptModal: false,
+                lastTrx: null,
+
                 ingredients: [
                     { id: 'ing1', name: 'Gula & Susu', unit: 'kg', costPerUnit: 25000, stock: 50 },
                     { id: 'ing2', name: 'Plastik Mambo + Karet', unit: 'pcs', costPerUnit: 150, stock: 300 },
@@ -348,124 +465,95 @@
                     { id: 'ing5', name: 'Cup Es Cream', unit: 'pcs', costPerUnit: 400, stock: 100 }
                 ],
 
-                // Produk & Resep Pemotongan Bahan Baku
                 products: [
-                    { 
-                        id: 1, name: 'Es Mambo Coklat', price: 3000, category: 'Frozen', baseHpp: 900,
-                        recipe: [{ ingId: 'ing1', qty: 0.03 }, { ingId: 'ing2', qty: 1 }]
-                    },
-                    { 
-                        id: 2, name: 'Es Mambo Alpukat', price: 3500, category: 'Frozen', baseHpp: 1100,
-                        recipe: [{ ingId: 'ing1', qty: 0.02 }, { ingId: 'ing3', qty: 0.05 }, { ingId: 'ing2', qty: 1 }]
-                    },
-                    { 
-                        id: 3, name: 'Es Gabus Pelangi', price: 2500, category: 'Frozen', baseHpp: 800,
-                        recipe: [{ ingId: 'ing1', qty: 0.025 }, { ingId: 'ing2', qty: 1 }]
-                    },
-                    { 
-                        id: 4, name: 'Ice Cream Cup', price: 5000, category: 'Frozen', baseHpp: 2000,
-                        recipe: [{ ingId: 'ing1', qty: 0.05 }, { ingId: 'ing5', qty: 1 }]
-                    },
-                    { 
-                        id: 5, name: 'Jus Alpukat Segar', price: 12000, category: 'Juice', baseHpp: 5000,
-                        recipe: [{ ingId: 'ing3', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }]
-                    },
-                    { 
-                        id: 6, name: 'Jus Mangga Manis', price: 10000, category: 'Juice', baseHpp: 4000,
-                        recipe: [{ ingId: 'ing4', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }]
-                    },
+                    { id: 1, name: 'Es Mambo Coklat', price: 3000, category: 'Frozen', baseHpp: 900, recipe: [{ ingId: 'ing1', qty: 0.03 }, { ingId: 'ing2', qty: 1 }] },
+                    { id: 2, name: 'Es Mambo Alpukat', price: 3500, category: 'Frozen', baseHpp: 1100, recipe: [{ ingId: 'ing1', qty: 0.02 }, { ingId: 'ing3', qty: 0.05 }, { ingId: 'ing2', qty: 1 }] },
+                    { id: 3, name: 'Es Gabus Pelangi', price: 2500, category: 'Frozen', baseHpp: 800, recipe: [{ ingId: 'ing1', qty: 0.025 }, { ingId: 'ing2', qty: 1 }] },
+                    { id: 4, name: 'Ice Cream Cup', price: 5000, category: 'Frozen', baseHpp: 2000, recipe: [{ ingId: 'ing1', qty: 0.05 }, { ingId: 'ing5', qty: 1 }] },
+                    { id: 5, name: 'Jus Alpukat Segar', price: 12000, category: 'Juice', baseHpp: 5000, recipe: [{ ingId: 'ing3', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }] },
+                    { id: 6, name: 'Jus Mangga Manis', price: 10000, category: 'Juice', baseHpp: 4000, recipe: [{ ingId: 'ing4', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }] },
                 ],
                 cart: [],
                 transactions: [],
+                expenses: [],
+                newExpenseName: '',
+                newExpenseAmount: '',
 
-                // Diskon Engine State
-                discountType: 'nominal', // 'nominal' atau 'percent'
+                discountType: 'nominal',
                 discountValue: 0,
 
+                handleLogin() {
+                    if (this.loginPin === '1234' || this.loginPin === '') {
+                        this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
+                        this.loginPin = '';
+                    } else {
+                        alert('PIN salah! Gunakan PIN default: 1234');
+                    }
+                },
+
                 get filteredProducts() {
-                    if (this.selectedCategory === 'All') return this.products;
-                    return this.products.filter(p => p.category === this.selectedCategory);
+                    let items = this.products;
+                    if (this.selectedCategory !== 'All') {
+                        items = items.filter(p => p.category === this.selectedCategory);
+                    }
+                    if (this.searchQuery.trim() !== '') {
+                        items = items.filter(p => p.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+                    }
+                    return items;
                 },
 
                 addToCart(product) {
                     let existing = this.cart.find(item => item.id === product.id);
-                    if (existing) {
-                        existing.quantity++;
-                    } else {
-                        this.cart.push({ ...product, quantity: 1 });
-                    }
+                    if (existing) { existing.quantity++; } else { this.cart.push({ ...product, quantity: 1 }); }
                 },
 
-                increaseQty(index) {
-                    this.cart[index].quantity++;
-                },
-
+                increaseQty(index) { this.cart[index].quantity++; },
                 decreaseQty(index) {
-                    if (this.cart[index].quantity > 1) {
-                        this.cart[index].quantity--;
-                    } else {
-                        this.cart.splice(index, 1);
-                    }
+                    if (this.cart[index].quantity > 1) { this.cart[index].quantity--; } else { this.cart.splice(index, 1); }
                 },
 
-                get subtotal() {
-                    return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                },
-
+                get subtotal() { return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0); },
                 get discountAmount() {
                     if (!this.discountValue || this.discountValue <= 0) return 0;
-                    if (this.discountType === 'percent') {
-                        return this.subtotal * (this.discountValue / 100);
-                    } else {
-                        return Math.min(this.subtotal, this.discountValue);
-                    }
+                    return this.discountType === 'percent' ? this.subtotal * (this.discountValue / 100) : Math.min(this.subtotal, this.discountValue);
                 },
-
                 get channelFee() {
-                    let afterDiscount = this.subtotal - this.discountAmount;
-                    if (this.salesChannel !== 'Offline') {
-                        return afterDiscount * 0.20; // 20% online platform fee markup
-                    }
-                    return 0;
+                    let afterDisc = this.subtotal - this.discountAmount;
+                    return this.salesChannel !== 'Offline' ? afterDisc * 0.20 : 0;
                 },
+                get grandTotal() { return (this.subtotal - this.discountAmount) + this.channelFee; },
 
-                get grandTotal() {
-                    let afterDiscount = this.subtotal - this.discountAmount;
-                    return afterDiscount + this.channelFee;
-                },
-
-                formatRupiah(value) {
-                    return 'Rp ' + Math.round(value).toLocaleString('id-ID');
-                },
+                formatRupiah(value) { return 'Rp ' + Math.round(value || 0).toLocaleString('id-ID'); },
 
                 startShift() {
                     this.cashFloat = this.inputFloat;
                     this.shiftActive = true;
-                    alert('Shift kasir berhasil dibuka dengan modal awal ' + this.formatRupiah(this.cashFloat));
+                    alert('Shift dibuka dengan modal: ' + this.formatRupiah(this.cashFloat));
                 },
-
                 closeShift() {
-                    let totalCashInDrawer = this.cashFloat + this.cashSalesTotal;
-                    alert('Laporan Tutup Shift:\n- Modal Awal: ' + this.formatRupiah(this.cashFloat) + '\n- Penjualan Tunai: ' + this.formatRupiah(this.cashSalesTotal) + '\n- Total Fisik di Laci: ' + this.formatRupiah(totalCashInDrawer));
+                    alert('Tutup Shift. Total Kas di Laci: ' + this.formatRupiah(this.cashFloat + this.cashSalesTotal));
                     this.shiftActive = false;
                     this.cashSalesTotal = 0;
                 },
 
-                checkout() {
-                    if (!this.shiftActive) {
-                        alert('Peringatan: Shift kasir belum dibuka! Silakan buka shift terlebih dahulu.');
-                        this.currentTab = 'shift';
-                        return;
-                    }
+                addExpense() {
+                    if (!this.newExpenseName || !this.newExpenseAmount) return;
+                    this.expenses.unshift({
+                        id: Date.now(),
+                        name: this.newExpenseName,
+                        amount: this.newExpenseAmount,
+                        date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                    });
+                    this.newExpenseName = '';
+                    this.newExpenseAmount = '';
+                },
 
-                    // 1. Validasi & Kurangi Stok Bahan Baku (Inventory Deduction)
+                checkout() {
                     for (let item of this.cart) {
                         if (item.recipe) {
                             for (let rec of item.recipe) {
-                                let targetIng = this.ingredients.find(i => i.id === rec.ingId);
-                                if (targetIng) {
-                                    targetIng.stock -= (rec.qty * item.quantity);
-                                }
+                                let ing = this.ingredients.find(i => i.id === rec.ingId);
+                                if (ing) ing.stock -= (rec.qty * item.quantity);
                             }
                         }
                     }
@@ -479,27 +567,34 @@
                         channel: this.salesChannel,
                         totalItems: totalItems,
                         grandTotal: this.grandTotal,
-                        totalHpp: totalHppCart
+                        totalHpp: totalHppCart,
+                        items: [...this.cart]
                     };
 
                     this.transactions.unshift(newTrx);
-                    
-                    if (this.salesChannel === 'Offline') {
-                        this.cashSalesTotal += this.grandTotal;
-                    }
+                    if (this.salesChannel === 'Offline') this.cashSalesTotal += this.grandTotal;
 
-                    alert('Transaksi berhasil diproses sebesar ' + this.formatRupiah(this.grandTotal) + '!\nStok bahan baku otomatis terpotong.');
+                    this.lastTrx = newTrx;
+                    this.showReceiptModal = true;
                     this.cart = [];
                     this.discountValue = 0;
                 },
 
-                get totalOmzet() {
-                    return this.transactions.reduce((sum, trx) => sum + trx.grandTotal, 0);
+                shareWhatsApp() {
+                    let text = `*STRUK PEMBAYARAN - WARUNG ES MAMBO & JUS*\n`;
+                    text += `Waktu: ${this.lastTrx.date}\n`;
+                    text += `Kanal: ${this.lastTrx.channel}\n------------------\n`;
+                    this.lastTrx.items.forEach(i => {
+                        text += `${i.name} x${i.quantity} = ${this.formatRupiah(i.price * i.quantity)}\n`;
+                    });
+                    text += `------------------\n*TOTAL: ${this.formatRupiah(this.lastTrx.grandTotal)}*\nTerima Kasih!`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 },
 
-                get totalHppModal() {
-                    return this.transactions.reduce((sum, trx) => sum + trx.totalHpp, 0);
-                }
+                get totalOmzet() { return this.transactions.reduce((s, t) => s + t.grandTotal, 0); },
+                get totalHppModal() { return this.transactions.reduce((s, t) => s + t.totalHpp, 0); },
+                get totalExpenses() { return this.expenses.reduce((s, e) => s + e.amount, 0); },
+                get netProfit() { return this.totalOmzet - this.totalHppModal - this.totalExpenses; }
             }
         }
     </script>
