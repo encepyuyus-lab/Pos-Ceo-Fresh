@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v4.0 Ultimate Supreme POS</title>
+    <title>Warung Es Mambo & Jus - v5.0 Enterprise Ultimate Suite</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -30,7 +30,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v4.0</h2>
+                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v5.0</h2>
                 <p class="text-xs text-slate-500 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -66,14 +66,20 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Ultimate Supreme POS (v4.0)</p>
+                    <p class="text-xs text-blue-100">Enterprise Suite (v5.0)</p>
                 </div>
             </div>
 
             <!-- Navigation Tabs -->
             <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1 overflow-x-auto max-w-full">
                 <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasir</button>
-                <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Stok Bahan</button>
+                
+                <!-- Tab Stok Bahan dengan Notifikasi Badge Merah jika ada stok kritis -->
+                <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap relative">
+                    Stok Bahan
+                    <span x-show="criticalStockCount > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full" x-text="criticalStockCount"></span>
+                </button>
+
                 <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'products_mgmt'" :class="currentTab === 'products_mgmt' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kelola Menu</button>
                 <button @click="currentTab = 'debts'" :class="currentTab === 'debts' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasbon</button>
                 <button @click="currentTab = 'expenses'" :class="currentTab === 'expenses' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Pengeluaran</button>
@@ -133,7 +139,7 @@
             </div>
 
             <!-- Keranjang Pesanan (Kanan - 5 Kolom) -->
-            <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between h-[690px] sticky top-20">
+            <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between h-[710px] sticky top-20">
                 <div>
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-base font-bold text-slate-800">Rincian Pesanan</h2>
@@ -142,7 +148,7 @@
                     <hr class="border-slate-100 mb-3">
                     
                     <!-- Item List -->
-                    <div class="overflow-y-auto h-40 space-y-3 pr-1">
+                    <div class="overflow-y-auto h-36 space-y-3 pr-1">
                         <template x-for="(item, index) in cart" :key="index">
                             <div class="flex justify-between items-center text-sm bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
                                 <div class="space-y-0.5">
@@ -157,8 +163,8 @@
                                 </div>
                             </div>
                         </template>
-                        <div x-show="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400 py-6 space-y-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div x-show="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400 py-4 space-y-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
                             <p class="text-xs">Keranjang masih kosong</p>
@@ -166,9 +172,18 @@
                     </div>
                 </div>
 
-                <!-- Bagian Diskon, Kode Promo & Pembayaran -->
+                <!-- Bagian Diskon, Member, Kupon & Pembayaran -->
                 <div class="space-y-2.5 pt-2 border-t border-slate-100">
-                    <!-- Kode Promo / Voucher -->
+                    <!-- Pilihan Tipe Pelanggan (VIP Member vs Umum) -->
+                    <div class="flex items-center justify-between bg-amber-50/60 p-2 rounded-xl border border-amber-200 text-xs">
+                        <span class="font-semibold text-amber-900">Tipe Pelanggan:</span>
+                        <select x-model="customerType" class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-xs font-semibold text-amber-900 focus:outline-none">
+                            <option value="Regular">Umum / Reguler</option>
+                            <option value="VIP">⭐ VIP Member (Diskon 5%)</option>
+                        </select>
+                    </div>
+
+                    <!-- Kupon Promo -->
                     <div class="bg-blue-50/50 p-2 rounded-xl border border-blue-100 flex items-center justify-between gap-2 text-xs">
                         <span class="font-semibold text-blue-800">Kupon Promo:</span>
                         <div class="flex items-center space-x-1 flex-1 max-w-[180px]">
@@ -205,7 +220,7 @@
                             <span class="font-semibold text-slate-700" x-text="formatRupiah(subtotal)"></span>
                         </div>
                         <div x-show="discountAmount > 0" class="flex justify-between text-rose-600">
-                            <span>Potongan Diskon:</span>
+                            <span x-text="customerType === 'VIP' ? 'Potongan Diskon (VIP + Manual):' : 'Potongan Diskon:'"></span>
                             <span class="font-semibold" x-text="'- ' + formatRupiah(discountAmount)"></span>
                         </div>
                         <div x-show="salesChannel !== 'Offline'" class="flex justify-between text-amber-600">
@@ -465,9 +480,14 @@
 
         <!-- ================= MODUL 7: RIWAYAT TRANSAKSI ================= -->
         <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
-            <div>
-                <h2 class="text-lg font-bold text-slate-800">Riwayat Transaksi</h2>
-                <p class="text-xs text-slate-500">Daftar seluruh penjualan yang berhasil diproses lengkap dengan informasi staf kasir.</p>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Riwayat Transaksi</h2>
+                    <p class="text-xs text-slate-500">Daftar seluruh penjualan yang berhasil diproses.</p>
+                </div>
+                <div class="w-full sm:w-64">
+                    <input type="text" x-model="historySearch" placeholder="Cari kasir / kode..." class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs focus:outline-none">
+                </div>
             </div>
             
             <div class="overflow-x-auto">
@@ -476,26 +496,28 @@
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                             <th class="p-3">Waktu</th>
                             <th class="p-3">Kasir</th>
+                            <th class="p-3">Pelanggan</th>
                             <th class="p-3">Kanal</th>
                             <th class="p-3">Metode</th>
-                            <th class="p-3">Item</th>
                             <th class="p-3 text-right">Nilai Transaksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        <template x-for="trx in transactions" :key="trx.id">
+                        <template x-for="trx in filteredHistory" :key="trx.id">
                             <tr class="hover:bg-slate-50/50">
                                 <td class="p-3 text-xs text-slate-600" x-text="trx.date"></td>
                                 <td class="p-3 text-xs font-semibold text-slate-700" x-text="trx.cashierName"></td>
+                                <td class="p-3 text-xs">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="trx.customerType === 'VIP' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'" x-text="trx.customerType"></span>
+                                </td>
                                 <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="trx.channel === 'Offline' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'" x-text="trx.channel"></span></td>
                                 <td class="p-3 text-xs font-semibold text-slate-700" x-text="trx.paymentMethod || 'Tunai'"></td>
-                                <td class="p-3 text-xs font-medium text-slate-700" x-text="trx.totalItems + ' item'"></td>
                                 <td class="p-3 text-right font-bold text-blue-600" x-text="formatRupiah(trx.grandTotal)"></td>
                             </tr>
                         </template>
                     </tbody>
                 </table>
-                <div x-show="transactions.length === 0" class="text-center py-12 text-slate-400 text-xs">Belum ada transaksi tercatat.</div>
+                <div x-show="filteredHistory.length === 0" class="text-center py-12 text-slate-400 text-xs">Tidak ada riwayat transaksi yang cocok.</div>
             </div>
         </div>
 
@@ -601,6 +623,10 @@
                         <span>Total Tagihan:</span>
                         <span class="text-blue-600" x-text="formatRupiah(lastTrx?.grandTotal)"></span>
                     </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.customerType === 'VIP'">
+                        <span>Tipe Pelanggan:</span>
+                        <span class="font-semibold text-amber-700">⭐ VIP Member</span>
+                    </div>
                     <div class="flex justify-between text-slate-500 text-[10px]">
                         <span>Metode Pembayaran:</span>
                         <span class="font-semibold" x-text="lastTrx?.paymentMethod"></span>
@@ -624,7 +650,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v4.0.0 Ultimate Supreme POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v5.0.0 Enterprise Ultimate Suite</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -638,7 +664,9 @@
                 selectedCategory: 'All',
                 salesChannel: 'Offline',
                 paymentMethod: 'Tunai',
+                customerType: 'Regular',
                 searchQuery: '',
+                historySearch: '',
 
                 shiftActive: true,
                 cashFloat: 150000,
@@ -661,12 +689,11 @@
 
                 restockIngId: 'ing1',
                 restockQty: 10,
-
                 promoCode: '',
 
                 ingredients: [
                     { id: 'ing1', name: 'Gula & Susu', unit: 'kg', costPerUnit: 25000, stock: 50 },
-                    { id: 'ing2', name: 'Plastik Mambo + Karet', unit: 'pcs', costPerUnit: 150, stock: 300 },
+                    { id: 'ing2', name: 'Plastik Mambo + Karet', unit: 'pcs', costPerUnit: 150, stock: 4 }, // Contoh stok kritis untuk demo badge
                     { id: 'ing3', name: 'Buah Alpukat Segar', unit: 'kg', costPerUnit: 20000, stock: 20 },
                     { id: 'ing4', name: 'Buah Mangga Kuweni', unit: 'kg', costPerUnit: 18000, stock: 15 },
                     { id: 'ing5', name: 'Cup Es Cream', unit: 'pcs', costPerUnit: 400, stock: 100 }
@@ -690,30 +717,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v4')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v4'));
-                    if (localStorage.getItem('es_mambo_ingredients_v4')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v4'));
-                    if (localStorage.getItem('es_mambo_transactions_v4')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v4'));
-                    if (localStorage.getItem('es_mambo_expenses_v4')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v4'));
-                    if (localStorage.getItem('es_mambo_debts_v4')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v4'));
+                    if (localStorage.getItem('es_mambo_products_v5')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v5'));
+                    if (localStorage.getItem('es_mambo_ingredients_v5')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v5'));
+                    if (localStorage.getItem('es_mambo_transactions_v5')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v5'));
+                    if (localStorage.getItem('es_mambo_expenses_v5')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v5'));
+                    if (localStorage.getItem('es_mambo_debts_v5')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v5'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v4');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v5');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v4', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v4', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v4', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v4', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v4', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v5', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v5', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v5', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v5', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v5', JSON.stringify(this.debts));
                 },
 
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v4', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v5', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -722,7 +749,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v4');
+                    localStorage.removeItem('es_mambo_current_user_v5');
                 },
 
                 applyPromo() {
@@ -820,16 +847,36 @@
                     return items;
                 },
 
+                get filteredHistory() {
+                    if (!this.historySearch.trim()) return this.transactions;
+                    let q = this.historySearch.toLowerCase();
+                    return this.transactions.filter(t => t.cashierName.toLowerCase().includes(q) || t.channel.toLowerCase().includes(q) || t.customerType.toLowerCase().includes(q));
+                },
+
+                get criticalStockCount() {
+                    return this.ingredients.filter(i => i.stock <= 5).length;
+                },
+
                 increaseQty(index) { this.cart[index].quantity++; },
                 decreaseQty(index) {
                     if (this.cart[index].quantity > 1) { this.cart[index].quantity--; } else { this.cart.splice(index, 1); }
                 },
 
                 get subtotal() { return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0); },
-                get discountAmount() {
-                    if (!this.discountValue || this.discountValue <= 0) return 0;
-                    return this.discountType === 'percent' ? this.subtotal * (this.discountValue / 100) : Math.min(this.subtotal, this.discountValue);
+                
+                get vipDiscountAmount() {
+                    return this.customerType === 'VIP' ? this.subtotal * 0.05 : 0;
                 },
+
+                get discountAmount() {
+                    let sub = this.subtotal - this.vipDiscountAmount;
+                    let manualDisc = 0;
+                    if (this.discountValue && this.discountValue > 0) {
+                        manualDisc = this.discountType === 'percent' ? sub * (this.discountValue / 100) : Math.min(sub, this.discountValue);
+                    }
+                    return this.vipDiscountAmount + manualDisc;
+                },
+
                 get channelFee() {
                     let afterDisc = this.subtotal - this.discountAmount;
                     return this.salesChannel !== 'Offline' ? afterDisc * 0.20 : 0;
@@ -879,6 +926,7 @@
                         id: Date.now(),
                         date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
                         cashierName: this.currentUser?.name || 'Staff',
+                        customerType: this.customerType,
                         channel: this.salesChannel,
                         paymentMethod: this.paymentMethod,
                         totalItems: totalItems,
@@ -896,6 +944,7 @@
                     this.showReceiptModal = true;
                     this.cart = [];
                     this.discountValue = 0;
+                    this.customerType = 'Regular';
                     this.saveData();
                 },
 
@@ -903,6 +952,7 @@
                     let text = `*STRUK PEMBAYARAN - WARUNG ES MAMBO & JUS*\n`;
                     text += `Waktu: ${this.lastTrx.date}\n`;
                     text += `Kasir: ${this.lastTrx.cashierName}\n`;
+                    text += `Pelanggan: ${this.lastTrx.customerType}\n`;
                     text += `Kanal: ${this.lastTrx.channel}\n`;
                     text += `Pembayaran: ${this.lastTrx.paymentMethod}\n------------------\n`;
                     this.lastTrx.items.forEach(i => {
@@ -913,9 +963,9 @@
                 },
 
                 exportToCSV() {
-                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Kasir,Kanal,Metode Pembayaran,Total Item,Nilai Transaksi,Modal HPP\n";
+                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Kasir,Tipe Pelanggan,Kanal,Metode Pembayaran,Total Item,Nilai Transaksi,Modal HPP\n";
                     this.transactions.forEach(trx => {
-                        csvContent += `"${trx.date}","${trx.cashierName}","${trx.channel}","${trx.paymentMethod || 'Tunai'}",${trx.totalItems},${trx.grandTotal},${trx.totalHpp}\n`;
+                        csvContent += `"${trx.date}","${trx.cashierName}","${trx.customerType}","${trx.channel}","${trx.paymentMethod || 'Tunai'}",${trx.totalItems},${trx.grandTotal},${trx.totalHpp}\n`;
                     });
                     let encodedUri = encodeURI(csvContent);
                     let link = document.createElement("a");
