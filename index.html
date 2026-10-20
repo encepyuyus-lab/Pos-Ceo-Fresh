@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v5.0 Enterprise Ultimate Suite</title>
+    <title>Warung Es Mambo & Jus - v6.0 Ultimate Supreme POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -30,7 +30,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v5.0</h2>
+                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v6.0</h2>
                 <p class="text-xs text-slate-500 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -66,7 +66,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Enterprise Suite (v5.0)</p>
+                    <p class="text-xs text-blue-100">Supreme POS (v6.0)</p>
                 </div>
             </div>
 
@@ -74,7 +74,6 @@
             <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1 overflow-x-auto max-w-full">
                 <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasir</button>
                 
-                <!-- Tab Stok Bahan dengan Notifikasi Badge Merah jika ada stok kritis -->
                 <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap relative">
                     Stok Bahan
                     <span x-show="criticalStockCount > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full" x-text="criticalStockCount"></span>
@@ -100,8 +99,9 @@
             <!-- Katalog Produk (Kiri - 7 Kolom) -->
             <div class="lg:col-span-7 space-y-4">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <div class="w-full sm:w-auto flex-1">
+                    <div class="w-full sm:w-auto flex-1 flex gap-2">
                         <input type="text" x-model="searchQuery" placeholder="Cari nama menu..." class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" x-model="barcodeInput" @keyup.enter="scanBarcode()" placeholder="Scan Barcode/SKU..." class="w-36 bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Kanal:</span>
@@ -127,7 +127,8 @@
                         <button @click="openModifierModal(product)" class="bg-white hover:border-blue-400 hover:shadow-md border border-slate-200/80 p-4 rounded-2xl text-left transition-all flex flex-col justify-between h-32 group relative overflow-hidden">
                             <div class="absolute top-0 right-0 bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-1 rounded-bl-xl group-hover:bg-blue-600 group-hover:text-white transition-colors" x-text="product.category"></div>
                             <div>
-                                <span class="font-semibold text-slate-800 text-sm block line-clamp-2 pr-6" x-text="product.name"></span>
+                                <span class="font-semibold text-slate-800 text-sm block line-clamp-1 pr-6" x-text="product.name"></span>
+                                <span class="text-[10px] text-slate-400 block font-mono" x-text="'SKU: ' + product.sku"></span>
                             </div>
                             <div>
                                 <span class="text-xs text-slate-400 block mb-0.5">HPP: <span x-text="formatRupiah(product.baseHpp)"></span></span>
@@ -139,7 +140,7 @@
             </div>
 
             <!-- Keranjang Pesanan (Kanan - 5 Kolom) -->
-            <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between h-[710px] sticky top-20">
+            <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between h-[750px] sticky top-20">
                 <div>
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-base font-bold text-slate-800">Rincian Pesanan</h2>
@@ -148,7 +149,7 @@
                     <hr class="border-slate-100 mb-3">
                     
                     <!-- Item List -->
-                    <div class="overflow-y-auto h-36 space-y-3 pr-1">
+                    <div class="overflow-y-auto h-32 space-y-3 pr-1">
                         <template x-for="(item, index) in cart" :key="index">
                             <div class="flex justify-between items-center text-sm bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
                                 <div class="space-y-0.5">
@@ -172,9 +173,8 @@
                     </div>
                 </div>
 
-                <!-- Bagian Diskon, Member, Kupon & Pembayaran -->
+                <!-- Bagian Diskon, Member, Pembayaran & Kalkulator Kembalian -->
                 <div class="space-y-2.5 pt-2 border-t border-slate-100">
-                    <!-- Pilihan Tipe Pelanggan (VIP Member vs Umum) -->
                     <div class="flex items-center justify-between bg-amber-50/60 p-2 rounded-xl border border-amber-200 text-xs">
                         <span class="font-semibold text-amber-900">Tipe Pelanggan:</span>
                         <select x-model="customerType" class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-xs font-semibold text-amber-900 focus:outline-none">
@@ -183,7 +183,6 @@
                         </select>
                     </div>
 
-                    <!-- Kupon Promo -->
                     <div class="bg-blue-50/50 p-2 rounded-xl border border-blue-100 flex items-center justify-between gap-2 text-xs">
                         <span class="font-semibold text-blue-800">Kupon Promo:</span>
                         <div class="flex items-center space-x-1 flex-1 max-w-[180px]">
@@ -214,6 +213,12 @@
                         </div>
                     </div>
 
+                    <!-- Input Uang Diterima & Kalkulator Kembalian (Khusus Tunai) -->
+                    <div x-show="paymentMethod === 'Tunai'" class="bg-emerald-50/60 p-2 rounded-xl border border-emerald-200 flex items-center justify-between gap-2 text-xs">
+                        <span class="font-semibold text-emerald-900">Uang Diterima:</span>
+                        <input type="number" x-model.number="cashReceived" placeholder="0" class="w-32 bg-white border border-emerald-300 rounded-lg px-2 py-1 text-xs text-right font-bold text-emerald-800 focus:outline-none">
+                    </div>
+
                     <div class="space-y-1 text-xs">
                         <div class="flex justify-between text-slate-500">
                             <span>Subtotal:</span>
@@ -231,7 +236,13 @@
                             <span>Total Tagihan:</span>
                             <span class="text-blue-600" x-text="formatRupiah(grandTotal)"></span>
                         </div>
+                        <!-- Tampilan Kembalian -->
+                        <div x-show="paymentMethod === 'Tunai' && cashReceived >= grandTotal" class="flex justify-between text-xs font-bold text-emerald-700 pt-0.5">
+                            <span>Uang Kembalian:</span>
+                            <span x-text="formatRupiah(cashReceived - grandTotal)"></span>
+                        </div>
                     </div>
+
                     <button @click="checkout()" :disabled="cart.length === 0" class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold py-3 rounded-xl transition shadow-sm text-sm">
                         PROSES PEMBAYARAN & CETAK STRUK
                     </button>
@@ -327,6 +338,7 @@
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-3">SKU / Barcode</th>
                             <th class="p-3">Nama Menu</th>
                             <th class="p-3">Kategori</th>
                             <th class="p-3">Harga Jual</th>
@@ -336,6 +348,7 @@
                     <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
                         <template x-for="(prod, idx) in products" :key="prod.id">
                             <tr>
+                                <td class="p-3 font-mono text-slate-500" x-text="prod.sku"></td>
                                 <td class="p-3 font-semibold text-slate-800" x-text="prod.name"></td>
                                 <td class="p-3 text-slate-500" x-text="prod.category"></td>
                                 <td class="p-3 text-emerald-600 font-bold" x-text="formatRupiah(prod.price)"></td>
@@ -623,6 +636,14 @@
                         <span>Total Tagihan:</span>
                         <span class="text-blue-600" x-text="formatRupiah(lastTrx?.grandTotal)"></span>
                     </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.paymentMethod === 'Tunai'">
+                        <span>Uang Diterima:</span>
+                        <span class="font-semibold" x-text="formatRupiah(lastTrx?.cashReceived)"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.paymentMethod === 'Tunai'">
+                        <span>Kembalian:</span>
+                        <span class="font-semibold text-emerald-700" x-text="formatRupiah(lastTrx?.cashChange)"></span>
+                    </div>
                     <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.customerType === 'VIP'">
                         <span>Tipe Pelanggan:</span>
                         <span class="font-semibold text-amber-700">⭐ VIP Member</span>
@@ -650,7 +671,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v5.0.0 Enterprise Ultimate Suite</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v6.0.0 Ultimate Supreme POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -666,12 +687,14 @@
                 paymentMethod: 'Tunai',
                 customerType: 'Regular',
                 searchQuery: '',
+                barcodeInput: '',
                 historySearch: '',
 
                 shiftActive: true,
                 cashFloat: 150000,
                 inputFloat: 150000,
                 cashSalesTotal: 0,
+                cashReceived: 0,
 
                 showReceiptModal: false,
                 showModifierModal: false,
@@ -693,19 +716,19 @@
 
                 ingredients: [
                     { id: 'ing1', name: 'Gula & Susu', unit: 'kg', costPerUnit: 25000, stock: 50 },
-                    { id: 'ing2', name: 'Plastik Mambo + Karet', unit: 'pcs', costPerUnit: 150, stock: 4 }, // Contoh stok kritis untuk demo badge
+                    { id: 'ing2', name: 'Plastik Mambo + Karet', unit: 'pcs', costPerUnit: 150, stock: 4 },
                     { id: 'ing3', name: 'Buah Alpukat Segar', unit: 'kg', costPerUnit: 20000, stock: 20 },
                     { id: 'ing4', name: 'Buah Mangga Kuweni', unit: 'kg', costPerUnit: 18000, stock: 15 },
                     { id: 'ing5', name: 'Cup Es Cream', unit: 'pcs', costPerUnit: 400, stock: 100 }
                 ],
 
                 products: [
-                    { id: 1, name: 'Es Mambo Coklat', price: 3000, category: 'Frozen', baseHpp: 900, recipe: [{ ingId: 'ing1', qty: 0.03 }, { ingId: 'ing2', qty: 1 }] },
-                    { id: 2, name: 'Es Mambo Alpukat', price: 3500, category: 'Frozen', baseHpp: 1100, recipe: [{ ingId: 'ing1', qty: 0.02 }, { ingId: 'ing3', qty: 0.05 }, { ingId: 'ing2', qty: 1 }] },
-                    { id: 3, name: 'Es Gabus Pelangi', price: 2500, category: 'Frozen', baseHpp: 800, recipe: [{ ingId: 'ing1', qty: 0.025 }, { ingId: 'ing2', qty: 1 }] },
-                    { id: 4, name: 'Ice Cream Cup', price: 5000, category: 'Frozen', baseHpp: 2000, recipe: [{ ingId: 'ing1', qty: 0.05 }, { ingId: 'ing5', qty: 1 }] },
-                    { id: 5, name: 'Jus Alpukat Segar', price: 12000, category: 'Juice', baseHpp: 5000, recipe: [{ ingId: 'ing3', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }] },
-                    { id: 6, name: 'Jus Mangga Manis', price: 10000, category: 'Juice', baseHpp: 4000, recipe: [{ ingId: 'ing4', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }] },
+                    { id: 1, sku: 'EM001', name: 'Es Mambo Coklat', price: 3000, category: 'Frozen', baseHpp: 900, recipe: [{ ingId: 'ing1', qty: 0.03 }, { ingId: 'ing2', qty: 1 }] },
+                    { id: 2, sku: 'EM002', name: 'Es Mambo Alpukat', price: 3500, category: 'Frozen', baseHpp: 1100, recipe: [{ ingId: 'ing1', qty: 0.02 }, { ingId: 'ing3', qty: 0.05 }, { ingId: 'ing2', qty: 1 }] },
+                    { id: 3, sku: 'EM003', name: 'Es Gabus Pelangi', price: 2500, category: 'Frozen', baseHpp: 800, recipe: [{ ingId: 'ing1', qty: 0.025 }, { ingId: 'ing2', qty: 1 }] },
+                    { id: 4, sku: 'EM004', name: 'Ice Cream Cup', price: 5000, category: 'Frozen', baseHpp: 2000, recipe: [{ ingId: 'ing1', qty: 0.05 }, { ingId: 'ing5', qty: 1 }] },
+                    { id: 5, sku: 'JS001', name: 'Jus Alpukat Segar', price: 12000, category: 'Juice', baseHpp: 5000, recipe: [{ ingId: 'ing3', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }] },
+                    { id: 6, sku: 'JS002', name: 'Jus Mangga Manis', price: 10000, category: 'Juice', baseHpp: 4000, recipe: [{ ingId: 'ing4', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }] },
                 ],
                 cart: [],
                 transactions: [],
@@ -717,30 +740,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v5')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v5'));
-                    if (localStorage.getItem('es_mambo_ingredients_v5')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v5'));
-                    if (localStorage.getItem('es_mambo_transactions_v5')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v5'));
-                    if (localStorage.getItem('es_mambo_expenses_v5')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v5'));
-                    if (localStorage.getItem('es_mambo_debts_v5')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v5'));
+                    if (localStorage.getItem('es_mambo_products_v6')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v6'));
+                    if (localStorage.getItem('es_mambo_ingredients_v6')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v6'));
+                    if (localStorage.getItem('es_mambo_transactions_v6')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v6'));
+                    if (localStorage.getItem('es_mambo_expenses_v6')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v6'));
+                    if (localStorage.getItem('es_mambo_debts_v6')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v6'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v5');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v6');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v5', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v5', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v5', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v5', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v5', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v6', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v6', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v6', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v6', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v6', JSON.stringify(this.debts));
                 },
 
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v5', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v6', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -749,7 +772,19 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v5');
+                    localStorage.removeItem('es_mambo_current_user_v6');
+                },
+
+                scanBarcode() {
+                    let code = this.barcodeInput.trim().toUpperCase();
+                    let prod = this.products.find(p => p.sku.toUpperCase() === code);
+                    if (prod) {
+                        this.openModifierModal(prod);
+                        this.barcodeInput = '';
+                    } else {
+                        alert('Kode SKU / Barcode tidak ditemukan!');
+                        this.barcodeInput = '';
+                    }
                 },
 
                 applyPromo() {
@@ -780,8 +815,10 @@
 
                 addNewProduct() {
                     if (!this.newProdName || !this.newProdPrice) return;
+                    let randomSku = 'PRD' + Math.floor(100 + Math.random() * 900);
                     this.products.push({
                         id: Date.now(),
+                        sku: randomSku,
                         name: this.newProdName,
                         category: this.newProdCat,
                         price: Number(this.newProdPrice),
@@ -791,7 +828,7 @@
                     this.newProdName = '';
                     this.newProdPrice = 3000;
                     this.saveData();
-                    alert('Menu baru berhasil ditambahkan dan disimpan!');
+                    alert('Menu baru berhasil ditambahkan dengan SKU: ' + randomSku);
                 },
 
                 deleteProduct(index) {
@@ -910,6 +947,11 @@
                 },
 
                 checkout() {
+                    if (this.paymentMethod === 'Tunai' && this.cashReceived < this.grandTotal) {
+                        alert('Uang tunai yang diterima kurang dari total tagihan!');
+                        return;
+                    }
+
                     for (let item of this.cart) {
                         if (item.recipe) {
                             for (let rec of item.recipe) {
@@ -921,6 +963,7 @@
 
                     let totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
                     let totalHppCart = this.cart.reduce((sum, item) => sum + (item.baseHpp * item.quantity), 0);
+                    let changeAmount = this.paymentMethod === 'Tunai' ? Math.max(0, this.cashReceived - this.grandTotal) : 0;
                     
                     let newTrx = {
                         id: Date.now(),
@@ -929,6 +972,8 @@
                         customerType: this.customerType,
                         channel: this.salesChannel,
                         paymentMethod: this.paymentMethod,
+                        cashReceived: this.paymentMethod === 'Tunai' ? this.cashReceived : this.grandTotal,
+                        cashChange: changeAmount,
                         totalItems: totalItems,
                         grandTotal: this.grandTotal,
                         totalHpp: totalHppCart,
@@ -944,6 +989,7 @@
                     this.showReceiptModal = true;
                     this.cart = [];
                     this.discountValue = 0;
+                    this.cashReceived = 0;
                     this.customerType = 'Regular';
                     this.saveData();
                 },
@@ -954,7 +1000,12 @@
                     text += `Kasir: ${this.lastTrx.cashierName}\n`;
                     text += `Pelanggan: ${this.lastTrx.customerType}\n`;
                     text += `Kanal: ${this.lastTrx.channel}\n`;
-                    text += `Pembayaran: ${this.lastTrx.paymentMethod}\n------------------\n`;
+                    text += `Pembayaran: ${this.lastTrx.paymentMethod}\n`;
+                    if (this.lastTrx.paymentMethod === 'Tunai') {
+                        text += `Tunai: ${this.formatRupiah(this.lastTrx.cashReceived)}\n`;
+                        text += `Kembali: ${this.formatRupiah(this.lastTrx.cashChange)}\n`;
+                    }
+                    text += `------------------\n`;
                     this.lastTrx.items.forEach(i => {
                         text += `${i.name} ${i.note ? '('+i.note+')' : ''} x${i.quantity} = ${this.formatRupiah(i.price * i.quantity)}\n`;
                     });
