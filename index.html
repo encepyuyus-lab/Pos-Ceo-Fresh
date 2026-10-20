@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - Master POS Enterprise</title>
+    <title>Warung Es Mambo & Jus - Supreme POS Enterprise</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -66,7 +66,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Master Enterprise POS</p>
+                    <p class="text-xs text-blue-100">Supreme POS Enterprise</p>
                 </div>
             </div>
 
@@ -303,7 +303,6 @@
                 <p class="text-xs text-slate-500">Catat daftar pelanggan yang berhutang dan kelola status pembayarannya.</p>
             </div>
 
-            <!-- Form Tambah Kasbon -->
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Pelanggan:</label>
@@ -318,7 +317,6 @@
                 </button>
             </div>
 
-            <!-- Tabel Daftar Kasbon -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
@@ -420,7 +418,8 @@
                     <input type="number" x-model.number="inputFloat" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none">
                     <button @click="startShift()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition">BUKA SHIFT BARU</button>
                 </div>
-                <div x-show="shiftActive">
+                <div x-show="shiftActive" class="space-y-2">
+                    <button @click="window.print()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-sm transition">CETAK Z-REPORT SHIFT</button>
                     <button @click="closeShift()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-sm transition">TUTUP SHIFT & REKONSILIASI</button>
                 </div>
             </div>
@@ -575,10 +574,10 @@
 
     <!-- Footer Copyright -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus Master POS Enterprise &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus Supreme POS Enterprise &copy; 2026 - All Rights Reserved
     </footer>
 
-    <!-- Alpine.js Application Script -->
+    <!-- Alpine.js Application Script with LocalStorage Persistence -->
     <script>
         function posApp() {
             return {
@@ -601,12 +600,10 @@
                 activeProductNote: '',
                 lastTrx: null,
 
-                // Input Data Produk Baru (CRUD)
                 newProdName: '',
                 newProdCat: 'Frozen',
                 newProdPrice: 3000,
 
-                // Input Kasbon Pelanggan
                 newDebtName: '',
                 newDebtAmount: '',
                 debts: [],
@@ -636,6 +633,24 @@
                 discountType: 'nominal',
                 discountValue: 0,
 
+                init() {
+                    // Load data dari LocalStorage jika ada
+                    if (localStorage.getItem('es_mambo_products')) this.products = JSON.parse(localStorage.getItem('es_mambo_products'));
+                    if (localStorage.getItem('es_mambo_ingredients')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients'));
+                    if (localStorage.getItem('es_mambo_transactions')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions'));
+                    if (localStorage.getItem('es_mambo_expenses')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses'));
+                    if (localStorage.getItem('es_mambo_debts')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts'));
+                },
+
+                saveData() {
+                    // Simpan otomatis ke LocalStorage
+                    localStorage.setItem('es_mambo_products', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts', JSON.stringify(this.debts));
+                },
+
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
@@ -652,17 +667,19 @@
                         name: this.newProdName,
                         category: this.newProdCat,
                         price: Number(this.newProdPrice),
-                        baseHpp: Math.round(this.newProdPrice * 0.3), // Estimasi HPP otomatis 30%
+                        baseHpp: Math.round(this.newProdPrice * 0.3),
                         recipe: [{ ingId: 'ing2', qty: 1 }]
                     });
                     this.newProdName = '';
                     this.newProdPrice = 3000;
-                    alert('Menu baru berhasil ditambahkan!');
+                    this.saveData();
+                    alert('Menu baru berhasil ditambahkan dan disimpan!');
                 },
 
                 deleteProduct(index) {
                     if (confirm('Yakin ingin menghapus menu ini?')) {
                         this.products.splice(index, 1);
+                        this.saveData();
                     }
                 },
 
@@ -676,11 +693,13 @@
                     });
                     this.newDebtName = '';
                     this.newDebtAmount = '';
+                    this.saveData();
                 },
 
                 payDebt(id) {
                     let d = this.debts.find(item => item.id === id);
                     if (d) d.status = 'Lunas';
+                    this.saveData();
                 },
 
                 openModifierModal(product) {
@@ -749,6 +768,7 @@
                     });
                     this.newExpenseName = '';
                     this.newExpenseAmount = '';
+                    this.saveData();
                 },
 
                 checkout() {
@@ -781,6 +801,7 @@
                     this.showReceiptModal = true;
                     this.cart = [];
                     this.discountValue = 0;
+                    this.saveData();
                 },
 
                 shareWhatsApp() {
