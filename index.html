@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - Ultimate Supreme POS</title>
+    <title>Warung Es Mambo & Jus - v2.5 Ultimate Supreme POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -66,7 +66,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Ultimate Supreme POS</p>
+                    <p class="text-xs text-blue-100">Supreme POS Enterprise (v2.5)</p>
                 </div>
             </div>
 
@@ -80,7 +80,7 @@
                 <button @click="currentTab = 'shift'" :class="currentTab === 'shift' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Shift</button>
                 <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Riwayat</button>
                 <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'report'" :class="currentTab === 'report' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Laporan Owner</button>
-                <button @click="currentUser = null" class="bg-rose-500/80 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Keluar</button>
+                <button @click="logout()" class="bg-rose-500/80 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Keluar</button>
             </nav>
         </div>
     </header>
@@ -594,9 +594,9 @@
         </div>
     </div>
 
-    <!-- Footer Copyright -->
+    <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus Ultimate Supreme POS &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v2.5.0 Ultimate Supreme POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -630,7 +630,6 @@
                 newDebtAmount: '',
                 debts: [],
 
-                // Restock State
                 restockIngId: 'ing1',
                 restockQty: 10,
 
@@ -660,11 +659,18 @@
                 discountValue: 0,
 
                 init() {
+                    // Load data dari LocalStorage
                     if (localStorage.getItem('es_mambo_products')) this.products = JSON.parse(localStorage.getItem('es_mambo_products'));
                     if (localStorage.getItem('es_mambo_ingredients')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients'));
                     if (localStorage.getItem('es_mambo_transactions')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions'));
                     if (localStorage.getItem('es_mambo_expenses')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses'));
                     if (localStorage.getItem('es_mambo_debts')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts'));
+                    
+                    // Persistent Login Session Check
+                    let savedUser = localStorage.getItem('es_mambo_current_user');
+                    if (savedUser) {
+                        this.currentUser = JSON.parse(savedUser);
+                    }
                 },
 
                 saveData() {
@@ -678,10 +684,16 @@
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
+                        localStorage.setItem('es_mambo_current_user', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
                     }
+                },
+
+                logout() {
+                    this.currentUser = null;
+                    localStorage.removeItem('es_mambo_current_user');
                 },
 
                 performRestock() {
