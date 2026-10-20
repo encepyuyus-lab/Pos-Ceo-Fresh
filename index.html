@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - POS Ultimate Enterprise</title>
+    <title>Warung Es Mambo & Jus - Master POS Enterprise</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -38,7 +38,7 @@
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Pengguna / Peran:</label>
                     <select x-model="loginRole" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-medium">
                         <option value="cashier">Kasir / Staff (Penjualan Saja)</option>
-                        <option value="owner">Owner / Pemilik (Akses Penuh Keuangan)</option>
+                        <option value="owner">Owner / Pemilik (Akses Penuh Manajemen)</option>
                     </select>
                 </div>
                 <div>
@@ -66,7 +66,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Ultimate Enterprise POS</p>
+                    <p class="text-xs text-blue-100">Master Enterprise POS</p>
                 </div>
             </div>
 
@@ -74,6 +74,8 @@
             <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1 overflow-x-auto max-w-full">
                 <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasir</button>
                 <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Stok Bahan</button>
+                <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'products_mgmt'" :class="currentTab === 'products_mgmt' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kelola Menu</button>
+                <button @click="currentTab = 'debts'" :class="currentTab === 'debts' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasbon</button>
                 <button @click="currentTab = 'expenses'" :class="currentTab === 'expenses' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Pengeluaran</button>
                 <button @click="currentTab = 'shift'" :class="currentTab === 'shift' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Shift</button>
                 <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Riwayat</button>
@@ -238,14 +240,121 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 3: PENCATATAN PENGELUARAN OPERASIONAL ================= -->
+        <!-- ================= MODUL 3: KELOLA MENU / PRODUK (KHUSUS OWNER) ================= -->
+        <div x-show="currentTab === 'products_mgmt' && currentUser?.role === 'owner'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-6">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Kelola Katalog Menu & Harga</h2>
+                <p class="text-xs text-slate-500">Tambah menu baru atau sesuaikan harga jual dan estimasi HPP produk.</p>
+            </div>
+
+            <!-- Form Tambah Produk -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Menu:</label>
+                    <input type="text" x-model="newProdName" placeholder="Cth: Es Mambo Melon" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori:</label>
+                    <select x-model="newProdCat" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                        <option value="Frozen">Frozen</option>
+                        <option value="Juice">Juice</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Harga Jual (Rp):</label>
+                    <input type="number" x-model.number="newProdPrice" placeholder="3000" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                </div>
+                <button @click="addNewProduct()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
+                    TAMBAH MENU
+                </button>
+            </div>
+
+            <!-- Tabel Daftar Produk -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-3">Nama Menu</th>
+                            <th class="p-3">Kategori</th>
+                            <th class="p-3">Harga Jual</th>
+                            <th class="p-3 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                        <template x-for="(prod, idx) in products" :key="prod.id">
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-800" x-text="prod.name"></td>
+                                <td class="p-3 text-slate-500" x-text="prod.category"></td>
+                                <td class="p-3 text-emerald-600 font-bold" x-text="formatRupiah(prod.price)"></td>
+                                <td class="p-3 text-right">
+                                    <button @click="deleteProduct(idx)" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Hapus</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= MODUL 4: PENCATATAN KASBON / UTANG ================= -->
+        <div x-show="currentTab === 'debts'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-3xl mx-auto space-y-6">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Pencatatan Kasbon / Utang Pelanggan</h2>
+                <p class="text-xs text-slate-500">Catat daftar pelanggan yang berhutang dan kelola status pembayarannya.</p>
+            </div>
+
+            <!-- Form Tambah Kasbon -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Pelanggan:</label>
+                    <input type="text" x-model="newDebtName" placeholder="Cth: Pak Budi" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nominal Kasbon (Rp):</label>
+                    <input type="number" x-model.number="newDebtAmount" placeholder="0" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                </div>
+                <button @click="addDebt()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
+                    CATAT KASBON
+                </button>
+            </div>
+
+            <!-- Tabel Daftar Kasbon -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-3">Pelanggan</th>
+                            <th class="p-3">Nominal</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                        <template x-for="debt in debts" :key="debt.id">
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-800" x-text="debt.name"></td>
+                                <td class="p-3 font-bold text-rose-600" x-text="formatRupiah(debt.amount)"></td>
+                                <td class="p-3">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="debt.status === 'Belum Lunas' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'" x-text="debt.status"></span>
+                                </td>
+                                <td class="p-3 text-right">
+                                    <button x-show="debt.status === 'Belum Lunas'" @click="payDebt(debt.id)" class="text-blue-600 hover:underline text-xs font-semibold">Tandai Lunas</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div x-show="debts.length === 0" class="text-center py-8 text-slate-400 text-xs">Belum ada data kasbon tercatat.</div>
+            </div>
+        </div>
+
+        <!-- ================= MODUL 5: PENGELUARAN OPERASIONAL ================= -->
         <div x-show="currentTab === 'expenses'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-3xl mx-auto space-y-6">
             <div>
                 <h2 class="text-lg font-bold text-slate-800">Pencatatan Biaya Pengeluaran Operasional</h2>
                 <p class="text-xs text-slate-500">Catat biaya di luar bahan baku (listrik, es kristal, kantong, dll) untuk akurasi laba bersih.</p>
             </div>
 
-            <!-- Form Tambah Pengeluaran -->
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Biaya:</label>
@@ -260,7 +369,6 @@
                 </button>
             </div>
 
-            <!-- Tabel Daftar Pengeluaran -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
@@ -284,7 +392,7 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 4: SHIFT KASIR ================= -->
+        <!-- ================= MODUL 6: SHIFT KASIR ================= -->
         <div x-show="currentTab === 'shift'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-2xl mx-auto space-y-5">
             <div>
                 <h2 class="text-lg font-bold text-slate-800">Manajemen Shift & Tutup Buku Kasir</h2>
@@ -318,13 +426,11 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 5: RIWAYAT TRANSAKSI ================= -->
+        <!-- ================= MODUL 7: RIWAYAT TRANSAKSI ================= -->
         <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Riwayat Transaksi</h2>
-                    <p class="text-xs text-slate-500">Daftar seluruh penjualan yang berhasil diproses.</p>
-                </div>
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Riwayat Transaksi</h2>
+                <p class="text-xs text-slate-500">Daftar seluruh penjualan yang berhasil diproses.</p>
             </div>
             
             <div class="overflow-x-auto">
@@ -352,7 +458,7 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 6: LAPORAN OWNER (HANYA OWNER) ================= -->
+        <!-- ================= MODUL 8: LAPORAN OWNER ================= -->
         <div x-show="currentTab === 'report' && currentUser?.role === 'owner'" class="space-y-6 max-w-4xl mx-auto">
             <div class="flex justify-end">
                 <button @click="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm flex items-center space-x-2">
@@ -383,30 +489,26 @@
                 </div>
             </div>
 
-            <!-- Tabel Produk & Margin -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
-                <h2 class="text-lg font-bold text-slate-800">Analisis Margin & HPP Produk</h2>
-                <div class="border border-slate-200 rounded-xl overflow-hidden">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                <th class="p-3">Nama Produk</th>
-                                <th class="p-3">HPP</th>
-                                <th class="p-3">Harga Jual</th>
-                                <th class="p-3 text-right">Margin</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
-                            <template x-for="product in products" :key="product.id">
-                                <tr>
-                                    <td class="p-3 font-semibold text-slate-800" x-text="product.name"></td>
-                                    <td class="p-3 text-rose-600" x-text="formatRupiah(product.baseHpp)"></td>
-                                    <td class="p-3 text-slate-700" x-text="formatRupiah(product.price)"></td>
-                                    <td class="p-3 text-right font-bold text-emerald-600" x-text="formatRupiah(product.price - product.baseHpp)"></td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+            <!-- Analisis Kanal Penjualan -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
+                <h2 class="text-lg font-bold text-slate-800">Perbandingan Kanal Penjualan</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div class="bg-slate-50 p-3 rounded-xl border">
+                        <span class="text-slate-500 block">Offline (Tunai):</span>
+                        <span class="font-bold text-slate-800 text-sm" x-text="formatRupiah(channelOmzet('Offline'))"></span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border">
+                        <span class="text-slate-500 block">GrabFood:</span>
+                        <span class="font-bold text-slate-800 text-sm" x-text="formatRupiah(channelOmzet('GrabFood'))"></span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border">
+                        <span class="text-slate-500 block">GoFood:</span>
+                        <span class="font-bold text-slate-800 text-sm" x-text="formatRupiah(channelOmzet('GoFood'))"></span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border">
+                        <span class="text-slate-500 block">ShopeeFood:</span>
+                        <span class="font-bold text-slate-800 text-sm" x-text="formatRupiah(channelOmzet('ShopeeFood'))"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -432,7 +534,6 @@
     <div x-show="showReceiptModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl space-y-4 text-center">
             
-            <!-- Area yang akan dicetak -->
             <div id="printable-receipt" class="space-y-3 text-left">
                 <div class="border-b border-dashed pb-3 space-y-1 text-center">
                     <h3 class="font-bold text-sm text-slate-900">WARUNG ES MAMBO & JUS</h3>
@@ -474,7 +575,7 @@
 
     <!-- Footer Copyright -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus POS Ultimate Enterprise &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus Master POS Enterprise &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -499,6 +600,16 @@
                 activeProduct: null,
                 activeProductNote: '',
                 lastTrx: null,
+
+                // Input Data Produk Baru (CRUD)
+                newProdName: '',
+                newProdCat: 'Frozen',
+                newProdPrice: 3000,
+
+                // Input Kasbon Pelanggan
+                newDebtName: '',
+                newDebtAmount: '',
+                debts: [],
 
                 ingredients: [
                     { id: 'ing1', name: 'Gula & Susu', unit: 'kg', costPerUnit: 25000, stock: 50 },
@@ -532,6 +643,44 @@
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
                     }
+                },
+
+                addNewProduct() {
+                    if (!this.newProdName || !this.newProdPrice) return;
+                    this.products.push({
+                        id: Date.now(),
+                        name: this.newProdName,
+                        category: this.newProdCat,
+                        price: Number(this.newProdPrice),
+                        baseHpp: Math.round(this.newProdPrice * 0.3), // Estimasi HPP otomatis 30%
+                        recipe: [{ ingId: 'ing2', qty: 1 }]
+                    });
+                    this.newProdName = '';
+                    this.newProdPrice = 3000;
+                    alert('Menu baru berhasil ditambahkan!');
+                },
+
+                deleteProduct(index) {
+                    if (confirm('Yakin ingin menghapus menu ini?')) {
+                        this.products.splice(index, 1);
+                    }
+                },
+
+                addDebt() {
+                    if (!this.newDebtName || !this.newDebtAmount) return;
+                    this.debts.unshift({
+                        id: Date.now(),
+                        name: this.newDebtName,
+                        amount: Number(this.newDebtAmount),
+                        status: 'Belum Lunas'
+                    });
+                    this.newDebtName = '';
+                    this.newDebtAmount = '';
+                },
+
+                payDebt(id) {
+                    let d = this.debts.find(item => item.id === id);
+                    if (d) d.status = 'Lunas';
                 },
 
                 openModifierModal(product) {
@@ -657,6 +806,10 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                },
+
+                channelOmzet(ch) {
+                    return this.transactions.filter(t => t.channel === ch).reduce((s, t) => s + t.grandTotal, 0);
                 },
 
                 get totalOmzet() { return this.transactions.reduce((s, t) => s + t.grandTotal, 0); },
