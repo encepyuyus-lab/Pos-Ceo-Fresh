@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ceo Fresh & Es Mambo POS Pro</title>
+    <title>Warung Es Mambo & Jus - POS Ultimate Pro</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -27,14 +27,16 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight">Warung Es Mambo & Jus</h1>
-                    <p class="text-xs text-blue-100">Sistem POS & Manajemen HPP Terpadu</p>
+                    <p class="text-xs text-blue-100">POS Ultimate Pro & Inventory Management</p>
                 </div>
             </div>
             <!-- Navigation Tabs -->
-            <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1">
-                <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all">Kasir POS</button>
-                <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all">Riwayat</button>
-                <button @click="currentTab = 'report'" :class="currentTab === 'report' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all">Laporan & HPP</button>
+            <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1 overflow-x-auto">
+                <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasir POS</button>
+                <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Stok Bahan</button>
+                <button @click="currentTab = 'shift'" :class="currentTab === 'shift' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Shift Kasir</button>
+                <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Riwayat</button>
+                <button @click="currentTab = 'report'" :class="currentTab === 'report' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Laporan</button>
             </nav>
         </div>
     </header>
@@ -83,7 +85,7 @@
             </div>
 
             <!-- Keranjang Pesanan (Kanan - 5 Kolom) -->
-            <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between h-[600px] sticky top-20">
+            <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between h-[640px] sticky top-20">
                 <div>
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-base font-bold text-slate-800">Rincian Pesanan</h2>
@@ -92,7 +94,7 @@
                     <hr class="border-slate-100 mb-3">
                     
                     <!-- Item List -->
-                    <div class="overflow-y-auto h-72 space-y-3 pr-1">
+                    <div class="overflow-y-auto h-56 space-y-3 pr-1">
                         <template x-for="(item, index) in cart" :key="index">
                             <div class="flex justify-between items-center text-sm bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
                                 <div class="space-y-0.5">
@@ -106,7 +108,7 @@
                                 </div>
                             </div>
                         </template>
-                        <div x-show="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400 py-12 space-y-2">
+                        <div x-show="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400 py-8 space-y-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
@@ -115,16 +117,32 @@
                     </div>
                 </div>
 
-                <!-- Footer Pembayaran -->
+                <!-- Bagian Diskon & Pembayaran -->
                 <div class="space-y-3 pt-3 border-t border-slate-100">
-                    <div class="space-y-1.5 text-xs">
+                    <!-- Diskon Engine Control -->
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 flex items-center justify-between gap-2 text-xs">
+                        <span class="font-semibold text-slate-600">Diskon:</span>
+                        <div class="flex items-center space-x-1">
+                            <select x-model="discountType" class="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs">
+                                <option value="nominal">Rp (Nominal)</option>
+                                <option value="percent">% (Persen)</option>
+                            </select>
+                            <input type="number" x-model.number="discountValue" placeholder="0" class="w-20 bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs text-right focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1 text-xs">
                         <div class="flex justify-between text-slate-500">
                             <span>Subtotal:</span>
                             <span class="font-semibold text-slate-700" x-text="formatRupiah(subtotal)"></span>
                         </div>
+                        <div x-show="discountAmount > 0" class="flex justify-between text-rose-600">
+                            <span>Potongan Diskon:</span>
+                            <span class="font-semibold" x-text="'- ' + formatRupiah(discountAmount)"></span>
+                        </div>
                         <div x-show="salesChannel !== 'Offline'" class="flex justify-between text-amber-600">
                             <span x-text="'Penyesuaian Kanal (' + salesChannel + ' +20%):'"></span>
-                            <span class="font-semibold" x-text="formatRupiah(grandTotal - subtotal)"></span>
+                            <span class="font-semibold" x-text="formatRupiah(channelFee)"></span>
                         </div>
                         <div class="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-dashed border-slate-200">
                             <span>Total Tagihan:</span>
@@ -139,7 +157,77 @@
 
         </div>
 
-        <!-- ================= MODUL 2: RIWAYAT TRANSAKSI ================= -->
+        <!-- ================= MODUL 2: INVENTARIS STOK BAHAN BAKU ================= -->
+        <div x-show="currentTab === 'inventory'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Manajemen Stok Bahan Baku Gudang</h2>
+                <p class="text-xs text-slate-500">Stok bahan baku akan terpotong secara otomatis saat produk terjual di kasir.</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-3">Nama Bahan Baku</th>
+                            <th class="p-3">Satuan</th>
+                            <th class="p-3">Harga per Unit</th>
+                            <th class="p-3">Sisa Stok Gudang</th>
+                            <th class="p-3 text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                        <template x-for="ing in ingredients" :key="ing.id">
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-800" x-text="ing.name"></td>
+                                <td class="p-3 text-slate-500" x-text="ing.unit"></td>
+                                <td class="p-3 text-slate-700" x-text="formatRupiah(ing.costPerUnit)"></td>
+                                <td class="p-3 font-bold" :class="ing.stock <= 5 ? 'text-rose-600' : 'text-slate-700'" x-text="ing.stock"></td>
+                                <td class="p-3 text-right">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="ing.stock <= 5 ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'" x-text="ing.stock <= 5 ? 'Stok Menipis!' : 'Aman'"></span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= MODUL 3: SHIFT & REKONSILIASI KASIR ================= -->
+        <div x-show="currentTab === 'shift'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-2xl mx-auto space-y-5">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Manajemen Shift & Tutup Buku Kasir</h2>
+                <p class="text-xs text-slate-500">Kelola modal kas awal dan lakukan rekonsiliasi akhir shift.</p>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="font-semibold text-slate-600">Status Shift:</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold" :class="shiftActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'" x-text="shiftActive ? 'SEDANG BERJALAN' : 'BELUM DIBUKA'"></span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="font-semibold text-slate-600">Modal Kas Awal (Cash Float):</span>
+                    <span class="font-bold text-slate-800" x-text="formatRupiah(cashFloat)"></span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="font-semibold text-slate-600">Total Penjualan Tunai Sesi Ini:</span>
+                    <span class="font-bold text-blue-600" x-text="formatRupiah(cashSalesTotal)"></span>
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <div x-show="!shiftActive" class="space-y-2">
+                    <label class="block text-xs font-semibold text-slate-600">Masukkan Modal Kas Awal (Rp):</label>
+                    <input type="number" x-model.number="inputFloat" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button @click="startShift()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">BUKA SHIFT BARU</button>
+                </div>
+
+                <div x-show="shiftActive" class="space-y-2">
+                    <button @click="closeShift()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">TUTUP SHIFT & REKONSILIASI</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MODUL 4: RIWAYAT TRANSAKSI ================= -->
         <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
             <div class="flex justify-between items-center">
                 <div>
@@ -178,7 +266,7 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 3: LAPORAN & HPP ================= -->
+        <!-- ================= MODUL 5: LAPORAN KEUANGAN & HPP ================= -->
         <div x-show="currentTab === 'report'" class="space-y-6 max-w-4xl mx-auto">
             <!-- Ringkasan Keuangan -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -234,7 +322,7 @@
 
     <!-- Footer Copyright -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus POS Pro &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus POS Ultimate Pro &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -244,16 +332,55 @@
                 currentTab: 'cashier',
                 selectedCategory: 'All',
                 salesChannel: 'Offline',
+                
+                // Shift & Cash Float state
+                shiftActive: true,
+                cashFloat: 150000,
+                inputFloat: 150000,
+                cashSalesTotal: 0,
+
+                // Inventory Gudang Bahan Baku
+                ingredients: [
+                    { id: 'ing1', name: 'Gula & Susu', unit: 'kg', costPerUnit: 25000, stock: 50 },
+                    { id: 'ing2', name: 'Plastik Mambo + Karet', unit: 'pcs', costPerUnit: 150, stock: 300 },
+                    { id: 'ing3', name: 'Buah Alpukat Segar', unit: 'kg', costPerUnit: 20000, stock: 20 },
+                    { id: 'ing4', name: 'Buah Mangga Kuweni', unit: 'kg', costPerUnit: 18000, stock: 15 },
+                    { id: 'ing5', name: 'Cup Es Cream', unit: 'pcs', costPerUnit: 400, stock: 100 }
+                ],
+
+                // Produk & Resep Pemotongan Bahan Baku
                 products: [
-                    { id: 1, name: 'Es Mambo Coklat', price: 3000, category: 'Frozen', baseHpp: 900 },
-                    { id: 2, name: 'Es Mambo Alpukat', price: 3500, category: 'Frozen', baseHpp: 1100 },
-                    { id: 3, name: 'Es Gabus Pelangi', price: 2500, category: 'Frozen', baseHpp: 800 },
-                    { id: 4, name: 'Ice Cream Cup', price: 5000, category: 'Frozen', baseHpp: 2000 },
-                    { id: 5, name: 'Jus Alpukat Segar', price: 12000, category: 'Juice', baseHpp: 5000 },
-                    { id: 6, name: 'Jus Mangga Manis', price: 10000, category: 'Juice', baseHpp: 4000 },
+                    { 
+                        id: 1, name: 'Es Mambo Coklat', price: 3000, category: 'Frozen', baseHpp: 900,
+                        recipe: [{ ingId: 'ing1', qty: 0.03 }, { ingId: 'ing2', qty: 1 }]
+                    },
+                    { 
+                        id: 2, name: 'Es Mambo Alpukat', price: 3500, category: 'Frozen', baseHpp: 1100,
+                        recipe: [{ ingId: 'ing1', qty: 0.02 }, { ingId: 'ing3', qty: 0.05 }, { ingId: 'ing2', qty: 1 }]
+                    },
+                    { 
+                        id: 3, name: 'Es Gabus Pelangi', price: 2500, category: 'Frozen', baseHpp: 800,
+                        recipe: [{ ingId: 'ing1', qty: 0.025 }, { ingId: 'ing2', qty: 1 }]
+                    },
+                    { 
+                        id: 4, name: 'Ice Cream Cup', price: 5000, category: 'Frozen', baseHpp: 2000,
+                        recipe: [{ ingId: 'ing1', qty: 0.05 }, { ingId: 'ing5', qty: 1 }]
+                    },
+                    { 
+                        id: 5, name: 'Jus Alpukat Segar', price: 12000, category: 'Juice', baseHpp: 5000,
+                        recipe: [{ ingId: 'ing3', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }]
+                    },
+                    { 
+                        id: 6, name: 'Jus Mangga Manis', price: 10000, category: 'Juice', baseHpp: 4000,
+                        recipe: [{ ingId: 'ing4', qty: 0.25 }, { ingId: 'ing1', qty: 0.05 }]
+                    },
                 ],
                 cart: [],
                 transactions: [],
+
+                // Diskon Engine State
+                discountType: 'nominal', // 'nominal' atau 'percent'
+                discountValue: 0,
 
                 get filteredProducts() {
                     if (this.selectedCategory === 'All') return this.products;
@@ -285,16 +412,64 @@
                     return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                 },
 
+                get discountAmount() {
+                    if (!this.discountValue || this.discountValue <= 0) return 0;
+                    if (this.discountType === 'percent') {
+                        return this.subtotal * (this.discountValue / 100);
+                    } else {
+                        return Math.min(this.subtotal, this.discountValue);
+                    }
+                },
+
+                get channelFee() {
+                    let afterDiscount = this.subtotal - this.discountAmount;
+                    if (this.salesChannel !== 'Offline') {
+                        return afterDiscount * 0.20; // 20% online platform fee markup
+                    }
+                    return 0;
+                },
+
                 get grandTotal() {
-                    let multiplier = this.salesChannel !== 'Offline' ? 1.20 : 1.0;
-                    return this.subtotal * multiplier;
+                    let afterDiscount = this.subtotal - this.discountAmount;
+                    return afterDiscount + this.channelFee;
                 },
 
                 formatRupiah(value) {
                     return 'Rp ' + Math.round(value).toLocaleString('id-ID');
                 },
 
+                startShift() {
+                    this.cashFloat = this.inputFloat;
+                    this.shiftActive = true;
+                    alert('Shift kasir berhasil dibuka dengan modal awal ' + this.formatRupiah(this.cashFloat));
+                },
+
+                closeShift() {
+                    let totalCashInDrawer = this.cashFloat + this.cashSalesTotal;
+                    alert('Laporan Tutup Shift:\n- Modal Awal: ' + this.formatRupiah(this.cashFloat) + '\n- Penjualan Tunai: ' + this.formatRupiah(this.cashSalesTotal) + '\n- Total Fisik di Laci: ' + this.formatRupiah(totalCashInDrawer));
+                    this.shiftActive = false;
+                    this.cashSalesTotal = 0;
+                },
+
                 checkout() {
+                    if (!this.shiftActive) {
+                        alert('Peringatan: Shift kasir belum dibuka! Silakan buka shift terlebih dahulu.');
+                        this.currentTab = 'shift';
+                        return;
+                    }
+
+                    // 1. Validasi & Kurangi Stok Bahan Baku (Inventory Deduction)
+                    for (let item of this.cart) {
+                        if (item.recipe) {
+                            for (let rec of item.recipe) {
+                                let targetIng = this.ingredients.find(i => i.id === rec.ingId);
+                                if (targetIng) {
+                                    targetIng.stock -= (rec.qty * item.quantity);
+                                }
+                            }
+                        }
+                    }
+
                     let totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
                     let totalHppCart = this.cart.reduce((sum, item) => sum + (item.baseHpp * item.quantity), 0);
                     
@@ -308,8 +483,14 @@
                     };
 
                     this.transactions.unshift(newTrx);
-                    alert('Transaksi berhasil diproses sebesar ' + this.formatRupiah(this.grandTotal) + '!');
+                    
+                    if (this.salesChannel === 'Offline') {
+                        this.cashSalesTotal += this.grandTotal;
+                    }
+
+                    alert('Transaksi berhasil diproses sebesar ' + this.formatRupiah(this.grandTotal) + '!\nStok bahan baku otomatis terpotong.');
                     this.cart = [];
+                    this.discountValue = 0;
                 },
 
                 get totalOmzet() {
