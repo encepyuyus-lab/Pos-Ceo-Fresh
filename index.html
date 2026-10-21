@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v16.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v17.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,7 +39,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v16.0</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v17.0</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -75,7 +75,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v16.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v17.0)</p>
                 </div>
             </div>
 
@@ -265,6 +265,10 @@
                             <span>Potongan Diskon:</span>
                             <span class="font-semibold" x-text="'- ' + formatRupiah(discountAmount)"></span>
                         </div>
+                        <div x-show="paymentMethod !== 'Tunai' && settings.enablePaymentDiscount" class="flex justify-between text-emerald-600 dark:text-emerald-400">
+                            <span x-text="'Diskon Metode ' + paymentMethod + ' (' + settings.paymentDiscountRate + '%):'"></span>
+                            <span class="font-semibold" x-text="'- ' + formatRupiah(paymentDiscountAmount)"></span>
+                        </div>
                         <div x-show="salesChannel !== 'Offline'" class="flex justify-between text-amber-600 dark:text-amber-400">
                             <span x-text="'Penyesuaian Kanal (' + salesChannel + ' +20%):'"></span>
                             <span class="font-semibold" x-text="formatRupiah(channelFee)"></span>
@@ -401,7 +405,7 @@
                                 <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold" x-text="formatRupiah(prod.price)"></td>
                                 <td class="p-3 text-right space-x-2">
                                     <button @click="printBarcode(prod)" class="text-blue-600 dark:text-blue-400 hover:underline text-xs font-semibold">Cetak Barcode</button>
-                                    <button @click="deleteProduct(idx)" class="text-rose-500 dark:text-rose-400 text-xs font-semibold">Hapus</button>
+                                    <button @click="deleteProduct(idx)" class="text-rose-500 hover:text-rose-400 text-xs font-semibold">Hapus</button>
                                 </td>
                             </tr>
                         </template>
@@ -681,7 +685,7 @@
         <div x-show="currentTab === 'settings' && currentUser?.role === 'owner'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-2xl mx-auto space-y-6">
             <div>
                 <h2 class="text-lg font-bold text-slate-800 dark:text-white">Pengaturan Sistem & Hak Akses</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Konfigurasi pajak restoran, biaya layanan, diskon VIP, dan Happy Hour.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Konfigurasi pajak restoran, biaya layanan, diskon VIP, dan metode pembayaran.</p>
             </div>
 
             <div class="space-y-4 text-sm bg-slate-50 dark:bg-slate-700/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
@@ -717,6 +721,22 @@
                         <p class="font-semibold text-slate-800 dark:text-white">Besaran Biaya Layanan (%)</p>
                     </div>
                     <input type="number" x-model.number="settings.serviceChargeRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
+                </div>
+
+                <!-- Diskon Metode Pembayaran Non-Tunai -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Diskon Khusus Non-Tunai (QRIS/Transfer)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Berikan insentif potongan harga untuk pembayaran digital</p>
+                    </div>
+                    <input type="checkbox" x-model="settings.enablePaymentDiscount" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" x-show="settings.enablePaymentDiscount">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Besaran Diskon Non-Tunai (%)</p>
+                    </div>
+                    <input type="number" x-model.number="settings.paymentDiscountRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
                 </div>
 
                 <!-- Diskon VIP -->
@@ -813,6 +833,10 @@
                         <span x-text="'Biaya Layanan (' + lastTrx?.serviceChargeRateUsed + '%):'"></span>
                         <span class="font-semibold" x-text="formatRupiah(lastTrx?.serviceChargeAmount)"></span>
                     </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.paymentDiscountAmount > 0">
+                        <span x-text="'Diskon Non-Tunai (' + lastTrx?.paymentDiscountRateUsed + '%):'"></span>
+                        <span class="font-semibold text-emerald-700" x-text="'- ' + formatRupiah(lastTrx?.paymentDiscountAmount)"></span>
+                    </div>
                     <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.paymentMethod === 'Tunai'">
                         <span>Uang Diterima:</span>
                         <span class="font-semibold" x-text="formatRupiah(lastTrx?.cashReceived)"></span>
@@ -848,7 +872,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v16.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v17.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -898,6 +922,8 @@
                     taxRate: 10,
                     enableServiceCharge: false,
                     serviceChargeRate: 5,
+                    enablePaymentDiscount: false,
+                    paymentDiscountRate: 2,
                     vipDiscountRate: 5,
                     allowCashierDiscount: true,
                     enableHappyHour: true,
@@ -930,30 +956,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v16')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v16'));
-                    if (localStorage.getItem('es_mambo_ingredients_v16')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v16'));
-                    if (localStorage.getItem('es_mambo_transactions_v16')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v16'));
-                    if (localStorage.getItem('es_mambo_expenses_v16')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v16'));
-                    if (localStorage.getItem('es_mambo_debts_v16')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v16'));
-                    if (localStorage.getItem('es_mambo_settings_v16')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v16'));
+                    if (localStorage.getItem('es_mambo_products_v17')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v17'));
+                    if (localStorage.getItem('es_mambo_ingredients_v17')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v17'));
+                    if (localStorage.getItem('es_mambo_transactions_v17')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v17'));
+                    if (localStorage.getItem('es_mambo_expenses_v17')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v17'));
+                    if (localStorage.getItem('es_mambo_debts_v17')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v17'));
+                    if (localStorage.getItem('es_mambo_settings_v17')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v17'));
                     if (localStorage.getItem('es_mambo_dark_mode')) this.darkMode = JSON.parse(localStorage.getItem('es_mambo_dark_mode'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v16');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v17');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v16', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v16', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v16', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v16', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v16', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v17', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v17', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v17', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v17', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v17', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v16', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v17', JSON.stringify(this.settings));
                 },
 
                 toggleDarkMode() {
@@ -964,7 +990,7 @@
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v16', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v17', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -973,7 +999,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v16');
+                    localStorage.removeItem('es_mambo_current_user_v17');
                 },
 
                 scanBarcode() {
@@ -1129,13 +1155,21 @@
                     return this.isHappyHourActive ? this.subtotal * (this.settings.happyHourDiscount / 100) : 0;
                 },
 
+                get paymentDiscountAmount() {
+                    if (this.settings.enablePaymentDiscount && this.paymentMethod !== 'Tunai') {
+                        let subAfterOtherDisc = this.subtotal - this.vipDiscountAmount - this.happyHourDiscountAmount;
+                        return subAfterOtherDisc * (this.settings.paymentDiscountRate / 100);
+                    }
+                    return 0;
+                },
+
                 get discountAmount() {
-                    let sub = this.subtotal - this.vipDiscountAmount - this.happyHourDiscountAmount;
+                    let sub = this.subtotal - this.vipDiscountAmount - this.happyHourDiscountAmount - this.paymentDiscountAmount;
                     let manualDisc = 0;
                     if ((this.currentUser?.role === 'owner' || this.settings.allowCashierDiscount) && this.discountValue && this.discountValue > 0) {
                         manualDisc = this.discountType === 'percent' ? sub * (this.discountValue / 100) : Math.min(sub, this.discountValue);
                     }
-                    return this.vipDiscountAmount + this.happyHourDiscountAmount + manualDisc;
+                    return this.vipDiscountAmount + this.happyHourDiscountAmount + this.paymentDiscountAmount + manualDisc;
                 },
 
                 get channelFee() {
@@ -1219,6 +1253,8 @@
                         taxRateUsed: this.settings.enableTax ? this.settings.taxRate : 0,
                         serviceChargeAmount: this.serviceChargeAmount,
                         serviceChargeRateUsed: this.settings.enableServiceCharge ? this.settings.serviceChargeRate : 0,
+                        paymentDiscountAmount: this.paymentDiscountAmount,
+                        paymentDiscountRateUsed: this.settings.enablePaymentDiscount ? this.settings.paymentDiscountRate : 0,
                         grandTotal: this.grandTotal,
                         totalHpp: totalHppCart,
                         items: [...this.cart]
@@ -1286,6 +1322,9 @@
                     }
                     if (this.lastTrx.serviceChargeAmount > 0) {
                         text += `Biaya Layanan (${this.lastTrx.serviceChargeRateUsed}%): ${this.formatRupiah(this.lastTrx.serviceChargeAmount)}\n`;
+                    }
+                    if (this.lastTrx.paymentDiscountAmount > 0) {
+                        text += `Diskon Non-Tunai (${this.lastTrx.paymentDiscountRateUsed}%): -${this.formatRupiah(this.lastTrx.paymentDiscountAmount)}\n`;
                     }
                     text += `*TOTAL: ${this.formatRupiah(this.lastTrx.grandTotal)}*\nTerima Kasih!`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
