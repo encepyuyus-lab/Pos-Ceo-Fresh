@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v6.0 Ultimate Supreme POS</title>
+    <title>Warung Es Mambo & Jus - v7.0 Enterprise Ultimate Suite</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -16,6 +16,8 @@
             body * { visibility: hidden; }
             #printable-receipt, #printable-receipt * { visibility: visible; }
             #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; }
+            #printable-zreport, #printable-zreport * { visibility: visible; }
+            #printable-zreport { position: absolute; left: 0; top: 0; width: 100%; }
         }
     </style>
 </head>
@@ -30,7 +32,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v6.0</h2>
+                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v7.0</h2>
                 <p class="text-xs text-slate-500 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -66,7 +68,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Supreme POS (v6.0)</p>
+                    <p class="text-xs text-blue-100">Ultimate Suite (v7.0)</p>
                 </div>
             </div>
 
@@ -213,7 +215,6 @@
                         </div>
                     </div>
 
-                    <!-- Input Uang Diterima & Kalkulator Kembalian (Khusus Tunai) -->
                     <div x-show="paymentMethod === 'Tunai'" class="bg-emerald-50/60 p-2 rounded-xl border border-emerald-200 flex items-center justify-between gap-2 text-xs">
                         <span class="font-semibold text-emerald-900">Uang Diterima:</span>
                         <input type="number" x-model.number="cashReceived" placeholder="0" class="w-32 bg-white border border-emerald-300 rounded-lg px-2 py-1 text-xs text-right font-bold text-emerald-800 focus:outline-none">
@@ -236,7 +237,6 @@
                             <span>Total Tagihan:</span>
                             <span class="text-blue-600" x-text="formatRupiah(grandTotal)"></span>
                         </div>
-                        <!-- Tampilan Kembalian -->
                         <div x-show="paymentMethod === 'Tunai' && cashReceived >= grandTotal" class="flex justify-between text-xs font-bold text-emerald-700 pt-0.5">
                             <span>Uang Kembalian:</span>
                             <span x-text="formatRupiah(cashReceived - grandTotal)"></span>
@@ -491,6 +491,23 @@
             </div>
         </div>
 
+        <!-- Hidden Printable Z-Report Layout -->
+        <div id="printable-zreport" class="hidden">
+            <div style="font-family: monospace; width: 280px; padding: 10px; font-size: 11px;">
+                <h3 style="text-align: center; font-weight: bold;">Z-REPORT LAPORAN SHIFT</h3>
+                <p style="text-align: center;">Warung Es Mambo & Jus</p>
+                <hr style="border-style: dashed;">
+                <p>Waktu Cetak: <span x-text="new Date().toLocaleString('id-ID')"></span></p>
+                <p>Kasir/Staff: <span x-text="currentUser?.name"></span></p>
+                <hr style="border-style: dashed;">
+                <p>Modal Kas Awal: <span x-text="formatRupiah(cashFloat)"></span></p>
+                <p>Total Tunai Laci: <span x-text="formatRupiah(cashSalesTotal)"></span></p>
+                <p><b>Total Fisik Kas: <span x-text="formatRupiah(cashFloat + cashSalesTotal)"></span></b></p>
+                <hr style="border-style: dashed;">
+                <p style="text-align: center;">--- TERIMA KASIH ---</p>
+            </div>
+        </div>
+
         <!-- ================= MODUL 7: RIWAYAT TRANSAKSI ================= -->
         <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -537,9 +554,14 @@
         <!-- ================= MODUL 8: LAPORAN OWNER ================= -->
         <div x-show="currentTab === 'report' && currentUser?.role === 'owner'" class="space-y-6 max-w-4xl mx-auto">
             <div class="flex flex-wrap justify-between items-center gap-2">
-                <button @click="factoryReset()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-3 py-2 rounded-xl text-xs font-bold transition">
-                    Reset Data Pabrik
-                </button>
+                <div class="flex gap-2">
+                    <button @click="factoryReset()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-3 py-2 rounded-xl text-xs font-bold transition">
+                        Reset Data Pabrik
+                    </button>
+                    <button @click="exportDatabase()" class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 px-3 py-2 rounded-xl text-xs font-bold transition">
+                        Backup JSON
+                    </button>
+                </div>
                 <button @click="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -671,7 +693,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v6.0.0 Ultimate Supreme POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v7.0.0 Enterprise Ultimate Suite</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -740,30 +762,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v6')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v6'));
-                    if (localStorage.getItem('es_mambo_ingredients_v6')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v6'));
-                    if (localStorage.getItem('es_mambo_transactions_v6')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v6'));
-                    if (localStorage.getItem('es_mambo_expenses_v6')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v6'));
-                    if (localStorage.getItem('es_mambo_debts_v6')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v6'));
+                    if (localStorage.getItem('es_mambo_products_v7')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v7'));
+                    if (localStorage.getItem('es_mambo_ingredients_v7')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v7'));
+                    if (localStorage.getItem('es_mambo_transactions_v7')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v7'));
+                    if (localStorage.getItem('es_mambo_expenses_v7')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v7'));
+                    if (localStorage.getItem('es_mambo_debts_v7')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v7'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v6');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v7');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v6', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v6', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v6', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v6', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v6', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v7', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v7', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v7', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v7', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v7', JSON.stringify(this.debts));
                 },
 
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v6', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v7', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -772,7 +794,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v6');
+                    localStorage.removeItem('es_mambo_current_user_v7');
                 },
 
                 scanBarcode() {
@@ -1025,6 +1047,23 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                },
+
+                exportDatabase() {
+                    let data = {
+                        products: this.products,
+                        ingredients: this.ingredients,
+                        transactions: this.transactions,
+                        expenses: this.expenses,
+                        debts: this.debts
+                    };
+                    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+                    let dlAnchor = document.createElement('a');
+                    dlAnchor.setAttribute("href", dataStr);
+                    dlAnchor.setAttribute("download", "backup_pos_warung_es.json");
+                    document.body.appendChild(dlAnchor);
+                    dlAnchor.click();
+                    dlAnchor.remove();
                 },
 
                 factoryReset() {
