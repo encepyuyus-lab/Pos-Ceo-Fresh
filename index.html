@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v14.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v15.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,7 +39,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v14.0</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v15.0</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -75,7 +75,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v14.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v15.0)</p>
                 </div>
             </div>
 
@@ -354,7 +354,7 @@
         <div x-show="currentTab === 'products_mgmt' && currentUser?.role === 'owner'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
             <div>
                 <h2 class="text-lg font-bold text-slate-800 dark:text-white">Kelola Katalog Menu & Kategori</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Tambah menu baru beserta kategori kustom sesuai kebutuhan.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Tambah menu baru beserta kalkulator proyeksi margin keuntungan.</p>
             </div>
 
             <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
@@ -373,6 +373,12 @@
                 <button @click="addNewProduct()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
                     TAMBAH MENU
                 </button>
+            </div>
+
+            <!-- Proyeksi Margin Real-Time -->
+            <div x-show="newProdPrice > 0" class="bg-blue-50 dark:bg-blue-950/40 p-3 rounded-xl border border-blue-200 dark:border-blue-800 text-xs flex justify-between items-center text-blue-900 dark:text-blue-300">
+                <span>Estimasi Modal HPP (30%): <strong x-text="formatRupiah(newProdPrice * 0.3)"></strong></span>
+                <span>Proyeksi Margin Laba: <strong class="text-emerald-600 dark:text-emerald-400" x-text="formatRupiah(newProdPrice * 0.7) + ' (' + 70 + '%)'"></strong></span>
             </div>
 
             <div class="overflow-x-auto">
@@ -842,7 +848,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v14.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v15.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -924,30 +930,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v14')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v14'));
-                    if (localStorage.getItem('es_mambo_ingredients_v14')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v14'));
-                    if (localStorage.getItem('es_mambo_transactions_v14')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v14'));
-                    if (localStorage.getItem('es_mambo_expenses_v14')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v14'));
-                    if (localStorage.getItem('es_mambo_debts_v14')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v14'));
-                    if (localStorage.getItem('es_mambo_settings_v14')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v14'));
+                    if (localStorage.getItem('es_mambo_products_v15')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v15'));
+                    if (localStorage.getItem('es_mambo_ingredients_v15')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v15'));
+                    if (localStorage.getItem('es_mambo_transactions_v15')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v15'));
+                    if (localStorage.getItem('es_mambo_expenses_v15')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v15'));
+                    if (localStorage.getItem('es_mambo_debts_v15')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v15'));
+                    if (localStorage.getItem('es_mambo_settings_v15')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v15'));
                     if (localStorage.getItem('es_mambo_dark_mode')) this.darkMode = JSON.parse(localStorage.getItem('es_mambo_dark_mode'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v14');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v15');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v14', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v14', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v14', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v14', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v14', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v15', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v15', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v15', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v15', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v15', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v14', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v15', JSON.stringify(this.settings));
                 },
 
                 toggleDarkMode() {
@@ -958,7 +964,7 @@
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v14', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v15', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -967,7 +973,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v14');
+                    localStorage.removeItem('es_mambo_current_user_v15');
                 },
 
                 scanBarcode() {
