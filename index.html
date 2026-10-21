@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v9.0 Sovereign Enterprise POS</title>
+    <title>Warung Es Mambo & Jus - v10.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -32,7 +32,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v9.0</h2>
+                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v10.0</h2>
                 <p class="text-xs text-slate-500 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -68,7 +68,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v9.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v10.0)</p>
                 </div>
             </div>
 
@@ -196,7 +196,6 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
-                        <!-- Diskon manual hanya muncul jika diizinkan oleh Owner untuk kasir -->
                         <div x-show="currentUser?.role === 'owner' || settings.allowCashierDiscount" class="bg-slate-50 p-2 rounded-xl border border-slate-200/60">
                             <span class="font-semibold text-slate-600 block mb-1">Diskon Manual:</span>
                             <div class="flex items-center space-x-1">
@@ -751,7 +750,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v9.0.0 Sovereign Enterprise Suite</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v10.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -794,7 +793,6 @@
                 restockQty: 10,
                 promoCode: '',
 
-                // Pengaturan Eksklusif Owner
                 settings: {
                     enableTax: true,
                     taxRate: 10,
@@ -828,35 +826,35 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v9')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v9'));
-                    if (localStorage.getItem('es_mambo_ingredients_v9')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v9'));
-                    if (localStorage.getItem('es_mambo_transactions_v9')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v9'));
-                    if (localStorage.getItem('es_mambo_expenses_v9')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v9'));
-                    if (localStorage.getItem('es_mambo_debts_v9')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v9'));
-                    if (localStorage.getItem('es_mambo_settings_v9')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v9'));
+                    if (localStorage.getItem('es_mambo_products_v10')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v10'));
+                    if (localStorage.getItem('es_mambo_ingredients_v10')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v10'));
+                    if (localStorage.getItem('es_mambo_transactions_v10')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v10'));
+                    if (localStorage.getItem('es_mambo_expenses_v10')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v10'));
+                    if (localStorage.getItem('es_mambo_debts_v10')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v10'));
+                    if (localStorage.getItem('es_mambo_settings_v10')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v10'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v9');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v10');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v9', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v9', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v9', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v9', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v9', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v10', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v10', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v10', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v10', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v10', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v9', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v10', JSON.stringify(this.settings));
                 },
 
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v9', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v10', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -865,7 +863,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v9');
+                    localStorage.removeItem('es_mambo_current_user_v10');
                 },
 
                 scanBarcode() {
@@ -1007,7 +1005,6 @@
                 get discountAmount() {
                     let sub = this.subtotal - this.vipDiscountAmount;
                     let manualDisc = 0;
-                    // Jika kasir tidak diizinkan diskon dan bukan owner, set diskon manual jadi 0
                     if ((this.currentUser?.role === 'owner' || this.settings.allowCashierDiscount) && this.discountValue && this.discountValue > 0) {
                         manualDisc = this.discountType === 'percent' ? sub * (this.discountValue / 100) : Math.min(sub, this.discountValue);
                     }
