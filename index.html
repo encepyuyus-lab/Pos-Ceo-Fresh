@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v17.2 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v17.3 Manajemen Bahan & Rekonsiliasi</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -302,6 +302,30 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400">Kelola sisa stok bahan baku dan estimasi ketahanan stok harian.</p>
             </div>
 
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="bg-indigo-50 dark:bg-indigo-950/30 p-4 rounded-2xl border border-indigo-200 dark:border-indigo-800 space-y-3">
+                    <h3 class="font-bold text-sm text-indigo-900 dark:text-indigo-200">Tambah Bahan Baku Baru</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input x-model.trim="newIngredientName" placeholder="Nama bahan (mis. Cup 16 oz)" class="col-span-2 w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white">
+                        <select x-model="newIngredientUnit" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs text-slate-800 dark:text-white"><option value="pcs">pcs</option><option value="kg">kg</option><option value="gram">gram</option><option value="liter">liter</option><option value="ml">ml</option><option value="pack">pack</option></select>
+                        <input type="number" min="0" x-model.number="newIngredientCost" placeholder="Biaya per satuan (Rp)" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs text-slate-800 dark:text-white">
+                        <input type="number" min="0" x-model.number="newIngredientStock" placeholder="Stok awal" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs text-slate-800 dark:text-white">
+                        <input type="number" min="0" x-model.number="newIngredientMinStock" placeholder="Batas stok minimum" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs text-slate-800 dark:text-white">
+                    </div>
+                    <button @click="addIngredient()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-xs">SIMPAN BAHAN BAKU</button>
+                </div>
+                <div class="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-2xl border border-rose-200 dark:border-rose-800 space-y-3">
+                    <h3 class="font-bold text-sm text-rose-900 dark:text-rose-200">Catat Bahan Terbuang / Rusak</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <select x-model="wastageIngId" class="col-span-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs text-slate-800 dark:text-white"><template x-for="ing in ingredients" :key="ing.id"><option :value="ing.id" x-text="ing.name + ' (' + ing.unit + ')' "></option></template></select>
+                        <input type="number" min="0.001" step="any" x-model.number="wastageQty" placeholder="Jumlah terbuang" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs text-slate-800 dark:text-white">
+                        <select x-model="wastageReason" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs text-slate-800 dark:text-white"><option>Rusak/busuk</option><option>Tumpah/gagal produksi</option><option>Expired</option><option>Selisih stok</option><option>Lainnya</option></select>
+                        <input x-model.trim="wastageNotes" placeholder="Catatan (opsional)" class="col-span-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-xs text-slate-800 dark:text-white">
+                    </div>
+                    <button @click="recordWastage()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-lg text-xs">CATAT & KURANGI STOK</button>
+                </div>
+            </div>
+
             <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih Bahan Baku:</label>
@@ -338,15 +362,19 @@
                                 <td class="p-3 font-semibold text-slate-800 dark:text-white" x-text="ing.name"></td>
                                 <td class="p-3 text-slate-500 dark:text-slate-400" x-text="ing.unit"></td>
                                 <td class="p-3 text-slate-700 dark:text-slate-300" x-text="formatRupiah(ing.costPerUnit)"></td>
-                                <td class="p-3 font-bold" :class="ing.stock <= 5 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-200'" x-text="ing.stock"></td>
+                                <td class="p-3 font-bold" :class="ing.stock <= (ing.minStock ?? 5) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-200'" x-text="ing.stock"></td>
                                 <td class="p-3 text-slate-600 dark:text-slate-300 font-medium" x-text="ing.stock <= 2 ? 'Segera Habis (< 1 hari)' : 'Aman (± ' + Math.round(ing.stock * 3) + ' hari)'"></td>
                                 <td class="p-3 text-right">
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="ing.stock <= 5 ? 'bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800' : 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'" x-text="ing.stock <= 5 ? 'Stok Menipis!' : 'Aman'"></span>
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="ing.stock <= (ing.minStock ?? 5) ? 'bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800' : 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'" x-text="ing.stock <= (ing.minStock ?? 5) ? 'Stok Menipis!' : 'Aman'"></span>
                                 </td>
                             </tr>
                         </template>
                     </tbody>
                 </table>
+            </div>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 space-y-3">
+                <div class="flex items-center justify-between gap-2"><h3 class="font-bold text-sm text-slate-800 dark:text-white">Riwayat Bahan Terbuang</h3><span class="text-xs text-slate-500" x-text="wastageRecords.length + ' catatan'"></span></div>
+                <div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead><tr class="border-b border-slate-200 dark:border-slate-700 text-slate-500"><th class="p-2">Waktu</th><th class="p-2">Bahan</th><th class="p-2">Jumlah</th><th class="p-2">Alasan</th><th class="p-2 text-right">Estimasi Kerugian</th></tr></thead><tbody><template x-for="w in wastageRecords.slice(0,20)" :key="w.id"><tr class="border-b border-slate-100 dark:border-slate-700"><td class="p-2" x-text="w.date"></td><td class="p-2" x-text="w.ingredientName"></td><td class="p-2" x-text="w.qty + ' ' + w.unit"></td><td class="p-2" x-text="w.reason + (w.notes ? ' — ' + w.notes : '')"></td><td class="p-2 text-right font-semibold text-rose-600" x-text="formatRupiah(w.cost)"></td></tr></template></tbody></table><p x-show="wastageRecords.length === 0" class="text-center text-slate-400 py-4">Belum ada bahan terbuang yang dicatat.</p></div>
             </div>
         </div>
 
@@ -553,9 +581,19 @@
                     <button @click="startShift()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition">BUKA SHIFT BARU</button>
                 </div>
                 <div x-show="shiftActive" class="space-y-2">
+                    <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3 space-y-2">
+                        <label class="block text-xs font-semibold text-amber-900 dark:text-amber-200">Uang fisik yang dihitung di laci (Rp)</label>
+                        <input type="number" min="0" x-model.number="countedCash" placeholder="Hitung uang tunai di laci" class="w-full bg-white dark:bg-slate-700 border border-amber-300 dark:border-amber-700 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white">
+                        <div class="flex justify-between text-xs"><span>Kas seharusnya</span><b x-text="formatRupiah(expectedCash)"></b></div>
+                        <div class="flex justify-between text-xs"><span>Selisih sementara</span><b :class="Number(countedCash)-expectedCash === 0 ? 'text-emerald-600' : 'text-rose-600'" x-text="formatRupiah(Number(countedCash || 0)-expectedCash)"></b></div>
+                    </div>
                     <button @click="window.print()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-sm transition">CETAK Z-REPORT SHIFT</button>
                     <button @click="closeShift()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-sm transition">TUTUP SHIFT & REKONSILIASI</button>
                 </div>
+            </div>
+            <div class="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-2">
+                <h3 class="font-bold text-sm text-slate-800 dark:text-white">Riwayat Tutup Shift</h3>
+                <div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead><tr class="border-b border-slate-200 dark:border-slate-700 text-slate-500"><th class="p-2">Waktu</th><th class="p-2">Kasir</th><th class="p-2 text-right">Kas Harapan</th><th class="p-2 text-right">Kas Aktual</th><th class="p-2 text-right">Selisih</th></tr></thead><tbody><template x-for="sh in shiftHistory.slice(0,15)" :key="sh.id"><tr class="border-b border-slate-100 dark:border-slate-700"><td class="p-2" x-text="sh.date"></td><td class="p-2" x-text="sh.cashier"></td><td class="p-2 text-right" x-text="formatRupiah(sh.expected)"></td><td class="p-2 text-right" x-text="formatRupiah(sh.counted)"></td><td class="p-2 text-right font-bold" :class="sh.variance === 0 ? 'text-emerald-600' : 'text-rose-600'" x-text="formatRupiah(sh.variance)"></td></tr></template></tbody></table><p x-show="shiftHistory.length===0" class="text-center text-slate-400 py-3">Belum ada riwayat tutup shift.</p></div>
             </div>
         </div>
 
@@ -832,6 +870,18 @@
                 activeBarcodeProd: null,
                 restockIngId: 'ing1',
                 restockQty: 0,
+                newIngredientName: '',
+                newIngredientUnit: 'pcs',
+                newIngredientCost: 0,
+                newIngredientStock: 0,
+                newIngredientMinStock: 5,
+                wastageIngId: 'ing1',
+                wastageQty: 0,
+                wastageReason: 'Rusak/busuk',
+                wastageNotes: '',
+                wastageRecords: [],
+                countedCash: 0,
+                shiftHistory: [],
                 darkMode: false,
 
                 shiftActive: true,
@@ -900,6 +950,8 @@
                     this.transactions = load('es_mambo_transactions_v172', this.transactions);
                     this.expenses = load('es_mambo_expenses_v172', this.expenses);
                     this.debts = load('es_mambo_debts_v172', this.debts);
+                    this.wastageRecords = load('es_mambo_wastage_v173', []);
+                    this.shiftHistory = load('es_mambo_shift_history_v173', []);
                     this.settings = { ...this.settings, ...load('es_mambo_settings_v172', {}) };
                     this.darkMode = load('es_mambo_dark_mode', false);
                     this.shiftActive = load('es_mambo_shift_active_v172', true);
@@ -915,6 +967,8 @@
                     localStorage.setItem('es_mambo_transactions_v172', JSON.stringify(this.transactions));
                     localStorage.setItem('es_mambo_expenses_v172', JSON.stringify(this.expenses));
                     localStorage.setItem('es_mambo_debts_v172', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_wastage_v173', JSON.stringify(this.wastageRecords));
+                    localStorage.setItem('es_mambo_shift_history_v173', JSON.stringify(this.shiftHistory));
                     localStorage.setItem('es_mambo_settings_v172', JSON.stringify(this.settings));
                     localStorage.setItem('es_mambo_shift_active_v172', JSON.stringify(this.shiftActive));
                     localStorage.setItem('es_mambo_cash_float_v172', JSON.stringify(this.cashFloat));
@@ -1036,23 +1090,61 @@
                 get serviceChargeAmount() { return this.settings.enableServiceCharge ? (this.discountedSubtotal + this.channelFee) * Math.max(0, Number(this.settings.serviceChargeRate) || 0) / 100 : 0; },
                 get grandTotal() { return Math.round(this.discountedSubtotal + this.channelFee + this.taxAmount + this.serviceChargeAmount); },
                 get availableCategories() { return [...new Set(this.products.map(p => p.category).filter(Boolean))].sort(); },
-                get criticalStockCount() { return this.ingredients.filter(i => Number(i.stock) <= 5).length; },
+                get criticalStockCount() { return this.ingredients.filter(i => Number(i.stock) <= Number(i.minStock ?? 5)).length; },
                 get filteredHistory() { const q = (this.historySearch || '').trim().toLowerCase(); return this.transactions.filter(t => !q || [t.id, t.cashierName, t.customerType, t.channel, t.paymentMethod, t.date].some(v => String(v ?? '').toLowerCase().includes(q))); },
                 get isHappyHourActive() { const start = Number(this.settings.happyHourStart ?? 15); const end = Number(this.settings.happyHourEnd ?? 17); const hour = new Date().getHours(); return Boolean(this.settings.enableHappyHour) && hour >= start && hour < end; },
 
                 formatRupiah(value) { return 'Rp ' + Math.round(value || 0).toLocaleString('id-ID'); },
 
+                get expectedCash() { return Math.max(0, Number(this.cashFloat || 0) + Number(this.cashSalesTotal || 0)); },
+
+                addIngredient() {
+                    const name = String(this.newIngredientName || '').trim();
+                    const unit = String(this.newIngredientUnit || 'pcs').trim();
+                    const cost = Number(this.newIngredientCost);
+                    const stock = Number(this.newIngredientStock);
+                    const minStock = Number(this.newIngredientMinStock);
+                    if (!name) { alert('Nama bahan baku wajib diisi.'); return; }
+                    if (this.ingredients.some(i => String(i.name).trim().toLowerCase() === name.toLowerCase())) { alert('Nama bahan baku sudah ada.'); return; }
+                    if (![cost, stock, minStock].every(Number.isFinite) || cost < 0 || stock < 0 || minStock < 0) { alert('Biaya, stok, dan batas minimum tidak boleh negatif.'); return; }
+                    const id = 'ing-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+                    this.ingredients.push({ id, name, unit, costPerUnit: cost, stock, minStock });
+                    this.restockIngId = id; this.wastageIngId = id;
+                    this.newIngredientName = ''; this.newIngredientCost = 0; this.newIngredientStock = 0; this.newIngredientMinStock = 5;
+                    this.saveData(); alert('Bahan baku berhasil ditambahkan.');
+                },
+
+                recordWastage() {
+                    const ing = this.ingredients.find(i => String(i.id) === String(this.wastageIngId));
+                    const qty = Number(this.wastageQty);
+                    if (!ing) { alert('Pilih bahan baku yang valid.'); return; }
+                    if (!Number.isFinite(qty) || qty <= 0) { alert('Jumlah terbuang harus lebih dari 0.'); return; }
+                    if (qty > Number(ing.stock || 0)) { alert('Jumlah terbuang melebihi stok yang tersedia.'); return; }
+                    const now = new Date();
+                    this.wastageRecords.unshift({ id: 'WST-' + now.getTime(), timestamp: now.toISOString(), date: now.toLocaleString('id-ID'), ingredientId: ing.id, ingredientName: ing.name, unit: ing.unit, qty, reason: this.wastageReason, notes: String(this.wastageNotes || '').trim(), cost: Math.round(qty * Number(ing.costPerUnit || 0)) });
+                    ing.stock = Number(ing.stock) - qty; this.wastageQty = 0; this.wastageNotes = '';
+                    this.saveData(); alert('Bahan terbuang dicatat dan stok dikurangi.');
+                },
+
                 startShift() {
-                    this.cashFloat = this.inputFloat;
-                    this.shiftActive = true;
-                    this.cashSalesTotal = 0; this.saveData();
+                    const opening = Number(this.inputFloat);
+                    if (!Number.isFinite(opening) || opening < 0) { alert('Modal awal tidak boleh negatif.'); return; }
+                    if (this.shiftActive) { alert('Shift sedang berjalan. Tutup shift aktif terlebih dahulu.'); return; }
+                    this.cashFloat = opening; this.countedCash = 0;
+                    this.shiftActive = true; this.cashSalesTotal = 0; this.saveData();
                     alert('Shift dibuka dengan modal: ' + this.formatRupiah(this.cashFloat));
                 },
                 closeShift() {
-                    alert('Tutup Shift. Total Kas di Laci: ' + this.formatRupiah(this.cashFloat + this.cashSalesTotal));
-                    this.shiftActive = false;
-                    this.cashSalesTotal = 0;
-                    this.saveData();
+                    if (!this.shiftActive) { alert('Tidak ada shift aktif.'); return; }
+                    const counted = Number(this.countedCash);
+                    if (!Number.isFinite(counted) || counted < 0) { alert('Kas aktual harus diisi dengan angka nol atau lebih.'); return; }
+                    const now = new Date();
+                    const expected = this.expectedCash;
+                    const variance = Math.round(counted - expected);
+                    if (!confirm('Tutup shift?\nKas seharusnya: ' + this.formatRupiah(expected) + '\nKas aktual: ' + this.formatRupiah(counted) + '\nSelisih: ' + this.formatRupiah(variance))) return;
+                    this.shiftHistory.unshift({ id: 'SH-' + now.getTime(), timestamp: now.toISOString(), date: now.toLocaleString('id-ID'), cashier: this.currentUser?.name || 'Tidak diketahui', openingCash: Number(this.cashFloat || 0), cashSales: Number(this.cashSalesTotal || 0), expected, counted, variance });
+                    this.shiftActive = false; this.inputFloat = 0; this.cashFloat = 0; this.cashSalesTotal = 0; this.countedCash = 0;
+                    this.saveData(); alert('Shift ditutup dan rekonsiliasi tersimpan. Selisih: ' + this.formatRupiah(variance));
                 },
 
                 addExpense() {
@@ -1165,7 +1257,7 @@
                 },
 
                 exportDatabase() {
-                    const data = { version: '17.2.1', exportedAt: new Date().toISOString(), products: this.products, ingredients: this.ingredients, transactions: this.transactions, expenses: this.expenses, debts: this.debts, settings: this.settings, shiftActive: this.shiftActive, cashFloat: this.cashFloat, cashSalesTotal: this.cashSalesTotal };
+                    const data = { version: '17.3.0', exportedAt: new Date().toISOString(), products: this.products, ingredients: this.ingredients, transactions: this.transactions, expenses: this.expenses, debts: this.debts, wastageRecords: this.wastageRecords, shiftHistory: this.shiftHistory, settings: this.settings, shiftActive: this.shiftActive, cashFloat: this.cashFloat, cashSalesTotal: this.cashSalesTotal };
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'backup-warung-es-mambo-' + new Date().toISOString().slice(0,10) + '.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
                 },
