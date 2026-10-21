@@ -1,11 +1,16 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v12.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v13.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <!-- Alpine.js CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Google Fonts: Inter -->
@@ -23,31 +28,31 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between" x-data="posApp()">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 antialiased min-h-screen flex flex-col justify-between transition-colors duration-300" x-data="posApp()">
 
     <!-- AUTH / LOGIN MODAL -->
     <div x-show="!currentUser" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl space-y-6 text-center">
-            <div class="bg-blue-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-blue-600">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl space-y-6 text-center border border-slate-100 dark:border-slate-700">
+            <div class="bg-blue-50 dark:bg-blue-900/50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-blue-600 dark:text-blue-400">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v12.0</h2>
-                <p class="text-xs text-slate-500 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v13.0</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Pengguna / Peran:</label>
-                    <select x-model="loginRole" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-medium">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih Pengguna / Peran:</label>
+                    <select x-model="loginRole" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 dark:text-white">
                         <option value="cashier">Kasir / Staff (Penjualan Saja)</option>
                         <option value="owner">Owner / Pemilik (Akses Penuh Manajemen)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">PIN Keamanan (Default: 1234):</label>
-                    <input type="password" x-model="loginPin" maxlength="6" placeholder="Masukkan PIN" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-center tracking-widest font-bold">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">PIN Keamanan (Default: 1234):</label>
+                    <input type="password" x-model="loginPin" maxlength="6" placeholder="Masukkan PIN" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm text-center tracking-widest font-bold text-slate-800 dark:text-white">
                 </div>
             </div>
             <button @click="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-sm text-sm">
@@ -70,28 +75,40 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v12.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v13.0)</p>
                 </div>
             </div>
 
-            <!-- Navigation Tabs -->
-            <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1 overflow-x-auto max-w-full">
-                <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasir</button>
-                
-                <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap relative">
-                    Stok Bahan
-                    <span x-show="criticalStockCount > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full" x-text="criticalStockCount"></span>
-                </button>
+            <!-- Navigation Tabs & Dark Mode Toggle -->
+            <div class="flex items-center space-x-2">
+                <nav class="flex bg-blue-900/40 p-1 rounded-xl backdrop-blur-sm border border-white/10 space-x-1 overflow-x-auto max-w-full">
+                    <button @click="currentTab = 'cashier'" :class="currentTab === 'cashier' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasir</button>
+                    
+                    <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap relative">
+                        Stok Bahan
+                        <span x-show="criticalStockCount > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full" x-text="criticalStockCount"></span>
+                    </button>
 
-                <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'products_mgmt'" :class="currentTab === 'products_mgmt' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kelola Menu</button>
-                <button @click="currentTab = 'debts'" :class="currentTab === 'debts' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasbon</button>
-                <button @click="currentTab = 'expenses'" :class="currentTab === 'expenses' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Pengeluaran</button>
-                <button @click="currentTab = 'shift'" :class="currentTab === 'shift' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Shift</button>
-                <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Riwayat</button>
-                <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'report'" :class="currentTab === 'report' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Laporan Owner</button>
-                <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Pengaturan</button>
-                <button @click="logout()" class="bg-rose-500/80 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Keluar</button>
-            </nav>
+                    <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'products_mgmt'" :class="currentTab === 'products_mgmt' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kelola Menu</button>
+                    <button @click="currentTab = 'debts'" :class="currentTab === 'debts' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Kasbon</button>
+                    <button @click="currentTab = 'expenses'" :class="currentTab === 'expenses' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Pengeluaran</button>
+                    <button @click="currentTab = 'shift'" :class="currentTab === 'shift' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Shift</button>
+                    <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Riwayat</button>
+                    <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'report'" :class="currentTab === 'report' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Laporan</button>
+                    <button x-show="currentUser?.role === 'owner'" @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-white text-blue-700 shadow-md' : 'text-white hover:bg-white/10'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Pengaturan</button>
+                    <button @click="logout()" class="bg-rose-500/80 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap">Keluar</button>
+                </nav>
+
+                <!-- Tombol Toggle Dark Mode -->
+                <button @click="toggleDarkMode()" class="bg-white/10 hover:bg-white/20 p-2 rounded-xl text-amber-300 transition-all border border-white/20" title="Ganti Mode Gelap/Terang">
+                    <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <svg x-show="darkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -103,14 +120,14 @@
             
             <!-- Katalog Produk (Kiri - 7 Kolom) -->
             <div class="lg:col-span-7 space-y-4">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-3">
                     <div class="w-full sm:w-auto flex-1 flex gap-2">
-                        <input type="text" x-model="searchQuery" placeholder="Cari nama menu..." class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="text" x-model="barcodeInput" @keyup.enter="scanBarcode()" placeholder="Scan Barcode/SKU..." class="w-36 bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" x-model="searchQuery" placeholder="Cari nama menu..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs font-medium text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" x-model="barcodeInput" @keyup.enter="scanBarcode()" placeholder="Scan Barcode/SKU..." class="w-36 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs font-medium text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Kanal:</span>
-                        <select x-model="salesChannel" class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select x-model="salesChannel" class="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="Offline">POS Tunai (Luring)</option>
                             <option value="GrabFood">GrabFood (+20%)</option>
                             <option value="GoFood">GoFood (+20%)</option>
@@ -121,24 +138,24 @@
 
                 <!-- Kategori Filter Dinamis -->
                 <div class="flex space-x-1.5 overflow-x-auto pb-1">
-                    <button @click="selectedCategory = 'All'" :class="selectedCategory === 'All' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap">Semua Menu</button>
+                    <button @click="selectedCategory = 'All'" :class="selectedCategory === 'All' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap">Semua Menu</button>
                     <template x-for="cat in availableCategories" :key="cat">
-                        <button @click="selectedCategory = cat" :class="selectedCategory === cat ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap" x-text="cat"></button>
+                        <button @click="selectedCategory = cat" :class="selectedCategory === cat ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap" x-text="cat"></button>
                     </template>
                 </div>
 
                 <!-- Grid Produk -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <template x-for="product in filteredProducts" :key="product.id">
-                        <button @click="openModifierModal(product)" class="bg-white hover:border-blue-400 hover:shadow-md border border-slate-200/80 p-4 rounded-2xl text-left transition-all flex flex-col justify-between h-32 group relative overflow-hidden">
-                            <div class="absolute top-0 right-0 bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-1 rounded-bl-xl group-hover:bg-blue-600 group-hover:text-white transition-colors" x-text="product.category"></div>
+                        <button @click="openModifierModal(product)" class="bg-white dark:bg-slate-800 hover:border-blue-400 hover:shadow-md border border-slate-200 dark:border-slate-700 p-4 rounded-2xl text-left transition-all flex flex-col justify-between h-32 group relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-blue-50 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 text-[10px] font-bold px-2 py-1 rounded-bl-xl group-hover:bg-blue-600 group-hover:text-white transition-colors" x-text="product.category"></div>
                             <div>
-                                <span class="font-semibold text-slate-800 text-sm block line-clamp-1 pr-6" x-text="product.name"></span>
+                                <span class="font-semibold text-slate-800 dark:text-white text-sm block line-clamp-1 pr-6" x-text="product.name"></span>
                                 <span class="text-[10px] text-slate-400 block font-mono" x-text="'SKU: ' + product.sku"></span>
                             </div>
                             <div>
                                 <span class="text-xs text-slate-400 block mb-0.5">HPP: <span x-text="formatRupiah(product.baseHpp)"></span></span>
-                                <span class="text-emerald-600 font-bold text-sm block" x-text="formatRupiah(product.price)"></span>
+                                <span class="text-emerald-600 dark:text-emerald-400 font-bold text-sm block" x-text="formatRupiah(product.price)"></span>
                             </div>
                         </button>
                     </template>
@@ -146,32 +163,32 @@
             </div>
 
             <!-- Keranjang Pesanan (Kanan - 5 Kolom) -->
-            <div class="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between h-[770px] sticky top-20">
+            <div class="lg:col-span-5 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between h-[790px] sticky top-20">
                 <div>
                     <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-base font-bold text-slate-800">Rincian Pesanan</h2>
+                        <h2 class="text-base font-bold text-slate-800 dark:text-white">Rincian Pesanan</h2>
                         <button @click="cart = []" x-show="cart.length > 0" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Kosongkan</button>
                     </div>
-                    <hr class="border-slate-100 mb-3">
+                    <hr class="border-slate-100 dark:border-slate-700 mb-3">
                     
                     <!-- Item List -->
                     <div class="overflow-y-auto h-32 space-y-3 pr-1">
                         <template x-for="(item, index) in cart" :key="index">
-                            <div class="flex justify-between items-center text-sm bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
+                            <div class="flex justify-between items-center text-sm bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700">
                                 <div class="space-y-0.5">
-                                    <p class="font-semibold text-slate-800 text-xs" x-text="item.name"></p>
-                                    <p class="text-blue-600 text-[10px] font-medium" x-show="item.note" x-text="'Catatan: ' + item.note"></p>
-                                    <p class="text-slate-500 text-[11px]" x-text="formatRupiah(item.price) + ' / unit'"></p>
+                                    <p class="font-semibold text-slate-800 dark:text-white text-xs" x-text="item.name"></p>
+                                    <p class="text-blue-600 dark:text-blue-400 text-[10px] font-medium" x-show="item.note" x-text="'Catatan: ' + item.note"></p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-[11px]" x-text="formatRupiah(item.price) + ' / unit'"></p>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <button @click="decreaseQty(index)" class="bg-white border border-slate-200 hover:bg-slate-100 w-6 h-6 rounded-lg font-bold text-slate-600 flex items-center justify-center shadow-xs">-</button>
-                                    <span class="font-bold text-xs w-5 text-center" x-text="item.quantity"></span>
-                                    <button @click="increaseQty(index)" class="bg-white border border-slate-200 hover:bg-slate-100 w-6 h-6 rounded-lg font-bold text-slate-600 flex items-center justify-center shadow-xs">+</button>
+                                    <button @click="decreaseQty(index)" class="bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 hover:bg-slate-100 w-6 h-6 rounded-lg font-bold text-slate-600 dark:text-slate-200 flex items-center justify-center shadow-xs">-</button>
+                                    <span class="font-bold text-xs w-5 text-center text-slate-800 dark:text-white" x-text="item.quantity"></span>
+                                    <button @click="increaseQty(index)" class="bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 hover:bg-slate-100 w-6 h-6 rounded-lg font-bold text-slate-600 dark:text-slate-200 flex items-center justify-center shadow-xs">+</button>
                                 </div>
                             </div>
                         </template>
                         <div x-show="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400 py-4 space-y-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
                             <p class="text-xs">Keranjang masih kosong</p>
@@ -179,43 +196,42 @@
                     </div>
                 </div>
 
-                <!-- Bagian Diskon, Happy Hour, Pajak & Pembayaran -->
-                <div class="space-y-2.5 pt-2 border-t border-slate-100">
-                    <!-- Notifikasi Happy Hour Aktif -->
-                    <div x-show="isHappyHourActive" class="bg-indigo-50 border border-indigo-200 p-2 rounded-xl text-xs text-indigo-800 font-bold text-center animate-pulse">
+                <!-- Bagian Diskon, Pajak & Pembayaran -->
+                <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-700">
+                    <div x-show="isHappyHourActive" class="bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 p-2 rounded-xl text-xs text-indigo-800 dark:text-indigo-300 font-bold text-center animate-pulse">
                         ⚡ HAPPY HOUR AKTIF (Diskon Otomatis <span x-text="settings.happyHourDiscount"></span>%)
                     </div>
 
-                    <div class="flex items-center justify-between bg-amber-50/60 p-2 rounded-xl border border-amber-200 text-xs">
-                        <span class="font-semibold text-amber-900">Tipe Pelanggan:</span>
-                        <select x-model="customerType" class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-xs font-semibold text-amber-900 focus:outline-none">
+                    <div class="flex items-center justify-between bg-amber-50/60 dark:bg-amber-950/40 p-2 rounded-xl border border-amber-200 dark:border-amber-800 text-xs">
+                        <span class="font-semibold text-amber-900 dark:text-amber-300">Tipe Pelanggan:</span>
+                        <select x-model="customerType" class="bg-white dark:bg-slate-700 border border-amber-300 dark:border-amber-700 rounded-lg px-2 py-1 text-xs font-semibold text-amber-900 dark:text-amber-200 focus:outline-none">
                             <option value="Regular">Umum / Reguler</option>
                             <option value="VIP" x-text="'⭐ VIP Member (Diskon ' + settings.vipDiscountRate + '%)'"></option>
                         </select>
                     </div>
 
-                    <div class="bg-blue-50/50 p-2 rounded-xl border border-blue-100 flex items-center justify-between gap-2 text-xs">
-                        <span class="font-semibold text-blue-800">Kupon Promo:</span>
+                    <div class="bg-blue-50/50 dark:bg-blue-950/40 p-2 rounded-xl border border-blue-100 dark:border-blue-900 flex items-center justify-between gap-2 text-xs">
+                        <span class="font-semibold text-blue-800 dark:text-blue-300">Kupon Promo:</span>
                         <div class="flex items-center space-x-1 flex-1 max-w-[180px]">
-                            <input type="text" x-model="promoCode" placeholder="Cth: HEMAT10" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1 text-[11px] uppercase focus:outline-none">
+                            <input type="text" x-model="promoCode" placeholder="Cth: HEMAT10" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1 text-[11px] uppercase text-slate-800 dark:text-white focus:outline-none">
                             <button @click="applyPromo()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1 rounded-lg text-[11px]">Pakai</button>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div x-show="currentUser?.role === 'owner' || settings.allowCashierDiscount" class="bg-slate-50 p-2 rounded-xl border border-slate-200/60">
-                            <span class="font-semibold text-slate-600 block mb-1">Diskon Manual:</span>
+                        <div x-show="currentUser?.role === 'owner' || settings.allowCashierDiscount" class="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="font-semibold text-slate-600 dark:text-slate-300 block mb-1">Diskon Manual:</span>
                             <div class="flex items-center space-x-1">
-                                <select x-model="discountType" class="bg-white border border-slate-300 rounded-lg px-1 py-1 text-[11px]">
+                                <select x-model="discountType" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-1 py-1 text-[11px] text-slate-800 dark:text-white">
                                     <option value="nominal">Rp</option>
                                     <option value="percent">%</option>
                                 </select>
-                                <input type="number" x-model.number="discountValue" placeholder="0" class="w-14 bg-white border border-slate-300 rounded-lg px-1 py-1 text-[11px] text-right focus:outline-none">
+                                <input type="number" x-model.number="discountValue" placeholder="0" class="w-14 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-1 py-1 text-[11px] text-right text-slate-800 dark:text-white focus:outline-none">
                             </div>
                         </div>
-                        <div class="bg-slate-50 p-2 rounded-xl border border-slate-200/60" :class="currentUser?.role !== 'owner' && !settings.allowCashierDiscount ? 'col-span-2' : ''">
-                            <span class="font-semibold text-slate-600 block mb-1">Pembayaran:</span>
-                            <select x-model="paymentMethod" class="w-full bg-white border border-slate-300 rounded-lg px-1.5 py-1 text-[11px] font-medium">
+                        <div class="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-xl border border-slate-200 dark:border-slate-700" :class="currentUser?.role !== 'owner' && !settings.allowCashierDiscount ? 'col-span-2' : ''">
+                            <span class="font-semibold text-slate-600 dark:text-slate-300 block mb-1">Pembayaran:</span>
+                            <select x-model="paymentMethod" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-1.5 py-1 text-[11px] font-medium text-slate-800 dark:text-white">
                                 <option value="Tunai">Tunai (Cash)</option>
                                 <option value="QRIS">QRIS</option>
                                 <option value="Transfer">Transfer Bank</option>
@@ -224,39 +240,43 @@
                         </div>
                     </div>
 
-                    <div x-show="paymentMethod === 'Tunai'" class="bg-emerald-50/60 p-2 rounded-xl border border-emerald-200 flex items-center justify-between gap-2 text-xs">
-                        <span class="font-semibold text-emerald-900">Uang Diterima:</span>
-                        <input type="number" x-model.number="cashReceived" placeholder="0" class="w-32 bg-white border border-emerald-300 rounded-lg px-2 py-1 text-xs text-right font-bold text-emerald-800 focus:outline-none">
+                    <div x-show="paymentMethod === 'Tunai'" class="bg-emerald-50/60 dark:bg-emerald-950/40 p-2 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-2 text-xs">
+                        <span class="font-semibold text-emerald-900 dark:text-emerald-300">Uang Diterima:</span>
+                        <input type="number" x-model.number="cashReceived" placeholder="0" class="w-32 bg-white dark:bg-slate-700 border border-emerald-300 dark:border-emerald-700 rounded-lg px-2 py-1 text-xs text-right font-bold text-emerald-800 dark:text-emerald-300 focus:outline-none">
                     </div>
 
                     <div class="space-y-1 text-xs">
-                        <div class="flex justify-between text-slate-500">
+                        <div class="flex justify-between text-slate-500 dark:text-slate-400">
                             <span>Subtotal:</span>
-                            <span class="font-semibold text-slate-700" x-text="formatRupiah(subtotal)"></span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-200" x-text="formatRupiah(subtotal)"></span>
                         </div>
-                        <div x-show="discountAmount > 0" class="flex justify-between text-rose-600">
+                        <div x-show="discountAmount > 0" class="flex justify-between text-rose-600 dark:text-rose-400">
                             <span>Potongan Diskon:</span>
                             <span class="font-semibold" x-text="'- ' + formatRupiah(discountAmount)"></span>
                         </div>
-                        <div x-show="salesChannel !== 'Offline'" class="flex justify-between text-amber-600">
+                        <div x-show="salesChannel !== 'Offline'" class="flex justify-between text-amber-600 dark:text-amber-400">
                             <span x-text="'Penyesuaian Kanal (' + salesChannel + ' +20%):'"></span>
                             <span class="font-semibold" x-text="formatRupiah(channelFee)"></span>
                         </div>
-                        <div x-show="settings.enableTax" class="flex justify-between text-slate-500">
+                        <div x-show="settings.enableTax" class="flex justify-between text-slate-500 dark:text-slate-400">
                             <span x-text="'Pajak Resto (' + settings.taxRate + '%):'"></span>
-                            <span class="font-semibold text-slate-700" x-text="formatRupiah(taxAmount)"></span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-200" x-text="formatRupiah(taxAmount)"></span>
                         </div>
-                        <div class="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-dashed border-slate-200">
+                        <div x-show="settings.enableServiceCharge" class="flex justify-between text-slate-500 dark:text-slate-400">
+                            <span x-text="'Biaya Layanan (' + settings.serviceChargeRate + '%):'"></span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-200" x-text="formatRupiah(serviceChargeAmount)"></span>
+                        </div>
+                        <div class="flex justify-between text-base font-bold text-slate-900 dark:text-white pt-1 border-t border-dashed border-slate-200 dark:border-slate-700">
                             <span>Total Tagihan:</span>
-                            <span class="text-blue-600" x-text="formatRupiah(grandTotal)"></span>
+                            <span class="text-blue-600 dark:text-blue-400" x-text="formatRupiah(grandTotal)"></span>
                         </div>
-                        <div x-show="paymentMethod === 'Tunai' && cashReceived >= grandTotal" class="flex justify-between text-xs font-bold text-emerald-700 pt-0.5">
+                        <div x-show="paymentMethod === 'Tunai' && cashReceived >= grandTotal" class="flex justify-between text-xs font-bold text-emerald-700 dark:text-emerald-400 pt-0.5">
                             <span>Uang Kembalian:</span>
                             <span x-text="formatRupiah(cashReceived - grandTotal)"></span>
                         </div>
                     </div>
 
-                    <button @click="checkout()" :disabled="cart.length === 0" class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold py-3 rounded-xl transition shadow-sm text-sm">
+                    <button @click="checkout()" :disabled="cart.length === 0" class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 dark:disabled:bg-slate-700 disabled:text-slate-400 text-white font-bold py-3 rounded-xl transition shadow-sm text-sm">
                         PROSES PEMBAYARAN & CETAK STRUK
                     </button>
                 </div>
@@ -265,24 +285,24 @@
         </div>
 
         <!-- ================= MODUL 2: INVENTARIS STOK & RESTOCK ================= -->
-        <div x-show="currentTab === 'inventory'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-6">
+        <div x-show="currentTab === 'inventory'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
             <div>
-                <h2 class="text-lg font-bold text-slate-800">Manajemen Stok Bahan Baku Gudang</h2>
-                <p class="text-xs text-slate-500">Kelola sisa stok bahan baku dan lakukan restock belanjaan baru.</p>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Manajemen Stok Bahan Baku Gudang</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Kelola sisa stok bahan baku dan estimasi ketahanan stok harian.</p>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Bahan Baku:</label>
-                    <select x-model="restockIngId" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih Bahan Baku:</label>
+                    <select x-model="restockIngId" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                         <template x-for="ing in ingredients" :key="ing.id">
                             <option :value="ing.id" x-text="ing.name + ' (' + ing.unit + ')'"></option>
                         </template>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Tambahan Stok:</label>
-                    <input type="number" x-model.number="restockQty" placeholder="0" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Jumlah Tambahan Stok:</label>
+                    <input type="number" x-model.number="restockQty" placeholder="0" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <button @click="performRestock()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
                     TAMBAH STOK (RESTOCK)
@@ -292,23 +312,25 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                        <tr class="bg-slate-50 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                             <th class="p-3">Nama Bahan Baku</th>
                             <th class="p-3">Satuan</th>
                             <th class="p-3">Harga per Unit</th>
                             <th class="p-3">Sisa Stok</th>
+                            <th class="p-3">Estimasi Ketahanan</th>
                             <th class="p-3 text-right">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-xs sm:text-sm">
                         <template x-for="ing in ingredients" :key="ing.id">
                             <tr>
-                                <td class="p-3 font-semibold text-slate-800" x-text="ing.name"></td>
-                                <td class="p-3 text-slate-500" x-text="ing.unit"></td>
-                                <td class="p-3 text-slate-700" x-text="formatRupiah(ing.costPerUnit)"></td>
-                                <td class="p-3 font-bold" :class="ing.stock <= 5 ? 'text-rose-600' : 'text-slate-700'" x-text="ing.stock"></td>
+                                <td class="p-3 font-semibold text-slate-800 dark:text-white" x-text="ing.name"></td>
+                                <td class="p-3 text-slate-500 dark:text-slate-400" x-text="ing.unit"></td>
+                                <td class="p-3 text-slate-700 dark:text-slate-300" x-text="formatRupiah(ing.costPerUnit)"></td>
+                                <td class="p-3 font-bold" :class="ing.stock <= 5 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-200'" x-text="ing.stock"></td>
+                                <td class="p-3 text-slate-600 dark:text-slate-300 font-medium" x-text="ing.stock <= 2 ? 'Segera Habis (< 1 hari)' : 'Aman (± ' + Math.round(ing.stock * 3) + ' hari)'"></td>
                                 <td class="p-3 text-right">
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="ing.stock <= 5 ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'" x-text="ing.stock <= 5 ? 'Stok Menipis!' : 'Aman'"></span>
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="ing.stock <= 5 ? 'bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800' : 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'" x-text="ing.stock <= 5 ? 'Stok Menipis!' : 'Aman'"></span>
                                 </td>
                             </tr>
                         </template>
@@ -318,24 +340,24 @@
         </div>
 
         <!-- ================= MODUL 3: KELOLA MENU & KATEGORI (OWNER) ================= -->
-        <div x-show="currentTab === 'products_mgmt' && currentUser?.role === 'owner'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-6">
+        <div x-show="currentTab === 'products_mgmt' && currentUser?.role === 'owner'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
             <div>
-                <h2 class="text-lg font-bold text-slate-800">Kelola Katalog Menu & Kategori</h2>
-                <p class="text-xs text-slate-500">Tambah menu baru beserta kategori kustom sesuai kebutuhan.</p>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Kelola Katalog Menu & Kategori</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Tambah menu baru beserta kategori kustom sesuai kebutuhan.</p>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+            <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Menu:</label>
-                    <input type="text" x-model="newProdName" placeholder="Cth: Es Mambo Melon" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Menu:</label>
+                    <input type="text" x-model="newProdName" placeholder="Cth: Es Mambo Melon" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori:</label>
-                    <input type="text" x-model="newProdCat" placeholder="Cth: Frozen / Snack / Jus" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Kategori:</label>
+                    <input type="text" x-model="newProdCat" placeholder="Cth: Frozen / Snack / Jus" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Harga Jual (Rp):</label>
-                    <input type="number" x-model.number="newProdPrice" placeholder="3000" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Harga Jual (Rp):</label>
+                    <input type="number" x-model.number="newProdPrice" placeholder="3000" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <button @click="addNewProduct()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
                     TAMBAH MENU
@@ -345,7 +367,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                        <tr class="bg-slate-50 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                             <th class="p-3">SKU</th>
                             <th class="p-3">Nama Menu</th>
                             <th class="p-3">Kategori</th>
@@ -353,16 +375,16 @@
                             <th class="p-3 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-xs sm:text-sm">
                         <template x-for="(prod, idx) in products" :key="prod.id">
                             <tr>
-                                <td class="p-3 font-mono text-slate-500" x-text="prod.sku"></td>
-                                <td class="p-3 font-semibold text-slate-800" x-text="prod.name"></td>
-                                <td class="p-3 text-slate-500" x-text="prod.category"></td>
-                                <td class="p-3 text-emerald-600 font-bold" x-text="formatRupiah(prod.price)"></td>
+                                <td class="p-3 font-mono text-slate-500 dark:text-slate-400" x-text="prod.sku"></td>
+                                <td class="p-3 font-semibold text-slate-800 dark:text-white" x-text="prod.name"></td>
+                                <td class="p-3 text-slate-500 dark:text-slate-400" x-text="prod.category"></td>
+                                <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold" x-text="formatRupiah(prod.price)"></td>
                                 <td class="p-3 text-right space-x-2">
-                                    <button @click="printBarcode(prod)" class="text-blue-600 hover:underline text-xs font-semibold">Cetak Barcode</button>
-                                    <button @click="deleteProduct(idx)" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Hapus</button>
+                                    <button @click="printBarcode(prod)" class="text-blue-600 dark:text-blue-400 hover:underline text-xs font-semibold">Cetak Barcode</button>
+                                    <button @click="deleteProduct(idx)" class="text-rose-500 hover:text-rose-400 text-xs font-semibold">Hapus</button>
                                 </td>
                             </tr>
                         </template>
@@ -383,20 +405,20 @@
         </div>
 
         <!-- ================= MODUL 4: KASBON & PELUNASAN ================= -->
-        <div x-show="currentTab === 'debts'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-3xl mx-auto space-y-6">
+        <div x-show="currentTab === 'debts'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-3xl mx-auto space-y-6">
             <div>
-                <h2 class="text-lg font-bold text-slate-800">Pencatatan Kasbon / Utang Pelanggan</h2>
-                <p class="text-xs text-slate-500">Catat daftar pelanggan yang berhutang dan tandai pelunasannya.</p>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Pencatatan Kasbon / Utang Pelanggan</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Catat daftar pelanggan yang berhutang dan tandai pelunasannya.</p>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Pelanggan:</label>
-                    <input type="text" x-model="newDebtName" placeholder="Cth: Pak Budi" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Pelanggan:</label>
+                    <input type="text" x-model="newDebtName" placeholder="Cth: Pak Budi" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nominal Kasbon (Rp):</label>
-                    <input type="number" x-model.number="newDebtAmount" placeholder="0" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nominal Kasbon (Rp):</label>
+                    <input type="number" x-model.number="newDebtAmount" placeholder="0" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <button @click="addDebt()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
                     CATAT KASBON
@@ -406,23 +428,23 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                        <tr class="bg-slate-50 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                             <th class="p-3">Pelanggan</th>
                             <th class="p-3">Nominal</th>
                             <th class="p-3">Status</th>
                             <th class="p-3 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-xs sm:text-sm">
                         <template x-for="debt in debts" :key="debt.id">
                             <tr>
-                                <td class="p-3 font-semibold text-slate-800" x-text="debt.name"></td>
-                                <td class="p-3 font-bold text-rose-600" x-text="formatRupiah(debt.amount)"></td>
+                                <td class="p-3 font-semibold text-slate-800 dark:text-white" x-text="debt.name"></td>
+                                <td class="p-3 font-bold text-rose-600 dark:text-rose-400" x-text="formatRupiah(debt.amount)"></td>
                                 <td class="p-3">
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="debt.status === 'Belum Lunas' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'" x-text="debt.status"></span>
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="debt.status === 'Belum Lunas' ? 'bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800' : 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'" x-text="debt.status"></span>
                                 </td>
                                 <td class="p-3 text-right">
-                                    <button x-show="debt.status === 'Belum Lunas'" @click="payDebt(debt.id)" class="text-blue-600 hover:underline text-xs font-semibold">Tandai Lunas</button>
+                                    <button x-show="debt.status === 'Belum Lunas'" @click="payDebt(debt.id)" class="text-blue-600 dark:text-blue-400 hover:underline text-xs font-semibold">Tandai Lunas</button>
                                 </td>
                             </tr>
                         </template>
@@ -433,20 +455,20 @@
         </div>
 
         <!-- ================= MODUL 5: PENGELUARAN OPERASIONAL ================= -->
-        <div x-show="currentTab === 'expenses'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-3xl mx-auto space-y-6">
+        <div x-show="currentTab === 'expenses'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-3xl mx-auto space-y-6">
             <div>
-                <h2 class="text-lg font-bold text-slate-800">Pencatatan Biaya Pengeluaran Operasional</h2>
-                <p class="text-xs text-slate-500">Catat biaya di luar bahan baku (listrik, es kristal, kantong, dll).</p>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Pencatatan Biaya Pengeluaran Operasional</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Catat biaya di luar bahan baku (listrik, es kristal, kantong, dll).</p>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Biaya:</label>
-                    <input type="text" x-model="newExpenseName" placeholder="Contoh: Token Listrik" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Keterangan Biaya:</label>
+                    <input type="text" x-model="newExpenseName" placeholder="Contoh: Token Listrik" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nominal (Rp):</label>
-                    <input type="number" x-model.number="newExpenseAmount" placeholder="0" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nominal (Rp):</label>
+                    <input type="number" x-model.number="newExpenseAmount" placeholder="0" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <button @click="addExpense()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
                     TAMBAH BIAYA
@@ -456,18 +478,18 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                        <tr class="bg-slate-50 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                             <th class="p-3">Waktu</th>
                             <th class="p-3">Keterangan</th>
                             <th class="p-3 text-right">Nominal</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-xs sm:text-sm">
                         <template x-for="exp in expenses" :key="exp.id">
                             <tr>
-                                <td class="p-3 text-slate-500" x-text="exp.date"></td>
-                                <td class="p-3 font-semibold text-slate-800" x-text="exp.name"></td>
-                                <td class="p-3 text-right font-bold text-rose-600" x-text="formatRupiah(exp.amount)"></td>
+                                <td class="p-3 text-slate-500 dark:text-slate-400" x-text="exp.date"></td>
+                                <td class="p-3 font-semibold text-slate-800 dark:text-white" x-text="exp.name"></td>
+                                <td class="p-3 text-right font-bold text-rose-600 dark:text-rose-400" x-text="formatRupiah(exp.amount)"></td>
                             </tr>
                         </template>
                     </tbody>
@@ -477,31 +499,31 @@
         </div>
 
         <!-- ================= MODUL 6: SHIFT KASIR ================= -->
-        <div x-show="currentTab === 'shift'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-2xl mx-auto space-y-5">
+        <div x-show="currentTab === 'shift'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-2xl mx-auto space-y-5">
             <div>
-                <h2 class="text-lg font-bold text-slate-800">Manajemen Shift & Tutup Buku Kasir</h2>
-                <p class="text-xs text-slate-500">Kelola modal kas awal dan lakukan rekonsiliasi akhir shift.</p>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Manajemen Shift & Tutup Buku Kasir</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Kelola modal kas awal dan lakukan rekonsiliasi akhir shift.</p>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+            <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
                 <div class="flex justify-between items-center text-sm">
-                    <span class="font-semibold text-slate-600">Status Shift:</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold" :class="shiftActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'" x-text="shiftActive ? 'SEDANG BERJALAN' : 'BELUM DIBUKA'"></span>
+                    <span class="font-semibold text-slate-600 dark:text-slate-300">Status Shift:</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold" :class="shiftActive ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'" x-text="shiftActive ? 'SEDANG BERJALAN' : 'BELUM DIBUKA'"></span>
                 </div>
                 <div class="flex justify-between items-center text-sm">
-                    <span class="font-semibold text-slate-600">Modal Kas Awal:</span>
-                    <span class="font-bold text-slate-800" x-text="formatRupiah(cashFloat)"></span>
+                    <span class="font-semibold text-slate-600 dark:text-slate-300">Modal Kas Awal:</span>
+                    <span class="font-bold text-slate-800 dark:text-white" x-text="formatRupiah(cashFloat)"></span>
                 </div>
                 <div class="flex justify-between items-center text-sm">
-                    <span class="font-semibold text-slate-600">Penjualan Tunai Sesi Ini:</span>
-                    <span class="font-bold text-blue-600" x-text="formatRupiah(cashSalesTotal)"></span>
+                    <span class="font-semibold text-slate-600 dark:text-slate-300">Penjualan Tunai Sesi Ini:</span>
+                    <span class="font-bold text-blue-600 dark:text-blue-400" x-text="formatRupiah(cashSalesTotal)"></span>
                 </div>
             </div>
 
             <div class="space-y-3 pt-2">
                 <div x-show="!shiftActive" class="space-y-2">
-                    <label class="block text-xs font-semibold text-slate-600">Masukkan Modal Kas Awal (Rp):</label>
-                    <input type="number" x-model.number="inputFloat" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">Masukkan Modal Kas Awal (Rp):</label>
+                    <input type="number" x-model.number="inputFloat" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none">
                     <button @click="startShift()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition">BUKA SHIFT BARU</button>
                 </div>
                 <div x-show="shiftActive" class="space-y-2">
@@ -529,21 +551,21 @@
         </div>
 
         <!-- ================= MODUL 7: RIWAYAT TRANSAKSI ================= -->
-        <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
+        <div x-show="currentTab === 'history'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Riwayat Transaksi & Retur</h2>
-                    <p class="text-xs text-slate-500">Daftar seluruh penjualan yang berhasil diproses.</p>
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-white">Riwayat Transaksi & Retur</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Daftar seluruh penjualan yang berhasil diproses.</p>
                 </div>
                 <div class="w-full sm:w-64">
-                    <input type="text" x-model="historySearch" placeholder="Cari kasir / kode..." class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs focus:outline-none">
+                    <input type="text" x-model="historySearch" placeholder="Cari kasir / kode..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-white focus:outline-none">
                 </div>
             </div>
             
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                        <tr class="bg-slate-50 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                             <th class="p-3">Waktu</th>
                             <th class="p-3">Kasir</th>
                             <th class="p-3">Pelanggan</th>
@@ -553,19 +575,19 @@
                             <th class="p-3 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-xs sm:text-sm">
                         <template x-for="trx in filteredHistory" :key="trx.id">
-                            <tr class="hover:bg-slate-50/50">
-                                <td class="p-3 text-xs text-slate-600" x-text="trx.date"></td>
-                                <td class="p-3 text-xs font-semibold text-slate-700" x-text="trx.cashierName"></td>
+                            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/40">
+                                <td class="p-3 text-xs text-slate-600 dark:text-slate-400" x-text="trx.date"></td>
+                                <td class="p-3 text-xs font-semibold text-slate-700 dark:text-slate-300" x-text="trx.cashierName"></td>
                                 <td class="p-3 text-xs">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="trx.customerType === 'VIP' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'" x-text="trx.customerType"></span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="trx.customerType === 'VIP' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'" x-text="trx.customerType"></span>
                                 </td>
-                                <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="trx.channel === 'Offline' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'" x-text="trx.channel"></span></td>
-                                <td class="p-3 text-xs font-semibold text-slate-700" x-text="trx.paymentMethod || 'Tunai'"></td>
-                                <td class="p-3 text-right font-bold text-blue-600" x-text="formatRupiah(trx.grandTotal)"></td>
+                                <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="trx.channel === 'Offline' ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' : 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'" x-text="trx.channel"></span></td>
+                                <td class="p-3 text-xs font-semibold text-slate-700 dark:text-slate-300" x-text="trx.paymentMethod || 'Tunai'"></td>
+                                <td class="p-3 text-right font-bold text-blue-600 dark:text-blue-400" x-text="formatRupiah(trx.grandTotal)"></td>
                                 <td class="p-3 text-right">
-                                    <button @click="refundTransaction(trx.id)" class="text-rose-600 hover:underline text-xs font-semibold">Retur</button>
+                                    <button @click="refundTransaction(trx.id)" class="text-rose-600 dark:text-rose-400 hover:underline text-xs font-semibold">Retur</button>
                                 </td>
                             </tr>
                         </template>
@@ -579,10 +601,10 @@
         <div x-show="currentTab === 'report' && currentUser?.role === 'owner'" class="space-y-6 max-w-4xl mx-auto">
             <div class="flex flex-wrap justify-between items-center gap-2">
                 <div class="flex gap-2">
-                    <button @click="factoryReset()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <button @click="factoryReset()" class="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 dark:hover:bg-rose-900 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-800 px-3 py-2 rounded-xl text-xs font-bold transition">
                         Reset Data Pabrik
                     </button>
-                    <button @click="exportDatabase()" class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <button @click="exportDatabase()" class="bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800 px-3 py-2 rounded-xl text-xs font-bold transition">
                         Backup JSON
                     </button>
                 </div>
@@ -596,104 +618,120 @@
 
             <!-- Ringkasan Keuangan Laba Bersih -->
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-blue-600">
-                    <p class="text-xs text-slate-500 font-semibold uppercase">Total Omzet</p>
-                    <p class="text-xl font-bold text-slate-800 mt-1" x-text="formatRupiah(totalOmzet)"></p>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 border-l-4 border-l-blue-600">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase">Total Omzet</p>
+                    <p class="text-xl font-bold text-slate-800 dark:text-white mt-1" x-text="formatRupiah(totalOmzet)"></p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-rose-500">
-                    <p class="text-xs text-slate-500 font-semibold uppercase">Modal HPP</p>
-                    <p class="text-xl font-bold text-rose-600 mt-1" x-text="formatRupiah(totalHppModal)"></p>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 border-l-4 border-l-rose-500">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase">Modal HPP</p>
+                    <p class="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1" x-text="formatRupiah(totalHppModal)"></p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-amber-500">
-                    <p class="text-xs text-slate-500 font-semibold uppercase">Biaya Operasional</p>
-                    <p class="text-xl font-bold text-amber-600 mt-1" x-text="formatRupiah(totalExpenses)"></p>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 border-l-4 border-l-amber-500">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase">Biaya Operasional</p>
+                    <p class="text-xl font-bold text-amber-600 dark:text-amber-400 mt-1" x-text="formatRupiah(totalExpenses)"></p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 border-l-4 border-l-emerald-500">
-                    <p class="text-xs text-slate-500 font-semibold uppercase">Laba Bersih Real</p>
-                    <p class="text-xl font-bold text-emerald-600 mt-1" x-text="formatRupiah(netProfit)"></p>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 border-l-4 border-l-emerald-500">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase">Laba Bersih Real</p>
+                    <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1" x-text="formatRupiah(netProfit)"></p>
                 </div>
             </div>
 
             <!-- Analisis Kanal Penjualan -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
-                <h2 class="text-lg font-bold text-slate-800">Perbandingan Kanal Penjualan</h2>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Perbandingan Kanal Penjualan</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <div class="bg-slate-50 p-3 rounded-xl border">
-                        <span class="text-slate-500 block">Offline (Tunai):</span>
-                        <span class="font-bold text-slate-800 text-sm" x-text="formatRupiah(channelOmzet('Offline'))"></span>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <span class="text-slate-500 dark:text-slate-400 block">Offline (Tunai):</span>
+                        <span class="font-bold text-slate-800 dark:text-white text-sm" x-text="formatRupiah(channelOmzet('Offline'))"></span>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border">
-                        <span class="text-slate-500 block">GrabFood:</span>
-                        <span class="font-bold text-slate-800 text-sm" x-text="formatRupiah(channelOmzet('GrabFood'))"></span>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <span class="text-slate-500 dark:text-slate-400 block">GrabFood:</span>
+                        <span class="font-bold text-slate-800 dark:text-white text-sm" x-text="formatRupiah(channelOmzet('GrabFood'))"></span>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border">
-                        <span class="text-slate-500 block">GoFood:</span>
-                        <span class="font-bold text-slate-800 text-sm" x-text="formatRupiah(channelOmzet('GoFood'))"></span>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <span class="text-slate-500 dark:text-slate-400 block">GoFood:</span>
+                        <span class="font-bold text-slate-800 dark:text-white text-sm" x-text="formatRupiah(channelOmzet('GoFood'))"></span>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border">
-                        <span class="text-slate-500 block">ShopeeFood:</span>
-                        <span class="font-bold text-slate-800 text-sm" x-text="formatRupiah(channelOmzet('ShopeeFood'))"></span>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <span class="text-slate-500 dark:text-slate-400 block">ShopeeFood:</span>
+                        <span class="font-bold text-slate-800 dark:text-white text-sm" x-text="formatRupiah(channelOmzet('ShopeeFood'))"></span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ================= MODUL 9: PENGATURAN PEMILIK (OWNER SETTINGS) ================= -->
-        <div x-show="currentTab === 'settings' && currentUser?.role === 'owner'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-2xl mx-auto space-y-6">
+        <div x-show="currentTab === 'settings' && currentUser?.role === 'owner'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-2xl mx-auto space-y-6">
             <div>
-                <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem & Hak Akses</h2>
-                <p class="text-xs text-slate-500">Konfigurasi pajak restoran, hak akses kasir, diskon VIP, dan Happy Hour.</p>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Pengaturan Sistem & Hak Akses</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Konfigurasi pajak restoran, biaya layanan, diskon VIP, dan Happy Hour.</p>
             </div>
 
-            <div class="space-y-4 text-sm bg-slate-50 p-5 rounded-2xl border border-slate-200">
+            <div class="space-y-4 text-sm bg-slate-50 dark:bg-slate-700/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
                 <!-- Pajak Switch -->
-                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
                     <div>
-                        <p class="font-semibold text-slate-800">Aktifkan Pajak Restoran (PPN)</p>
-                        <p class="text-xs text-slate-500">Secara otomatis menambahkan persentase pajak pada tagihan</p>
+                        <p class="font-semibold text-slate-800 dark:text-white">Aktifkan Pajak Restoran (PPN)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Secara otomatis menambahkan persentase pajak pada tagihan</p>
                     </div>
                     <input type="checkbox" x-model="settings.enableTax" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
                 </div>
 
                 <!-- Tarif Pajak -->
-                <div class="flex items-center justify-between pb-3 border-b border-slate-200" x-show="settings.enableTax">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" x-show="settings.enableTax">
                     <div>
-                        <p class="font-semibold text-slate-800">Besaran Tarif Pajak (%)</p>
-                        <p class="text-xs text-slate-500">Persentase PPN yang dikenakan pada subtotal</p>
+                        <p class="font-semibold text-slate-800 dark:text-white">Besaran Tarif Pajak (%)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Persentase PPN yang dikenakan pada subtotal</p>
                     </div>
-                    <input type="number" x-model.number="settings.taxRate" @input="saveSettings()" class="w-20 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-right font-bold">
+                    <input type="number" x-model.number="settings.taxRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
+                </div>
+
+                <!-- Biaya Layanan Switch & Tarif -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Aktifkan Biaya Layanan (Service Charge)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Biaya tambahan pelayanan untuk restoran/warung</p>
+                    </div>
+                    <input type="checkbox" x-model="settings.enableServiceCharge" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" x-show="settings.enableServiceCharge">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Besaran Biaya Layanan (%)</p>
+                    </div>
+                    <input type="number" x-model.number="settings.serviceChargeRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
                 </div>
 
                 <!-- Diskon VIP -->
-                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
                     <div>
-                        <p class="font-semibold text-slate-800">Besaran Diskon VIP Member (%)</p>
-                        <p class="text-xs text-slate-500">Potongan otomatis untuk pelanggan berstatus VIP</p>
+                        <p class="font-semibold text-slate-800 dark:text-white">Besaran Diskon VIP Member (%)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Potongan otomatis untuk pelanggan berstatus VIP</p>
                     </div>
-                    <input type="number" x-model.number="settings.vipDiscountRate" @input="saveSettings()" class="w-20 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-right font-bold">
+                    <input type="number" x-model.number="settings.vipDiscountRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
                 </div>
 
                 <!-- Happy Hour Switch & Diskon -->
-                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
                     <div>
-                        <p class="font-semibold text-slate-800">Aktifkan Happy Hour Otomatis</p>
-                        <p class="text-xs text-slate-500">Diskon otomatis berdasarkan jam operasional sore hari</p>
+                        <p class="font-semibold text-slate-800 dark:text-white">Aktifkan Happy Hour Otomatis</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Diskon otomatis berdasarkan jam operasional sore hari (15:00 - 18:00)</p>
                     </div>
                     <input type="checkbox" x-model="settings.enableHappyHour" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
                 </div>
 
-                <div class="flex items-center justify-between pb-3 border-b border-slate-200" x-show="settings.enableHappyHour">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" x-show="settings.enableHappyHour">
                     <div>
-                        <p class="font-semibold text-slate-800">Besaran Diskon Happy Hour (%)</p>
+                        <p class="font-semibold text-slate-800 dark:text-white">Besaran Diskon Happy Hour (%)</p>
                     </div>
-                    <input type="number" x-model.number="settings.happyHourDiscount" @input="saveSettings()" class="w-20 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-right font-bold">
+                    <input type="number" x-model.number="settings.happyHourDiscount" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
                 </div>
 
                 <!-- Hak Akses Diskon Kasir -->
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="font-semibold text-slate-800">Izinkan Kasir Beri Diskon Manual</p>
-                        <p class="text-xs text-slate-500">Beri izin staff kasir untuk input diskon saat melayani pesanan</p>
+                        <p class="font-semibold text-slate-800 dark:text-white">Izinkan Kasir Beri Diskon Manual</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Beri izin staff kasir untuk input diskon saat melayani pesanan</p>
                     </div>
                     <input type="checkbox" x-model="settings.allowCashierDiscount" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
                 </div>
@@ -710,22 +748,22 @@
 
     <!-- MODAL MODIFIER / CATATAN PESANAN -->
     <div x-show="showModifierModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
-            <h3 class="font-bold text-base text-slate-800">Catatan Item: <span class="text-blue-600" x-text="activeProduct?.name"></span></h3>
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-slate-100 dark:border-slate-700">
+            <h3 class="font-bold text-base text-slate-800 dark:text-white">Catatan Item: <span class="text-blue-600 dark:text-blue-400" x-text="activeProduct?.name"></span></h3>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan Khusus (Opsional):</label>
-                <input type="text" x-model="activeProductNote" placeholder="Misal: Kurang manis, Tanpa es" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Catatan Khusus (Opsional):</label>
+                <input type="text" x-model="activeProductNote" placeholder="Misal: Kurang manis, Tanpa es" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none">
             </div>
             <div class="flex gap-2 pt-2">
                 <button @click="confirmAddToCart()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 rounded-xl transition">Tambah ke Keranjang</button>
-                <button @click="showModifierModal = false" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold py-2.5 rounded-xl transition">Batal</button>
+                <button @click="showModifierModal = false" class="flex-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold py-2.5 rounded-xl transition">Batal</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL CETAK STRUK PEMBAYARAN -->
     <div x-show="showReceiptModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl space-y-4 text-center">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 max-w-xs w-full shadow-2xl space-y-4 text-center border border-slate-100 dark:border-slate-700">
             
             <div id="printable-receipt" class="space-y-3 text-left">
                 <div class="border-b border-dashed pb-3 space-y-1 text-center">
@@ -754,6 +792,10 @@
                         <span x-text="'Pajak Resto (' + lastTrx?.taxRateUsed + '%):'"></span>
                         <span class="font-semibold" x-text="formatRupiah(lastTrx?.taxAmount)"></span>
                     </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.serviceChargeAmount > 0">
+                        <span x-text="'Biaya Layanan (' + lastTrx?.serviceChargeRateUsed + '%):'"></span>
+                        <span class="font-semibold" x-text="formatRupiah(lastTrx?.serviceChargeAmount)"></span>
+                    </div>
                     <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.paymentMethod === 'Tunai'">
                         <span>Uang Diterima:</span>
                         <span class="font-semibold" x-text="formatRupiah(lastTrx?.cashReceived)"></span>
@@ -781,15 +823,15 @@
                 <button @click="window.print()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-sm">Cetak Struk (Printer)</button>
                 <div class="flex gap-2">
                     <button @click="shareWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-xl transition">Kirim WA</button>
-                    <button @click="showReceiptModal = false" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold py-2 rounded-xl transition">Tutup</button>
+                    <button @click="showReceiptModal = false" class="flex-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold py-2 rounded-xl transition">Tutup</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Footer dengan Nomor Versi Jelas -->
-    <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v12.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+    <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800 mt-10">
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v13.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -807,6 +849,7 @@
                 searchQuery: '',
                 barcodeInput: '',
                 historySearch: '',
+                darkMode: false,
 
                 shiftActive: true,
                 cashFloat: 150000,
@@ -836,6 +879,8 @@
                 settings: {
                     enableTax: true,
                     taxRate: 10,
+                    enableServiceCharge: false,
+                    serviceChargeRate: 5,
                     vipDiscountRate: 5,
                     allowCashierDiscount: true,
                     enableHappyHour: true,
@@ -868,35 +913,41 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v12')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v12'));
-                    if (localStorage.getItem('es_mambo_ingredients_v12')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v12'));
-                    if (localStorage.getItem('es_mambo_transactions_v12')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v12'));
-                    if (localStorage.getItem('es_mambo_expenses_v12')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v12'));
-                    if (localStorage.getItem('es_mambo_debts_v12')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v12'));
-                    if (localStorage.getItem('es_mambo_settings_v12')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v12'));
+                    if (localStorage.getItem('es_mambo_products_v13')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v13'));
+                    if (localStorage.getItem('es_mambo_ingredients_v13')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v13'));
+                    if (localStorage.getItem('es_mambo_transactions_v13')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v13'));
+                    if (localStorage.getItem('es_mambo_expenses_v13')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v13'));
+                    if (localStorage.getItem('es_mambo_debts_v13')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v13'));
+                    if (localStorage.getItem('es_mambo_settings_v13')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v13'));
+                    if (localStorage.getItem('es_mambo_dark_mode')) this.darkMode = JSON.parse(localStorage.getItem('es_mambo_dark_mode'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v12');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v13');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v12', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v12', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v12', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v12', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v12', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v13', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v13', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v13', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v13', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v13', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v12', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v13', JSON.stringify(this.settings));
+                },
+
+                toggleDarkMode() {
+                    this.darkMode = !this.darkMode;
+                    localStorage.setItem('es_mambo_dark_mode', JSON.stringify(this.darkMode));
                 },
 
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v12', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v13', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -905,7 +956,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v12');
+                    localStorage.removeItem('es_mambo_current_user_v13');
                 },
 
                 scanBarcode() {
@@ -1043,7 +1094,7 @@
                 get isHappyHourActive() {
                     if (!this.settings.enableHappyHour) return false;
                     let currentHour = new Date().getHours();
-                    return currentHour >= 15 && currentHour <= 18; // Happy hour jam 15:00 - 18:00
+                    return currentHour >= 15 && currentHour <= 18;
                 },
 
                 increaseQty(index) { this.cart[index].quantity++; },
@@ -1084,8 +1135,12 @@
                     return this.settings.enableTax ? this.taxableBase * (this.settings.taxRate / 100) : 0; 
                 },
 
+                get serviceChargeAmount() {
+                    return this.settings.enableServiceCharge ? this.taxableBase * (this.settings.serviceChargeRate / 100) : 0;
+                },
+
                 get grandTotal() { 
-                    return this.taxableBase + this.taxAmount; 
+                    return this.taxableBase + this.taxAmount + this.serviceChargeAmount; 
                 },
 
                 formatRupiah(value) { return 'Rp ' + Math.round(value || 0).toLocaleString('id-ID'); },
@@ -1145,6 +1200,8 @@
                         totalItems: totalItems,
                         taxAmount: this.taxAmount,
                         taxRateUsed: this.settings.enableTax ? this.settings.taxRate : 0,
+                        serviceChargeAmount: this.serviceChargeAmount,
+                        serviceChargeRateUsed: this.settings.enableServiceCharge ? this.settings.serviceChargeRate : 0,
                         grandTotal: this.grandTotal,
                         totalHpp: totalHppCart,
                         items: [...this.cart]
@@ -1206,14 +1263,17 @@
                     if (this.lastTrx.taxAmount > 0) {
                         text += `Pajak (${this.lastTrx.taxRateUsed}%): ${this.formatRupiah(this.lastTrx.taxAmount)}\n`;
                     }
+                    if (this.lastTrx.serviceChargeAmount > 0) {
+                        text += `Biaya Layanan (${this.lastTrx.serviceChargeRateUsed}%): ${this.formatRupiah(this.lastTrx.serviceChargeAmount)}\n`;
+                    }
                     text += `*TOTAL: ${this.formatRupiah(this.lastTrx.grandTotal)}*\nTerima Kasih!`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 },
 
                 exportToCSV() {
-                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Kasir,Tipe Pelanggan,Kanal,Metode Pembayaran,Pajak,Total Item,Nilai Transaksi,Modal HPP\n";
+                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Kasir,Tipe Pelanggan,Kanal,Metode Pembayaran,Pajak,Biaya Layanan,Total Item,Nilai Transaksi,Modal HPP\n";
                     this.transactions.forEach(trx => {
-                        csvContent += `"${trx.date}","${trx.cashierName}","${trx.customerType}","${trx.channel}","${trx.paymentMethod || 'Tunai'}",${trx.taxAmount},${trx.totalItems},${trx.grandTotal},${trx.totalHpp}\n`;
+                        csvContent += `"${trx.date}","${trx.cashierName}","${trx.customerType}","${trx.channel}","${trx.paymentMethod || 'Tunai'}",${trx.taxAmount},${trx.serviceChargeAmount || 0},${trx.totalItems},${trx.grandTotal},${trx.totalHpp}\n`;
                     });
                     let encodedUri = encodeURI(csvContent);
                     let link = document.createElement("a");
