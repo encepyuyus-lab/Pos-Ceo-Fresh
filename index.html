@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v17.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v18.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,7 +39,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v17.0</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v18.0</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -75,7 +75,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v17.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v18.0)</p>
                 </div>
             </div>
 
@@ -265,10 +265,6 @@
                             <span>Potongan Diskon:</span>
                             <span class="font-semibold" x-text="'- ' + formatRupiah(discountAmount)"></span>
                         </div>
-                        <div x-show="paymentMethod !== 'Tunai' && settings.enablePaymentDiscount" class="flex justify-between text-emerald-600 dark:text-emerald-400">
-                            <span x-text="'Diskon Metode ' + paymentMethod + ' (' + settings.paymentDiscountRate + '%):'"></span>
-                            <span class="font-semibold" x-text="'- ' + formatRupiah(paymentDiscountAmount)"></span>
-                        </div>
                         <div x-show="salesChannel !== 'Offline'" class="flex justify-between text-amber-600 dark:text-amber-400">
                             <span x-text="'Penyesuaian Kanal (' + salesChannel + ' +20%):'"></span>
                             <span class="font-semibold" x-text="formatRupiah(channelFee)"></span>
@@ -405,7 +401,7 @@
                                 <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold" x-text="formatRupiah(prod.price)"></td>
                                 <td class="p-3 text-right space-x-2">
                                     <button @click="printBarcode(prod)" class="text-blue-600 dark:text-blue-400 hover:underline text-xs font-semibold">Cetak Barcode</button>
-                                    <button @click="deleteProduct(idx)" class="text-rose-500 hover:text-rose-400 text-xs font-semibold">Hapus</button>
+                                    <button @click="deleteProduct(idx)" class="text-rose-500 dark:text-rose-400 text-xs font-semibold">Hapus</button>
                                 </td>
                             </tr>
                         </template>
@@ -872,7 +868,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v17.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v18.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -956,30 +952,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v17')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v17'));
-                    if (localStorage.getItem('es_mambo_ingredients_v17')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v17'));
-                    if (localStorage.getItem('es_mambo_transactions_v17')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v17'));
-                    if (localStorage.getItem('es_mambo_expenses_v17')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v17'));
-                    if (localStorage.getItem('es_mambo_debts_v17')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v17'));
-                    if (localStorage.getItem('es_mambo_settings_v17')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v17'));
+                    if (localStorage.getItem('es_mambo_products_v18')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v18'));
+                    if (localStorage.getItem('es_mambo_ingredients_v18')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v18'));
+                    if (localStorage.getItem('es_mambo_transactions_v18')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v18'));
+                    if (localStorage.getItem('es_mambo_expenses_v18')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v18'));
+                    if (localStorage.getItem('es_mambo_debts_v18')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v18'));
+                    if (localStorage.getItem('es_mambo_settings_v18')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v18'));
                     if (localStorage.getItem('es_mambo_dark_mode')) this.darkMode = JSON.parse(localStorage.getItem('es_mambo_dark_mode'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v17');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v18');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v17', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v17', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v17', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v17', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v17', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v18', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v18', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v18', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v18', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v18', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v17', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v18', JSON.stringify(this.settings));
                 },
 
                 toggleDarkMode() {
@@ -990,7 +986,7 @@
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v17', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v18', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -999,7 +995,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v17');
+                    localStorage.removeItem('es_mambo_current_user_v18');
                 },
 
                 scanBarcode() {
@@ -1148,237 +1144,4 @@
                 get subtotal() { return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0); },
                 
                 get vipDiscountAmount() {
-                    return this.customerType === 'VIP' ? this.subtotal * (this.settings.vipDiscountRate / 100) : 0;
-                },
-
-                get happyHourDiscountAmount() {
-                    return this.isHappyHourActive ? this.subtotal * (this.settings.happyHourDiscount / 100) : 0;
-                },
-
-                get paymentDiscountAmount() {
-                    if (this.settings.enablePaymentDiscount && this.paymentMethod !== 'Tunai') {
-                        let subAfterOtherDisc = this.subtotal - this.vipDiscountAmount - this.happyHourDiscountAmount;
-                        return subAfterOtherDisc * (this.settings.paymentDiscountRate / 100);
-                    }
-                    return 0;
-                },
-
-                get discountAmount() {
-                    let sub = this.subtotal - this.vipDiscountAmount - this.happyHourDiscountAmount - this.paymentDiscountAmount;
-                    let manualDisc = 0;
-                    if ((this.currentUser?.role === 'owner' || this.settings.allowCashierDiscount) && this.discountValue && this.discountValue > 0) {
-                        manualDisc = this.discountType === 'percent' ? sub * (this.discountValue / 100) : Math.min(sub, this.discountValue);
-                    }
-                    return this.vipDiscountAmount + this.happyHourDiscountAmount + this.paymentDiscountAmount + manualDisc;
-                },
-
-                get channelFee() {
-                    let afterDisc = this.subtotal - this.discountAmount;
-                    return this.salesChannel !== 'Offline' ? afterDisc * 0.20 : 0;
-                },
-
-                get taxableBase() {
-                    let afterDisc = this.subtotal - this.discountAmount;
-                    return afterDisc + this.channelFee;
-                },
-
-                get taxAmount() {
-                    return this.settings.enableTax ? this.taxableBase * (this.settings.taxRate / 100) : 0; 
-                },
-
-                get serviceChargeAmount() {
-                    return this.settings.enableServiceCharge ? this.taxableBase * (this.settings.serviceChargeRate / 100) : 0;
-                },
-
-                get grandTotal() { 
-                    return this.taxableBase + this.taxAmount + this.serviceChargeAmount; 
-                },
-
-                formatRupiah(value) { return 'Rp ' + Math.round(value || 0).toLocaleString('id-ID'); },
-
-                startShift() {
-                    this.cashFloat = this.inputFloat;
-                    this.shiftActive = true;
-                    alert('Shift dibuka dengan modal: ' + this.formatRupiah(this.cashFloat));
-                },
-                closeShift() {
-                    alert('Tutup Shift. Total Kas di Laci: ' + this.formatRupiah(this.cashFloat + this.cashSalesTotal));
-                    this.shiftActive = false;
-                    this.cashSalesTotal = 0;
-                },
-
-                addExpense() {
-                    if (!this.newExpenseName || !this.newExpenseAmount) return;
-                    this.expenses.unshift({
-                        id: Date.now(),
-                        name: this.newExpenseName,
-                        amount: Number(this.newExpenseAmount),
-                        date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                    });
-                    this.newExpenseName = '';
-                    this.newExpenseAmount = '';
-                    this.saveData();
-                },
-
-                checkout() {
-                    if (this.paymentMethod === 'Tunai' && this.cashReceived < this.grandTotal) {
-                        alert('Uang tunai yang diterima kurang dari total tagihan!');
-                        return;
-                    }
-
-                    for (let item of this.cart) {
-                        if (item.recipe) {
-                            for (let rec of item.recipe) {
-                                let ing = this.ingredients.find(i => i.id === rec.ingId);
-                                if (ing) ing.stock -= (rec.qty * item.quantity);
-                            }
-                        }
-                    }
-
-                    let totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
-                    let totalHppCart = this.cart.reduce((sum, item) => sum + (item.baseHpp * item.quantity), 0);
-                    let changeAmount = this.paymentMethod === 'Tunai' ? Math.max(0, this.cashReceived - this.grandTotal) : 0;
-                    
-                    let newTrx = {
-                        id: Date.now(),
-                        date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
-                        cashierName: this.currentUser?.name || 'Staff',
-                        customerType: this.customerType,
-                        channel: this.salesChannel,
-                        paymentMethod: this.paymentMethod,
-                        cashReceived: this.paymentMethod === 'Tunai' ? this.cashReceived : this.grandTotal,
-                        cashChange: changeAmount,
-                        totalItems: totalItems,
-                        taxAmount: this.taxAmount,
-                        taxRateUsed: this.settings.enableTax ? this.settings.taxRate : 0,
-                        serviceChargeAmount: this.serviceChargeAmount,
-                        serviceChargeRateUsed: this.settings.enableServiceCharge ? this.settings.serviceChargeRate : 0,
-                        paymentDiscountAmount: this.paymentDiscountAmount,
-                        paymentDiscountRateUsed: this.settings.enablePaymentDiscount ? this.settings.paymentDiscountRate : 0,
-                        grandTotal: this.grandTotal,
-                        totalHpp: totalHppCart,
-                        items: [...this.cart]
-                    };
-
-                    this.transactions.unshift(newTrx);
-                    if (this.salesChannel === 'Offline' && this.paymentMethod === 'Tunai') {
-                        this.cashSalesTotal += this.grandTotal;
-                    }
-
-                    this.lastTrx = newTrx;
-                    this.showReceiptModal = true;
-                    this.cart = [];
-                    this.discountValue = 0;
-                    this.cashReceived = 0;
-                    this.customerType = 'Regular';
-                    this.saveData();
-                },
-
-                refundTransaction(id) {
-                    let pin = prompt('Masukkan PIN Otorisasi Manager/Owner untuk Retur (Default: 1234):');
-                    if (pin !== '1234') {
-                        alert('PIN salah! Retur dibatalkan.');
-                        return;
-                    }
-
-                    let idx = this.transactions.findIndex(t => t.id === id);
-                    if (idx !== -1) {
-                        let trx = this.transactions[idx];
-                        trx.items.forEach(item => {
-                            if (item.recipe) {
-                                item.recipe.forEach(rec => {
-                                    let ing = this.ingredients.find(i => i.id === rec.ingId);
-                                    if (ing) ing.stock += (rec.qty * item.quantity);
-                                });
-                            }
-                        });
-                        if (trx.channel === 'Offline' && trx.paymentMethod === 'Tunai') {
-                            this.cashSalesTotal -= trx.grandTotal;
-                        }
-                        this.transactions.splice(idx, 1);
-                        this.saveData();
-                        alert('Transaksi berhasil diretur dan stok dikembalikan.');
-                    }
-                },
-
-                shareWhatsApp() {
-                    let text = `*STRUK PEMBAYARAN - WARUNG ES MAMBO & JUS*\n`;
-                    text += `Waktu: ${this.lastTrx.date}\n`;
-                    text += `Kasir: ${this.lastTrx.cashierName}\n`;
-                    text += `Pelanggan: ${this.lastTrx.customerType}\n`;
-                    text += `Kanal: ${this.lastTrx.channel}\n`;
-                    text += `Pembayaran: ${this.lastTrx.paymentMethod}\n`;
-                    if (this.lastTrx.paymentMethod === 'Tunai') {
-                        text += `Tunai: ${this.formatRupiah(this.lastTrx.cashReceived)}\n`;
-                        text += `Kembali: ${this.formatRupiah(this.lastTrx.cashChange)}\n`;
-                    }
-                    text += `------------------\n`;
-                    this.lastTrx.items.forEach(i => {
-                        text += `${i.name} ${i.note ? '('+i.note+')' : ''} x${i.quantity} = ${this.formatRupiah(i.price * i.quantity)}\n`;
-                    });
-                    text += `------------------\n`;
-                    if (this.lastTrx.taxAmount > 0) {
-                        text += `Pajak (${this.lastTrx.taxRateUsed}%): ${this.formatRupiah(this.lastTrx.taxAmount)}\n`;
-                    }
-                    if (this.lastTrx.serviceChargeAmount > 0) {
-                        text += `Biaya Layanan (${this.lastTrx.serviceChargeRateUsed}%): ${this.formatRupiah(this.lastTrx.serviceChargeAmount)}\n`;
-                    }
-                    if (this.lastTrx.paymentDiscountAmount > 0) {
-                        text += `Diskon Non-Tunai (${this.lastTrx.paymentDiscountRateUsed}%): -${this.formatRupiah(this.lastTrx.paymentDiscountAmount)}\n`;
-                    }
-                    text += `*TOTAL: ${this.formatRupiah(this.lastTrx.grandTotal)}*\nTerima Kasih!`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-                },
-
-                exportToCSV() {
-                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Kasir,Tipe Pelanggan,Kanal,Metode Pembayaran,Pajak,Biaya Layanan,Total Item,Nilai Transaksi,Modal HPP\n";
-                    this.transactions.forEach(trx => {
-                        csvContent += `"${trx.date}","${trx.cashierName}","${trx.customerType}","${trx.channel}","${trx.paymentMethod || 'Tunai'}",${trx.taxAmount},${trx.serviceChargeAmount || 0},${trx.totalItems},${trx.grandTotal},${trx.totalHpp}\n`;
-                    });
-                    let encodedUri = encodeURI(csvContent);
-                    let link = document.createElement("a");
-                    link.setAttribute("href", encodedUri);
-                    link.setAttribute("download", "laporan_penjualan_warung_es.csv");
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                },
-
-                exportDatabase() {
-                    let data = {
-                        products: this.products,
-                        ingredients: this.ingredients,
-                        transactions: this.transactions,
-                        expenses: this.expenses,
-                        debts: this.debts,
-                        settings: this.settings
-                    };
-                    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-                    let dlAnchor = document.createElement('a');
-                    dlAnchor.setAttribute("href", dataStr);
-                    dlAnchor.setAttribute("download", "backup_pos_warung_es.json");
-                    document.body.appendChild(dlAnchor);
-                    dlAnchor.click();
-                    dlAnchor.remove();
-                },
-
-                factoryReset() {
-                    if (confirm('PERINGATAN: Semua data transaksi, kasbon, dan pengeluaran akan dihapus permanen! Lanjutkan?')) {
-                        localStorage.clear();
-                        location.reload();
-                    }
-                },
-
-                channelOmzet(ch) {
-                    return this.transactions.filter(t => t.channel === ch).reduce((s, t) => s + t.grandTotal, 0);
-                },
-
-                get totalOmzet() { return this.transactions.reduce((s, t) => s + t.grandTotal, 0); },
-                get totalHppModal() { return this.transactions.reduce((s, t) => s + t.totalHpp, 0); },
-                get totalExpenses() { return this.expenses.reduce((s, e) => s + e.amount, 0); },
-                get netProfit() { return this.totalOmzet - this.totalHppModal - this.totalExpenses; }
-            }
-        }
-    </script>
-</body>
-</html>
+                    return this.customerType === 'VIP' ? this.subtotal * (this.settings.vip
