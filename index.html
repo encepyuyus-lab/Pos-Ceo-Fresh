@@ -821,6 +821,17 @@
                 selectedCategory: 'All',
                 salesChannel: 'Offline',
                 searchQuery: '',
+                barcodeInput: '',
+                historySearch: '',
+                paymentMethod: 'Tunai',
+                cashReceived: 0,
+                customerType: 'Regular',
+                promoCode: '',
+                activePromo: null,
+                barcodeInput: '',
+                activeBarcodeProd: null,
+                restockIngId: 'ing1',
+                restockQty: 0,
                 darkMode: false,
 
                 shiftActive: true,
@@ -850,7 +861,11 @@
                     enableServiceCharge: false,
                     serviceChargeRate: 5,
                     vipDiscountRate: 5,
-                    allowCashierDiscount: true
+                    allowCashierDiscount: true,
+                    enableHappyHour: false,
+                    happyHourDiscount: 10,
+                    happyHourStart: 15,
+                    happyHourEnd: 17
                 },
 
                 ingredients: [
@@ -879,18 +894,19 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v172')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v172'));
-                    if (localStorage.getItem('es_mambo_ingredients_v172')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v172'));
-                    if (localStorage.getItem('es_mambo_transactions_v172')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v172'));
-                    if (localStorage.getItem('es_mambo_expenses_v172')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v172'));
-                    if (localStorage.getItem('es_mambo_debts_v172')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v172'));
-                    if (localStorage.getItem('es_mambo_settings_v172')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v172'));
-                    if (localStorage.getItem('es_mambo_dark_mode')) this.darkMode = JSON.parse(localStorage.getItem('es_mambo_dark_mode'));
-                    
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v172');
-                    if (savedUser) {
-                        this.currentUser = JSON.parse(savedUser);
-                    }
+                    const load = (key, fallback) => { try { const raw = localStorage.getItem(key); return raw === null ? fallback : JSON.parse(raw); } catch (e) { console.warn('Data lokal rusak, memakai nilai default:', key, e); return fallback; } };
+                    this.products = load('es_mambo_products_v172', this.products);
+                    this.ingredients = load('es_mambo_ingredients_v172', this.ingredients);
+                    this.transactions = load('es_mambo_transactions_v172', this.transactions);
+                    this.expenses = load('es_mambo_expenses_v172', this.expenses);
+                    this.debts = load('es_mambo_debts_v172', this.debts);
+                    this.settings = { ...this.settings, ...load('es_mambo_settings_v172', {}) };
+                    this.darkMode = load('es_mambo_dark_mode', false);
+                    this.shiftActive = load('es_mambo_shift_active_v172', true);
+                    this.cashFloat = load('es_mambo_cash_float_v172', 150000);
+                    this.inputFloat = this.cashFloat;
+                    this.cashSalesTotal = load('es_mambo_cash_sales_v172', 0);
+                    this.currentUser = load('es_mambo_current_user_v172', null);
                 },
 
                 saveData() {
@@ -899,6 +915,10 @@
                     localStorage.setItem('es_mambo_transactions_v172', JSON.stringify(this.transactions));
                     localStorage.setItem('es_mambo_expenses_v172', JSON.stringify(this.expenses));
                     localStorage.setItem('es_mambo_debts_v172', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_settings_v172', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_shift_active_v172', JSON.stringify(this.shiftActive));
+                    localStorage.setItem('es_mambo_cash_float_v172', JSON.stringify(this.cashFloat));
+                    localStorage.setItem('es_mambo_cash_sales_v172', JSON.stringify(this.cashSalesTotal));
                 },
 
                 toggleDarkMode() {
@@ -907,12 +927,12 @@
                 },
 
                 handleLogin() {
-                    if (this.loginPin === '1234' || this.loginPin === '') {
+                    if (this.loginPin === '1234') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
                         localStorage.setItem('es_mambo_current_user_v172', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
-                        alert('PIN salah! Gunakan PIN default: 1234');
+                        alert('PIN salah. PIN default aplikasi ini adalah 1234; ganti mekanisme autentikasi sebelum dipakai untuk operasional nyata.');
                     }
                 },
 
@@ -923,21 +943,23 @@
 
                 addNewProduct() {
                     if (!this.newProdName || !this.newProdPrice) return;
-                    let randomSku = 'PRD' + Math.floor(100 + Math.random() * 900);
+                    if (Number(this.newProdPrice) <= 0 || Number(this.newProdHpp) < 0) { alert('Harga jual harus lebih dari 0 dan HPP tidak boleh negatif.'); return; }
+                    let randomSku; do { randomSku = 'PRD' + Math.floor(100 + Math.random() * 900); } while (this.products.some(p => p.sku === randomSku));
+                    const savedHpp = Number(this.newProdHpp) || 0;
                     this.products.push({
                         id: Date.now(),
                         sku: randomSku,
                         name: this.newProdName,
                         category: this.newProdCat,
                         price: Number(this.newProdPrice),
-                        baseHpp: Number(this.newProdHpp) || 0,
+                        baseHpp: savedHpp,
                         recipe: [{ ingId: 'ing2', qty: 1 }]
                     });
                     this.newProdName = '';
                     this.newProdHpp = 900;
                     this.newProdPrice = 3000;
                     this.saveData();
-                    alert('Menu baru berhasil ditambahkan dengan Harga Beli (HPP): ' + this.formatRupiah(this.newProdHpp));
+                    alert('Menu baru berhasil ditambahkan dengan Harga Beli (HPP): ' + this.formatRupiah(savedHpp));
                 },
 
                 deleteProduct(index) {
@@ -948,7 +970,7 @@
                 },
 
                 addDebt() {
-                    if (!this.newDebtName || !this.newDebtAmount) return;
+                    if (!this.newDebtName || !this.newDebtAmount || !Number.isFinite(Number(this.newDebtAmount)) || Number(this.newDebtAmount) <= 0) { alert('Nama dan nominal utang positif wajib diisi.'); return; }
                     this.debts.unshift({
                         id: Date.now(),
                         name: this.newDebtName,
@@ -973,6 +995,7 @@
                 },
 
                 confirmAddToCart() {
+                    if (!this.activeProduct) { this.showModifierModal = false; return; }
                     let existing = this.cart.find(item => item.id === this.activeProduct.id && item.note === this.activeProductNote);
                     if (existing) {
                         existing.quantity++;
@@ -988,7 +1011,7 @@
                         items = items.filter(p => p.category === this.selectedCategory);
                     }
                     if (this.searchQuery.trim() !== '') {
-                        items = items.filter(p => p.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+                        items = items.filter(p => String(p.name || '').toLowerCase().includes(this.searchQuery.toLowerCase()) || String(p.sku || '').toLowerCase().includes(this.searchQuery.toLowerCase()));
                     }
                     return items;
                 },
@@ -998,36 +1021,47 @@
                     if (this.cart[index].quantity > 1) { this.cart[index].quantity--; } else { this.cart.splice(index, 1); }
                 },
 
-                get subtotal() { return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0); },
-                get discountAmount() {
-                    if (!this.discountValue || this.discountValue <= 0) return 0;
-                    return this.discountType === 'percent' ? this.subtotal * (this.discountValue / 100) : Math.min(this.subtotal, this.discountValue);
+                get subtotal() { return this.cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0); },
+                get manualDiscountAmount() {
+                    const raw = Math.max(0, Number(this.discountValue) || 0);
+                    return this.discountType === 'percent' ? this.subtotal * Math.min(raw, 100) / 100 : Math.min(this.subtotal, raw);
                 },
-                get channelFee() {
-                    let afterDisc = this.subtotal - this.discountAmount;
-                    return this.salesChannel !== 'Offline' ? afterDisc * 0.20 : 0;
-                },
-                get grandTotal() { return (this.subtotal - this.discountAmount) + this.channelFee; },
+                get vipDiscountAmount() { return this.customerType === 'VIP' ? Math.max(0, this.subtotal - this.manualDiscountAmount) * (Math.min(100, Math.max(0, Number(this.settings.vipDiscountRate) || 0)) / 100) : 0; },
+                get happyHourDiscountAmount() { return this.isHappyHourActive ? Math.max(0, this.subtotal - this.manualDiscountAmount - this.vipDiscountAmount) * (Math.min(100, Math.max(0, Number(this.settings.happyHourDiscount) || 0)) / 100) : 0; },
+                get promoDiscountAmount() { return this.activePromo ? Math.max(0, this.subtotal - this.manualDiscountAmount - this.vipDiscountAmount - this.happyHourDiscountAmount) * (this.activePromo.rate / 100) : 0; },
+                get discountAmount() { return Math.min(this.subtotal, this.manualDiscountAmount + this.vipDiscountAmount + this.happyHourDiscountAmount + this.promoDiscountAmount); },
+                get discountedSubtotal() { return Math.max(0, this.subtotal - this.discountAmount); },
+                get channelFee() { return this.salesChannel !== 'Offline' ? this.discountedSubtotal * 0.20 : 0; },
+                get taxAmount() { return this.settings.enableTax ? (this.discountedSubtotal + this.channelFee) * Math.max(0, Number(this.settings.taxRate) || 0) / 100 : 0; },
+                get serviceChargeAmount() { return this.settings.enableServiceCharge ? (this.discountedSubtotal + this.channelFee) * Math.max(0, Number(this.settings.serviceChargeRate) || 0) / 100 : 0; },
+                get grandTotal() { return Math.round(this.discountedSubtotal + this.channelFee + this.taxAmount + this.serviceChargeAmount); },
+                get availableCategories() { return [...new Set(this.products.map(p => p.category).filter(Boolean))].sort(); },
+                get criticalStockCount() { return this.ingredients.filter(i => Number(i.stock) <= 5).length; },
+                get filteredHistory() { const q = (this.historySearch || '').trim().toLowerCase(); return this.transactions.filter(t => !q || [t.id, t.cashierName, t.customerType, t.channel, t.paymentMethod, t.date].some(v => String(v ?? '').toLowerCase().includes(q))); },
+                get isHappyHourActive() { const start = Number(this.settings.happyHourStart ?? 15); const end = Number(this.settings.happyHourEnd ?? 17); const hour = new Date().getHours(); return Boolean(this.settings.enableHappyHour) && hour >= start && hour < end; },
 
                 formatRupiah(value) { return 'Rp ' + Math.round(value || 0).toLocaleString('id-ID'); },
 
                 startShift() {
                     this.cashFloat = this.inputFloat;
                     this.shiftActive = true;
+                    this.cashSalesTotal = 0; this.saveData();
                     alert('Shift dibuka dengan modal: ' + this.formatRupiah(this.cashFloat));
                 },
                 closeShift() {
                     alert('Tutup Shift. Total Kas di Laci: ' + this.formatRupiah(this.cashFloat + this.cashSalesTotal));
                     this.shiftActive = false;
                     this.cashSalesTotal = 0;
+                    this.saveData();
                 },
 
                 addExpense() {
-                    if (!this.newExpenseName || !this.newExpenseAmount) return;
+                    if (!this.newExpenseName || !this.newExpenseAmount || !Number.isFinite(Number(this.newExpenseAmount)) || Number(this.newExpenseAmount) <= 0) { alert('Nama dan nominal pengeluaran positif wajib diisi.'); return; }
                     this.expenses.unshift({
                         id: Date.now(),
                         name: this.newExpenseName,
                         amount: Number(this.newExpenseAmount),
+                        timestamp: new Date().toISOString(),
                         date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
                     });
                     this.newExpenseName = '';
@@ -1036,36 +1070,104 @@
                 },
 
                 checkout() {
-                    for (let item of this.cart) {
-                        if (item.recipe) {
-                            for (let rec of item.recipe) {
-                                let ing = this.ingredients.find(i => i.id === rec.ingId);
-                                if (ing) ing.stock -= (rec.qty * item.quantity);
-                            }
-                        }
+                    if (!this.currentUser) { alert('Silakan login terlebih dahulu.'); return; }
+                    if (!this.shiftActive) { alert('Shift belum dibuka. Buka shift sebelum checkout.'); return; }
+                    if (!this.cart.length) { alert('Keranjang masih kosong.'); return; }
+                    if (this.paymentMethod === 'Tunai' && Number(this.cashReceived) < this.grandTotal) { alert('Uang diterima belum cukup untuk membayar total tagihan.'); return; }
+                    // Validasi seluruh kebutuhan stok sebelum mengubah stok apa pun.
+                    const required = new Map();
+                    for (const item of this.cart) for (const rec of (item.recipe || [])) required.set(rec.ingId, (required.get(rec.ingId) || 0) + Number(rec.qty || 0) * Number(item.quantity || 0));
+                    for (const [ingId, qty] of required) {
+                        const ing = this.ingredients.find(i => i.id === ingId);
+                        if (!ing) { alert('Resep mengacu ke bahan baku yang tidak ditemukan (' + ingId + '). Periksa resep produk.'); return; }
+                        if (Number(ing.stock) < qty) { alert('Stok ' + ing.name + ' tidak cukup. Tersedia ' + ing.stock + ', dibutuhkan ' + qty + '.'); return; }
                     }
-
-                    let totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
-                    let totalHppCart = this.cart.reduce((sum, item) => sum + (item.baseHpp * item.quantity), 0);
-                    
-                    let newTrx = {
-                        id: Date.now(),
-                        date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
-                        channel: this.salesChannel,
-                        totalItems: totalItems,
-                        grandTotal: this.grandTotal,
-                        totalHpp: totalHppCart,
-                        items: [...this.cart]
+                    const now = new Date();
+                    const totalItems = this.cart.reduce((sum, item) => sum + Number(item.quantity), 0);
+                    const totalHppCart = this.cart.reduce((sum, item) => sum + (Number(item.baseHpp || 0) * Number(item.quantity)), 0);
+                    const newTrx = {
+                        id: 'TRX-' + now.getTime(), timestamp: now.toISOString(),
+                        date: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' ' + now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        cashierName: this.currentUser.name, customerType: this.customerType,
+                        channel: this.salesChannel, paymentMethod: this.paymentMethod,
+                        totalItems, subtotal: this.subtotal, discount: this.discountAmount,
+                        channelFee: this.channelFee, taxAmount: this.taxAmount,
+                        serviceChargeAmount: this.serviceChargeAmount, grandTotal: this.grandTotal,
+                        cashReceived: this.paymentMethod === 'Tunai' ? Number(this.cashReceived) : null,
+                        change: this.paymentMethod === 'Tunai' ? Math.max(0, Number(this.cashReceived) - this.grandTotal) : 0,
+                        totalHpp: totalHppCart, items: this.cart.map(item => ({ ...item })), refunded: false
                     };
-
+                    // Mutasi stok dilakukan hanya setelah semua validasi lolos.
+                    for (const [ingId, qty] of required) this.ingredients.find(i => i.id === ingId).stock -= qty;
                     this.transactions.unshift(newTrx);
-                    if (this.salesChannel === 'Offline') this.cashSalesTotal += this.grandTotal;
-
-                    this.lastTrx = newTrx;
-                    this.showReceiptModal = true;
-                    this.cart = [];
-                    this.discountValue = 0;
+                    if (this.paymentMethod === 'Tunai' && this.salesChannel === 'Offline') this.cashSalesTotal += this.grandTotal;
+                    this.lastTrx = newTrx; this.showReceiptModal = true;
+                    this.cart = []; this.discountValue = 0; this.promoCode = ''; this.activePromo = null; this.cashReceived = 0;
                     this.saveData();
+                },
+
+                scanBarcode() {
+                    const code = String(this.barcodeInput || '').trim().toLowerCase();
+                    if (!code) return;
+                    const product = this.products.find(p => String(p.sku).toLowerCase() === code || String(p.barcode || '').toLowerCase() === code);
+                    this.barcodeInput = '';
+                    if (!product) { alert('Produk dengan SKU/barcode tersebut tidak ditemukan.'); return; }
+                    this.openModifierModal(product);
+                },
+
+                applyPromo() {
+                    const code = String(this.promoCode || '').trim().toUpperCase();
+                    // Kupon lokal sederhana; dapat diubah dari sini sesuai kebijakan toko.
+                    const promos = { HEMAT10: 10, HEMAT5: 5 };
+                    if (!code) { this.activePromo = null; alert('Masukkan kode promo.'); return; }
+                    if (!promos[code]) { this.activePromo = null; alert('Kode promo tidak valid. Kode tersedia: HEMAT10 atau HEMAT5.'); return; }
+                    this.activePromo = { code, rate: promos[code] };
+                    alert('Promo ' + code + ' berhasil diterapkan (' + promos[code] + '%).');
+                },
+
+                performRestock() {
+                    const ing = this.ingredients.find(i => i.id === this.restockIngId);
+                    const qty = Number(this.restockQty);
+                    if (!ing) { alert('Pilih bahan baku yang valid.'); return; }
+                    if (!Number.isFinite(qty) || qty <= 0) { alert('Jumlah restock harus lebih dari 0.'); return; }
+                    ing.stock = Number(ing.stock || 0) + qty; this.restockQty = 0; this.saveData();
+                    alert('Stok ' + ing.name + ' berhasil ditambah. Stok sekarang: ' + ing.stock + ' ' + ing.unit + '.');
+                },
+
+                printBarcode(product) {
+                    if (!product) return;
+                    const popup = window.open('', '_blank', 'width=420,height=500');
+                    if (!popup) { alert('Popup diblokir browser. Izinkan popup untuk mencetak label.'); return; }
+                    const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+                    popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Label Produk</title><style>body{font-family:monospace;width:200px;padding:10px;text-align:center}p{margin:5px 0}</style></head><body><p><b>WARUNG ES MAMBO</b></p><p><b>' + esc(product.name) + '</b></p><p><b>' + esc(this.formatRupiah(product.price)) + '</b></p><p style="font-size:14px;letter-spacing:2px">*' + esc(product.sku) + '*</p><p>' + esc(product.sku) + '</p><script>window.onload=()=>window.print()<\/script></body></html>');
+                    popup.document.close();
+                },
+
+                refundTransaction(id) {
+                    const trx = this.transactions.find(t => t.id === id || String(t.id) === String(id));
+                    if (!trx) { alert('Transaksi tidak ditemukan.'); return; }
+                    if (trx.refunded) { alert('Transaksi ini sudah diretur.'); return; }
+                    if (!confirm('Proses retur penuh untuk transaksi ' + trx.id + ' senilai ' + this.formatRupiah(trx.grandTotal) + '? Stok resep akan dikembalikan.')) return;
+                    for (const item of (trx.items || [])) for (const rec of (item.recipe || [])) {
+                        const ing = this.ingredients.find(i => i.id === rec.ingId);
+                        if (ing) ing.stock = Number(ing.stock || 0) + Number(rec.qty || 0) * Number(item.quantity || 0);
+                    }
+                    trx.refunded = true; trx.refundedAt = new Date().toISOString();
+                    if (trx.paymentMethod === 'Tunai' && trx.channel === 'Offline') this.cashSalesTotal = Math.max(0, this.cashSalesTotal - Number(trx.grandTotal || 0));
+                    this.saveData(); alert('Retur dicatat. Transaksi tetap tersimpan untuk audit.');
+                },
+
+                factoryReset() {
+                    if (this.currentUser?.role !== 'owner') { alert('Hanya owner yang dapat mereset data.'); return; }
+                    if (!confirm('PERINGATAN: hapus seluruh data lokal aplikasi ini? Tindakan tidak dapat dibatalkan. Buat backup terlebih dahulu.')) return;
+                    ['es_mambo_products_v172','es_mambo_ingredients_v172','es_mambo_transactions_v172','es_mambo_expenses_v172','es_mambo_debts_v172','es_mambo_settings_v172','es_mambo_shift_active_v172','es_mambo_cash_float_v172','es_mambo_cash_sales_v172'].forEach(k => localStorage.removeItem(k));
+                    location.reload();
+                },
+
+                exportDatabase() {
+                    const data = { version: '17.2.1', exportedAt: new Date().toISOString(), products: this.products, ingredients: this.ingredients, transactions: this.transactions, expenses: this.expenses, debts: this.debts, settings: this.settings, shiftActive: this.shiftActive, cashFloat: this.cashFloat, cashSalesTotal: this.cashSalesTotal };
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'backup-warung-es-mambo-' + new Date().toISOString().slice(0,10) + '.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
                 },
 
                 shareWhatsApp() {
@@ -1080,21 +1182,15 @@
                 },
 
                 exportToCSV() {
-                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Kanal,Total Item,Nilai Transaksi,Modal HPP\n";
-                    this.transactions.forEach(trx => {
-                        csvContent += `"${trx.date}","${trx.channel}",${trx.totalItems},${trx.grandTotal},${trx.totalHpp}\n`;
-                    });
-                    let encodedUri = encodeURI(csvContent);
-                    let link = document.createElement("a");
-                    link.setAttribute("href", encodedUri);
-                    link.setAttribute("download", "laporan_penjualan_warung_es.csv");
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    const rows = [['ID Transaksi','Waktu','Kasir','Pelanggan','Kanal','Metode Pembayaran','Total Item','Subtotal','Diskon','Pajak','Biaya Layanan','Nilai Transaksi','HPP','Status']];
+                    this.transactions.forEach(t => rows.push([t.id, t.date, t.cashierName || '', t.customerType || '', t.channel || '', t.paymentMethod || '', t.totalItems || 0, t.subtotal ?? t.grandTotal ?? 0, t.discount || 0, t.taxAmount || 0, t.serviceChargeAmount || 0, t.refunded ? 0 : (t.grandTotal || 0), t.totalHpp || 0, t.refunded ? 'Diretur' : 'Selesai']));
+                    const csv = rows.map(row => row.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(';')).join('\r\n');
+                    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = 'laporan_penjualan_warung_es.csv'; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
                 },
 
-                get totalOmzet() { return this.transactions.reduce((s, t) => s + t.grandTotal, 0); },
-                get totalHppModal() { return this.transactions.reduce((s, t) => s + t.totalHpp, 0); },
+                get totalOmzet() { return this.transactions.filter(t => !t.refunded).reduce((s, t) => s + Number(t.grandTotal || 0), 0); },
+                get totalHppModal() { return this.transactions.filter(t => !t.refunded).reduce((s, t) => s + Number(t.totalHpp || 0), 0); },
                 get totalExpenses() { return this.expenses.reduce((s, e) => s + e.amount, 0); },
                 get netProfit() { return this.totalOmzet - this.totalHppModal - this.totalExpenses; }
             }
