@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v13.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v14.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,7 +39,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v13.0</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v14.0</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -75,7 +75,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v13.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v14.0)</p>
                 </div>
             </div>
 
@@ -113,7 +113,18 @@
     </header>
 
     <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow">
+    <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow space-y-4">
+
+        <!-- Banner Peringatan Stok Kritis -->
+        <div x-show="criticalStockCount > 0 && currentTab === 'cashier'" class="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 p-3 rounded-2xl flex items-center justify-between text-xs text-rose-800 dark:text-rose-200">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 dark:text-rose-400 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span class="font-bold">Perhatian: Ada <span x-text="criticalStockCount"></span> bahan baku di gudang yang berada di ambang batas kritis (≤ 5 unit)!</span>
+            </div>
+            <button @click="currentTab = 'inventory'" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1 rounded-xl transition">Cek Gudang</button>
+        </div>
 
         <!-- ================= MODUL 1: KASIR POS ================= -->
         <div x-show="currentTab === 'cashier'" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -831,7 +842,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v13.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v14.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -913,30 +924,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v13')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v13'));
-                    if (localStorage.getItem('es_mambo_ingredients_v13')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v13'));
-                    if (localStorage.getItem('es_mambo_transactions_v13')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v13'));
-                    if (localStorage.getItem('es_mambo_expenses_v13')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v13'));
-                    if (localStorage.getItem('es_mambo_debts_v13')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v13'));
-                    if (localStorage.getItem('es_mambo_settings_v13')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v13'));
+                    if (localStorage.getItem('es_mambo_products_v14')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v14'));
+                    if (localStorage.getItem('es_mambo_ingredients_v14')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v14'));
+                    if (localStorage.getItem('es_mambo_transactions_v14')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v14'));
+                    if (localStorage.getItem('es_mambo_expenses_v14')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v14'));
+                    if (localStorage.getItem('es_mambo_debts_v14')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v14'));
+                    if (localStorage.getItem('es_mambo_settings_v14')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v14'));
                     if (localStorage.getItem('es_mambo_dark_mode')) this.darkMode = JSON.parse(localStorage.getItem('es_mambo_dark_mode'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v13');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v14');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v13', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v13', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v13', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v13', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v13', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v14', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v14', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v14', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v14', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v14', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v13', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v14', JSON.stringify(this.settings));
                 },
 
                 toggleDarkMode() {
@@ -947,7 +958,7 @@
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v13', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v14', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -956,7 +967,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v13');
+                    localStorage.removeItem('es_mambo_current_user_v14');
                 },
 
                 scanBarcode() {
