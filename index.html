@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v10.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v11.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -18,6 +18,8 @@
             #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; }
             #printable-zreport, #printable-zreport * { visibility: visible; }
             #printable-zreport { position: absolute; left: 0; top: 0; width: 100%; }
+            #printable-barcode, #printable-barcode * { visibility: visible; }
+            #printable-barcode { position: absolute; left: 0; top: 0; width: 100%; }
         }
     </style>
 </head>
@@ -32,7 +34,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v10.0</h2>
+                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v11.0</h2>
                 <p class="text-xs text-slate-500 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -68,7 +70,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v10.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v11.0)</p>
                 </div>
             </div>
 
@@ -353,13 +355,25 @@
                                 <td class="p-3 font-semibold text-slate-800" x-text="prod.name"></td>
                                 <td class="p-3 text-slate-500" x-text="prod.category"></td>
                                 <td class="p-3 text-emerald-600 font-bold" x-text="formatRupiah(prod.price)"></td>
-                                <td class="p-3 text-right">
+                                <td class="p-3 text-right space-x-2">
+                                    <button @click="printBarcode(prod)" class="text-blue-600 hover:underline text-xs font-semibold">Cetak Barcode</button>
                                     <button @click="deleteProduct(idx)" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Hapus</button>
                                 </td>
                             </tr>
                         </template>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Hidden Printable Barcode Label Layout -->
+        <div id="printable-barcode" class="hidden">
+            <div style="font-family: monospace; width: 200px; padding: 10px; text-align: center; border: 1px solid #000;">
+                <p style="font-size: 10px; font-weight: bold; margin: 0;">WARUNG ES MAMBO</p>
+                <p style="font-size: 12px; font-weight: bold; margin: 4px 0;" x-text="activeBarcodeProd?.name"></p>
+                <p style="font-size: 14px; font-weight: bold; margin: 4px 0;" x-text="formatRupiah(activeBarcodeProd?.price)"></p>
+                <p style="font-size: 14px; font-family: monospace; letter-spacing: 2px; margin: 4px 0;" x-text="'*' + activeBarcodeProd?.sku + '*'"></p>
+                <p style="font-size: 9px; margin: 0;" x-text="activeBarcodeProd?.sku"></p>
             </div>
         </div>
 
@@ -509,11 +523,11 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 7: RIWAYAT TRANSAKSI ================= -->
+        <!-- ================= MODUL 7: RIWAYAT TRANSAKSI & REFUND ================= -->
         <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">Riwayat Transaksi</h2>
+                    <h2 class="text-lg font-bold text-slate-800">Riwayat Transaksi & Retur</h2>
                     <p class="text-xs text-slate-500">Daftar seluruh penjualan yang berhasil diproses.</p>
                 </div>
                 <div class="w-full sm:w-64">
@@ -531,6 +545,7 @@
                             <th class="p-3">Kanal</th>
                             <th class="p-3">Metode</th>
                             <th class="p-3 text-right">Nilai Transaksi</th>
+                            <th class="p-3 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -544,6 +559,9 @@
                                 <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold" :class="trx.channel === 'Offline' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'" x-text="trx.channel"></span></td>
                                 <td class="p-3 text-xs font-semibold text-slate-700" x-text="trx.paymentMethod || 'Tunai'"></td>
                                 <td class="p-3 text-right font-bold text-blue-600" x-text="formatRupiah(trx.grandTotal)"></td>
+                                <td class="p-3 text-right">
+                                    <button @click="refundTransaction(trx.id)" class="text-rose-600 hover:underline text-xs font-semibold">Retur</button>
+                                </td>
                             </tr>
                         </template>
                     </tbody>
@@ -552,7 +570,7 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 8: LAPORAN OWNER ================= -->
+        <!-- ================= MODUL 8: LAPORAN OWNER & LEADERBOARD KASIR ================= -->
         <div x-show="currentTab === 'report' && currentUser?.role === 'owner'" class="space-y-6 max-w-4xl mx-auto">
             <div class="flex flex-wrap justify-between items-center gap-2">
                 <div class="flex gap-2">
@@ -750,7 +768,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v10.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v11.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -779,6 +797,7 @@
                 showModifierModal: false,
                 activeProduct: null,
                 activeProductNote: '',
+                activeBarcodeProd: null,
                 lastTrx: null,
 
                 newProdName: '',
@@ -826,35 +845,35 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v10')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v10'));
-                    if (localStorage.getItem('es_mambo_ingredients_v10')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v10'));
-                    if (localStorage.getItem('es_mambo_transactions_v10')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v10'));
-                    if (localStorage.getItem('es_mambo_expenses_v10')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v10'));
-                    if (localStorage.getItem('es_mambo_debts_v10')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v10'));
-                    if (localStorage.getItem('es_mambo_settings_v10')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v10'));
+                    if (localStorage.getItem('es_mambo_products_v11')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v11'));
+                    if (localStorage.getItem('es_mambo_ingredients_v11')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v11'));
+                    if (localStorage.getItem('es_mambo_transactions_v11')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v11'));
+                    if (localStorage.getItem('es_mambo_expenses_v11')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v11'));
+                    if (localStorage.getItem('es_mambo_debts_v11')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v11'));
+                    if (localStorage.getItem('es_mambo_settings_v11')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v11'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v10');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v11');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v10', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v10', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v10', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v10', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v10', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v11', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v11', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v11', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v11', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v11', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v10', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v11', JSON.stringify(this.settings));
                 },
 
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v10', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v11', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -863,7 +882,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v10');
+                    localStorage.removeItem('es_mambo_current_user_v11');
                 },
 
                 scanBarcode() {
@@ -876,6 +895,13 @@
                         alert('Kode SKU / Barcode tidak ditemukan!');
                         this.barcodeInput = '';
                     }
+                },
+
+                printBarcode(prod) {
+                    this.activeBarcodeProd = prod;
+                    setTimeout(() => {
+                        window.print();
+                    }, 200);
                 },
 
                 applyPromo() {
@@ -1103,6 +1129,30 @@
                     this.cashReceived = 0;
                     this.customerType = 'Regular';
                     this.saveData();
+                },
+
+                refundTransaction(id) {
+                    if (confirm('Yakin ingin membatalkan/retur transaksi ini? Stok bahan akan dikembalikan.')) {
+                        let idx = this.transactions.findIndex(t => t.id === id);
+                        if (idx !== -1) {
+                            let trx = this.transactions[idx];
+                            // Kembalikan stok
+                            trx.items.forEach(item => {
+                                if (item.recipe) {
+                                    item.recipe.forEach(rec => {
+                                        let ing = this.ingredients.find(i => i.id === rec.ingId);
+                                        if (ing) ing.stock += (rec.qty * item.quantity);
+                                    });
+                                }
+                            });
+                            if (trx.channel === 'Offline' && trx.paymentMethod === 'Tunai') {
+                                this.cashSalesTotal -= trx.grandTotal;
+                            }
+                            this.transactions.splice(idx, 1);
+                            this.saveData();
+                            alert('Transaksi berhasil diretur dan stok dikembalikan.');
+                        }
+                    }
                 },
 
                 shareWhatsApp() {
