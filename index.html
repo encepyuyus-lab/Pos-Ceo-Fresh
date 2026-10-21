@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v11.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v12.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -34,7 +34,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v11.0</h2>
+                <h2 class="text-xl font-bold text-slate-800">Masuk ke Sistem POS v12.0</h2>
                 <p class="text-xs text-slate-500 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -70,7 +70,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v11.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v12.0)</p>
                 </div>
             </div>
 
@@ -179,8 +179,13 @@
                     </div>
                 </div>
 
-                <!-- Bagian Diskon, Pajak & Pembayaran -->
+                <!-- Bagian Diskon, Happy Hour, Pajak & Pembayaran -->
                 <div class="space-y-2.5 pt-2 border-t border-slate-100">
+                    <!-- Notifikasi Happy Hour Aktif -->
+                    <div x-show="isHappyHourActive" class="bg-indigo-50 border border-indigo-200 p-2 rounded-xl text-xs text-indigo-800 font-bold text-center animate-pulse">
+                        ⚡ HAPPY HOUR AKTIF (Diskon Otomatis <span x-text="settings.happyHourDiscount"></span>%)
+                    </div>
+
                     <div class="flex items-center justify-between bg-amber-50/60 p-2 rounded-xl border border-amber-200 text-xs">
                         <span class="font-semibold text-amber-900">Tipe Pelanggan:</span>
                         <select x-model="customerType" class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-xs font-semibold text-amber-900 focus:outline-none">
@@ -523,7 +528,7 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 7: RIWAYAT TRANSAKSI & REFUND ================= -->
+        <!-- ================= MODUL 7: RIWAYAT TRANSAKSI ================= -->
         <div x-show="currentTab === 'history'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-4xl mx-auto space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
@@ -570,7 +575,7 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 8: LAPORAN OWNER & LEADERBOARD KASIR ================= -->
+        <!-- ================= MODUL 8: LAPORAN OWNER ================= -->
         <div x-show="currentTab === 'report' && currentUser?.role === 'owner'" class="space-y-6 max-w-4xl mx-auto">
             <div class="flex flex-wrap justify-between items-center gap-2">
                 <div class="flex gap-2">
@@ -637,7 +642,7 @@
         <div x-show="currentTab === 'settings' && currentUser?.role === 'owner'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 max-w-2xl mx-auto space-y-6">
             <div>
                 <h2 class="text-lg font-bold text-slate-800">Pengaturan Sistem & Hak Akses</h2>
-                <p class="text-xs text-slate-500">Konfigurasi pajak restoran, hak akses kasir, dan besaran diskon VIP.</p>
+                <p class="text-xs text-slate-500">Konfigurasi pajak restoran, hak akses kasir, diskon VIP, dan Happy Hour.</p>
             </div>
 
             <div class="space-y-4 text-sm bg-slate-50 p-5 rounded-2xl border border-slate-200">
@@ -666,6 +671,22 @@
                         <p class="text-xs text-slate-500">Potongan otomatis untuk pelanggan berstatus VIP</p>
                     </div>
                     <input type="number" x-model.number="settings.vipDiscountRate" @input="saveSettings()" class="w-20 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-right font-bold">
+                </div>
+
+                <!-- Happy Hour Switch & Diskon -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <div>
+                        <p class="font-semibold text-slate-800">Aktifkan Happy Hour Otomatis</p>
+                        <p class="text-xs text-slate-500">Diskon otomatis berdasarkan jam operasional sore hari</p>
+                    </div>
+                    <input type="checkbox" x-model="settings.enableHappyHour" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200" x-show="settings.enableHappyHour">
+                    <div>
+                        <p class="font-semibold text-slate-800">Besaran Diskon Happy Hour (%)</p>
+                    </div>
+                    <input type="number" x-model.number="settings.happyHourDiscount" @input="saveSettings()" class="w-20 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-right font-bold">
                 </div>
 
                 <!-- Hak Akses Diskon Kasir -->
@@ -768,7 +789,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v11.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600">v12.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -816,7 +837,9 @@
                     enableTax: true,
                     taxRate: 10,
                     vipDiscountRate: 5,
-                    allowCashierDiscount: true
+                    allowCashierDiscount: true,
+                    enableHappyHour: true,
+                    happyHourDiscount: 10
                 },
 
                 ingredients: [
@@ -845,35 +868,35 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v11')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v11'));
-                    if (localStorage.getItem('es_mambo_ingredients_v11')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v11'));
-                    if (localStorage.getItem('es_mambo_transactions_v11')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v11'));
-                    if (localStorage.getItem('es_mambo_expenses_v11')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v11'));
-                    if (localStorage.getItem('es_mambo_debts_v11')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v11'));
-                    if (localStorage.getItem('es_mambo_settings_v11')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v11'));
+                    if (localStorage.getItem('es_mambo_products_v12')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v12'));
+                    if (localStorage.getItem('es_mambo_ingredients_v12')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v12'));
+                    if (localStorage.getItem('es_mambo_transactions_v12')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v12'));
+                    if (localStorage.getItem('es_mambo_expenses_v12')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v12'));
+                    if (localStorage.getItem('es_mambo_debts_v12')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v12'));
+                    if (localStorage.getItem('es_mambo_settings_v12')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v12'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v11');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v12');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v11', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v11', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v11', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v11', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v11', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v12', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v12', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v12', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v12', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v12', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v11', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v12', JSON.stringify(this.settings));
                 },
 
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v11', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v12', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -882,7 +905,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v11');
+                    localStorage.removeItem('es_mambo_current_user_v12');
                 },
 
                 scanBarcode() {
@@ -1017,6 +1040,12 @@
                     return this.ingredients.filter(i => i.stock <= 5).length;
                 },
 
+                get isHappyHourActive() {
+                    if (!this.settings.enableHappyHour) return false;
+                    let currentHour = new Date().getHours();
+                    return currentHour >= 15 && currentHour <= 18; // Happy hour jam 15:00 - 18:00
+                },
+
                 increaseQty(index) { this.cart[index].quantity++; },
                 decreaseQty(index) {
                     if (this.cart[index].quantity > 1) { this.cart[index].quantity--; } else { this.cart.splice(index, 1); }
@@ -1028,13 +1057,17 @@
                     return this.customerType === 'VIP' ? this.subtotal * (this.settings.vipDiscountRate / 100) : 0;
                 },
 
+                get happyHourDiscountAmount() {
+                    return this.isHappyHourActive ? this.subtotal * (this.settings.happyHourDiscount / 100) : 0;
+                },
+
                 get discountAmount() {
-                    let sub = this.subtotal - this.vipDiscountAmount;
+                    let sub = this.subtotal - this.vipDiscountAmount - this.happyHourDiscountAmount;
                     let manualDisc = 0;
                     if ((this.currentUser?.role === 'owner' || this.settings.allowCashierDiscount) && this.discountValue && this.discountValue > 0) {
                         manualDisc = this.discountType === 'percent' ? sub * (this.discountValue / 100) : Math.min(sub, this.discountValue);
                     }
-                    return this.vipDiscountAmount + manualDisc;
+                    return this.vipDiscountAmount + this.happyHourDiscountAmount + manualDisc;
                 },
 
                 get channelFee() {
@@ -1136,7 +1169,6 @@
                         let idx = this.transactions.findIndex(t => t.id === id);
                         if (idx !== -1) {
                             let trx = this.transactions[idx];
-                            // Kembalikan stok
                             trx.items.forEach(item => {
                                 if (item.recipe) {
                                     item.recipe.forEach(rec => {
