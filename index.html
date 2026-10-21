@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v18.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v17.1 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,7 +39,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v18.0</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v17.1</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -75,7 +75,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v18.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v17.1 Stable)</p>
                 </div>
             </div>
 
@@ -350,40 +350,35 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 3: KELOLA MENU & KATEGORI (HPP MANUAL) ================= -->
+        <!-- ================= MODUL 3: KELOLA MENU & KATEGORI (OWNER) ================= -->
         <div x-show="currentTab === 'products_mgmt' && currentUser?.role === 'owner'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-6">
             <div>
-                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Kelola Katalog Menu & Harga Beli (HPP)</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Tambah menu baru dengan menentukan harga beli / modal (HPP) secara manual.</p>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">Kelola Katalog Menu & Kategori</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Tambah menu baru beserta kalkulator proyeksi margin keuntungan.</p>
             </div>
 
-            <!-- Form Tambah Menu dengan Input Harga Beli (HPP) -->
-            <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
+            <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Menu:</label>
                     <input type="text" x-model="newProdName" placeholder="Cth: Es Mambo Melon" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Kategori:</label>
-                    <input type="text" x-model="newProdCat" placeholder="Cth: Frozen / Jus" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Harga Beli / HPP (Rp):</label>
-                    <input type="number" x-model.number="newProdHpp" placeholder="900" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
+                    <input type="text" x-model="newProdCat" placeholder="Cth: Frozen / Snack / Jus" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Harga Jual (Rp):</label>
                     <input type="number" x-model.number="newProdPrice" placeholder="3000" class="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white">
                 </div>
-                <button @click="addNewProduct()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9 sm:col-span-5">
-                    TAMBAH MENU KE KATALOG
+                <button @click="addNewProduct()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm h-9">
+                    TAMBAH MENU
                 </button>
             </div>
 
             <!-- Proyeksi Margin Real-Time -->
             <div x-show="newProdPrice > 0" class="bg-blue-50 dark:bg-blue-950/40 p-3 rounded-xl border border-blue-200 dark:border-blue-800 text-xs flex justify-between items-center text-blue-900 dark:text-blue-300">
-                <span>Modal Beli (HPP): <strong x-text="formatRupiah(newProdHpp)"></strong></span>
-                <span>Proyeksi Margin Laba: <strong class="text-emerald-600 dark:text-emerald-400" x-text="formatRupiah(newProdPrice - newProdHpp) + ' (' + Math.round(((newProdPrice - newProdHpp)/newProdPrice)*100) + '%)'"></strong></span>
+                <span>Estimasi Modal HPP (30%): <strong x-text="formatRupiah(newProdPrice * 0.3)"></strong></span>
+                <span>Proyeksi Margin Laba: <strong class="text-emerald-600 dark:text-emerald-400" x-text="formatRupiah(newProdPrice * 0.7) + ' (' + 70 + '%)'"></strong></span>
             </div>
 
             <div class="overflow-x-auto">
@@ -393,9 +388,7 @@
                             <th class="p-3">SKU</th>
                             <th class="p-3">Nama Menu</th>
                             <th class="p-3">Kategori</th>
-                            <th class="p-3">Harga Beli (HPP)</th>
                             <th class="p-3">Harga Jual</th>
-                            <th class="p-3">Keuntungan</th>
                             <th class="p-3 text-right">Aksi</th>
                         </tr>
                     </thead>
@@ -405,12 +398,10 @@
                                 <td class="p-3 font-mono text-slate-500 dark:text-slate-400" x-text="prod.sku"></td>
                                 <td class="p-3 font-semibold text-slate-800 dark:text-white" x-text="prod.name"></td>
                                 <td class="p-3 text-slate-500 dark:text-slate-400" x-text="prod.category"></td>
-                                <td class="p-3 text-rose-600 dark:text-rose-400 font-semibold" x-text="formatRupiah(prod.baseHpp)"></td>
                                 <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold" x-text="formatRupiah(prod.price)"></td>
-                                <td class="p-3 font-bold text-blue-600 dark:text-blue-400" x-text="formatRupiah(prod.price - prod.baseHpp)"></td>
                                 <td class="p-3 text-right space-x-2">
                                     <button @click="printBarcode(prod)" class="text-blue-600 dark:text-blue-400 hover:underline text-xs font-semibold">Cetak Barcode</button>
-                                    <button @click="deleteProduct(idx)" class="text-rose-500 dark:text-rose-400 text-xs font-semibold">Hapus</button>
+                                    <button @click="deleteProduct(idx)" class="text-rose-500 hover:text-rose-400 text-xs font-semibold">Hapus</button>
                                 </td>
                             </tr>
                         </template>
@@ -576,7 +567,7 @@
             </div>
         </div>
 
-        <!-- ================= MODUL 7: RIWAYAT TRANSAKSI ================= -->
+        <!-- ================= MODUL 7: RIWAYAT TRANSAKSI & RETUR ================= -->
         <div x-show="currentTab === 'history'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-4xl mx-auto space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
@@ -690,34 +681,90 @@
         <div x-show="currentTab === 'settings' && currentUser?.role === 'owner'" class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-2xl mx-auto space-y-6">
             <div>
                 <h2 class="text-lg font-bold text-slate-800 dark:text-white">Pengaturan Sistem & Hak Akses</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Konfigurasi pajak restoran, biaya layanan, dan diskon VIP.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Konfigurasi pajak restoran, biaya layanan, diskon VIP, dan Happy Hour.</p>
             </div>
 
             <div class="space-y-4 text-sm bg-slate-50 dark:bg-slate-700/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <!-- Pajak Switch -->
                 <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
                     <div>
                         <p class="font-semibold text-slate-800 dark:text-white">Aktifkan Pajak Restoran (PPN)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Secara otomatis menambahkan persentase pajak pada tagihan</p>
                     </div>
                     <input type="checkbox" x-model="settings.enableTax" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
                 </div>
 
+                <!-- Tarif Pajak -->
                 <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" x-show="settings.enableTax">
                     <div>
                         <p class="font-semibold text-slate-800 dark:text-white">Besaran Tarif Pajak (%)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Persentase PPN yang dikenakan pada subtotal</p>
                     </div>
                     <input type="number" x-model.number="settings.taxRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
                 </div>
 
+                <!-- Biaya Layanan Switch & Tarif -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Aktifkan Biaya Layanan (Service Charge)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Biaya tambahan pelayanan untuk restoran/warung</p>
+                    </div>
+                    <input type="checkbox" x-model="settings.enableServiceCharge" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" x-show="settings.enableServiceCharge">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Besaran Biaya Layanan (%)</p>
+                    </div>
+                    <input type="number" x-model.number="settings.serviceChargeRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
+                </div>
+
+                <!-- Diskon Metode Pembayaran Non-Tunai -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Diskon Khusus Non-Tunai (QRIS/Transfer)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Berikan insentif potongan harga untuk pembayaran digital</p>
+                    </div>
+                    <input type="checkbox" x-model="settings.enablePaymentDiscount" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" x-show="settings.enablePaymentDiscount">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Besaran Diskon Non-Tunai (%)</p>
+                    </div>
+                    <input type="number" x-model.number="settings.paymentDiscountRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
+                </div>
+
+                <!-- Diskon VIP -->
                 <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
                     <div>
                         <p class="font-semibold text-slate-800 dark:text-white">Besaran Diskon VIP Member (%)</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Potongan otomatis untuk pelanggan berstatus VIP</p>
                     </div>
                     <input type="number" x-model.number="settings.vipDiscountRate" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
                 </div>
 
+                <!-- Happy Hour Switch & Diskon -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Aktifkan Happy Hour Otomatis</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Diskon otomatis berdasarkan jam operasional sore hari (15:00 - 18:00)</p>
+                    </div>
+                    <input type="checkbox" x-model="settings.enableHappyHour" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
+                </div>
+
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" x-show="settings.enableHappyHour">
+                    <div>
+                        <p class="font-semibold text-slate-800 dark:text-white">Besaran Diskon Happy Hour (%)</p>
+                    </div>
+                    <input type="number" x-model.number="settings.happyHourDiscount" @input="saveSettings()" class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 text-xs text-right font-bold text-slate-800 dark:text-white">
+                </div>
+
+                <!-- Hak Akses Diskon Kasir -->
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="font-semibold text-slate-800 dark:text-white">Izinkan Kasir Beri Diskon Manual</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Beri izin staff kasir untuk input diskon saat melayani pesanan</p>
                     </div>
                     <input type="checkbox" x-model="settings.allowCashierDiscount" @change="saveSettings()" class="w-5 h-5 accent-blue-600 rounded">
                 </div>
@@ -756,6 +803,7 @@
                     <h3 class="font-bold text-sm text-slate-900">WARUNG ES MAMBO & JUS</h3>
                     <p class="text-[10px] text-slate-500">Jl. Pameungpeuk Raya, Garut Selatan</p>
                     <p class="text-[10px] text-slate-400" x-text="lastTrx?.date"></p>
+                    <p class="text-[10px] text-blue-600 font-semibold" x-text="'Kasir: ' + lastTrx?.cashierName"></p>
                 </div>
                 <div class="space-y-1.5 text-xs max-h-40 overflow-y-auto px-1">
                     <template x-for="item in lastTrx?.items">
@@ -772,6 +820,34 @@
                     <div class="flex justify-between font-bold text-slate-900 text-sm">
                         <span>Total Tagihan:</span>
                         <span class="text-blue-600" x-text="formatRupiah(lastTrx?.grandTotal)"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.taxAmount > 0">
+                        <span x-text="'Pajak Resto (' + lastTrx?.taxRateUsed + '%):'"></span>
+                        <span class="font-semibold" x-text="formatRupiah(lastTrx?.taxAmount)"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.serviceChargeAmount > 0">
+                        <span x-text="'Biaya Layanan (' + lastTrx?.serviceChargeRateUsed + '%):'"></span>
+                        <span class="font-semibold" x-text="formatRupiah(lastTrx?.serviceChargeAmount)"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.paymentDiscountAmount > 0">
+                        <span x-text="'Diskon Non-Tunai (' + lastTrx?.paymentDiscountRateUsed + '%):'"></span>
+                        <span class="font-semibold text-emerald-700" x-text="'- ' + formatRupiah(lastTrx?.paymentDiscountAmount)"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.paymentMethod === 'Tunai'">
+                        <span>Uang Diterima:</span>
+                        <span class="font-semibold" x-text="formatRupiah(lastTrx?.cashReceived)"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.paymentMethod === 'Tunai'">
+                        <span>Kembalian:</span>
+                        <span class="font-semibold text-emerald-700" x-text="formatRupiah(lastTrx?.cashChange)"></span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]" x-show="lastTrx?.customerType === 'VIP'">
+                        <span>Tipe Pelanggan:</span>
+                        <span class="font-semibold text-amber-700">⭐ VIP Member</span>
+                    </div>
+                    <div class="flex justify-between text-slate-500 text-[10px]">
+                        <span>Metode Pembayaran:</span>
+                        <span class="font-semibold" x-text="lastTrx?.paymentMethod"></span>
                     </div>
                     <div class="flex justify-between text-slate-500 text-[10px]">
                         <span>Kanal Penjualan:</span>
@@ -790,9 +866,9 @@
         </div>
     </div>
 
-    <!-- Footer Copyright -->
+    <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v17.2.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v17.1.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -805,41 +881,54 @@
                 currentTab: 'cashier',
                 selectedCategory: 'All',
                 salesChannel: 'Offline',
+                paymentMethod: 'Tunai',
+                customerType: 'Regular',
                 searchQuery: '',
+                barcodeInput: '',
+                historySearch: '',
                 darkMode: false,
 
                 shiftActive: true,
                 cashFloat: 150000,
                 inputFloat: 150000,
                 cashSalesTotal: 0,
+                cashReceived: 0,
 
                 showReceiptModal: false,
                 showModifierModal: false,
                 activeProduct: null,
                 activeProductNote: '',
+                activeBarcodeProd: null,
                 lastTrx: null,
 
                 newProdName: '',
                 newProdCat: 'Frozen',
-                newProdHpp: 900,
                 newProdPrice: 3000,
 
                 newDebtName: '',
                 newDebtAmount: '',
                 debts: [],
 
+                restockIngId: 'ing1',
+                restockQty: 10,
+                promoCode: '',
+
                 settings: {
                     enableTax: true,
                     taxRate: 10,
                     enableServiceCharge: false,
                     serviceChargeRate: 5,
+                    enablePaymentDiscount: false,
+                    paymentDiscountRate: 2,
                     vipDiscountRate: 5,
-                    allowCashierDiscount: true
+                    allowCashierDiscount: true,
+                    enableHappyHour: true,
+                    happyHourDiscount: 10
                 },
 
                 ingredients: [
                     { id: 'ing1', name: 'Gula & Susu', unit: 'kg', costPerUnit: 25000, stock: 50 },
-                    { id: 'ing2', name: 'Plastik Mambo + Karet', unit: 'pcs', costPerUnit: 150, stock: 300 },
+                    { id: 'ing2', name: 'Plastik Mambo + Karet', unit: 'pcs', costPerUnit: 150, stock: 4 },
                     { id: 'ing3', name: 'Buah Alpukat Segar', unit: 'kg', costPerUnit: 20000, stock: 20 },
                     { id: 'ing4', name: 'Buah Mangga Kuweni', unit: 'kg', costPerUnit: 18000, stock: 15 },
                     { id: 'ing5', name: 'Cup Es Cream', unit: 'pcs', costPerUnit: 400, stock: 100 }
@@ -863,26 +952,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v172')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v172'));
-                    if (localStorage.getItem('es_mambo_ingredients_v172')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v172'));
-                    if (localStorage.getItem('es_mambo_transactions_v172')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v172'));
-                    if (localStorage.getItem('es_mambo_expenses_v172')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v172'));
-                    if (localStorage.getItem('es_mambo_debts_v172')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v172'));
-                    if (localStorage.getItem('es_mambo_settings_v172')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v172'));
+                    if (localStorage.getItem('es_mambo_products_v171')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v171'));
+                    if (localStorage.getItem('es_mambo_ingredients_v171')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v171'));
+                    if (localStorage.getItem('es_mambo_transactions_v171')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v171'));
+                    if (localStorage.getItem('es_mambo_expenses_v171')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v171'));
+                    if (localStorage.getItem('es_mambo_debts_v171')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v171'));
+                    if (localStorage.getItem('es_mambo_settings_v171')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v171'));
                     if (localStorage.getItem('es_mambo_dark_mode')) this.darkMode = JSON.parse(localStorage.getItem('es_mambo_dark_mode'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v172');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v171');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v172', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v172', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v172', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v172', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v172', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v171', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v171', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v171', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v171', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v171', JSON.stringify(this.debts));
+                },
+
+                saveSettings() {
+                    localStorage.setItem('es_mambo_settings_v171', JSON.stringify(this.settings));
                 },
 
                 toggleDarkMode() {
@@ -893,7 +986,7 @@
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v172', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v171', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -902,7 +995,52 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v172');
+                    localStorage.removeItem('es_mambo_current_user_v171');
+                },
+
+                scanBarcode() {
+                    let code = this.barcodeInput.trim().toUpperCase();
+                    let prod = this.products.find(p => p.sku.toUpperCase() === code);
+                    if (prod) {
+                        this.openModifierModal(prod);
+                        this.barcodeInput = '';
+                    } else {
+                        alert('Kode SKU / Barcode tidak ditemukan!');
+                        this.barcodeInput = '';
+                    }
+                },
+
+                printBarcode(prod) {
+                    this.activeBarcodeProd = prod;
+                    setTimeout(() => {
+                        window.print();
+                    }, 200);
+                },
+
+                applyPromo() {
+                    let code = this.promoCode.trim().toUpperCase();
+                    if (code === 'HEMAT10') {
+                        this.discountType = 'percent';
+                        this.discountValue = 10;
+                        alert('Kupon HEMAT10 berhasil diterapkan (Diskon 10%)!');
+                    } else if (code === 'DISKON5RB') {
+                        this.discountType = 'nominal';
+                        this.discountValue = 5000;
+                        alert('Kupon DISKON5RB berhasil diterapkan (Potongan Rp 5.000)!');
+                    } else {
+                        alert('Kode promo tidak valid atau kedaluwarsa.');
+                    }
+                    this.promoCode = '';
+                },
+
+                performRestock() {
+                    let ing = this.ingredients.find(i => i.id === this.restockIngId);
+                    if (ing && this.restockQty > 0) {
+                        ing.stock += Number(this.restockQty);
+                        this.saveData();
+                        alert(`Berhasil menambah stok ${ing.name} sebanyak ${this.restockQty} ${ing.unit}!`);
+                        this.restockQty = 10;
+                    }
                 },
 
                 addNewProduct() {
@@ -912,16 +1050,16 @@
                         id: Date.now(),
                         sku: randomSku,
                         name: this.newProdName,
-                        category: this.newProdCat,
+                        category: this.newProdCat.trim() || 'Lainnya',
                         price: Number(this.newProdPrice),
-                        baseHpp: Number(this.newProdHpp) || 0,
+                        baseHpp: Math.round(this.newProdPrice * 0.3),
                         recipe: [{ ingId: 'ing2', qty: 1 }]
                     });
                     this.newProdName = '';
-                    this.newProdHpp = 900;
+                    this.newProdCat = 'Frozen';
                     this.newProdPrice = 3000;
                     this.saveData();
-                    alert('Menu baru berhasil ditambahkan dengan Harga Beli (HPP): ' + this.formatRupiah(this.newProdHpp));
+                    alert('Menu baru berhasil ditambahkan dengan SKU: ' + randomSku);
                 },
 
                 deleteProduct(index) {
@@ -966,6 +1104,11 @@
                     this.showModifierModal = false;
                 },
 
+                get availableCategories() {
+                    let set = new Set(this.products.map(p => p.category));
+                    return Array.from(set);
+                },
+
                 get filteredProducts() {
                     let items = this.products;
                     if (this.selectedCategory !== 'All') {
@@ -977,21 +1120,75 @@
                     return items;
                 },
 
+                get filteredHistory() {
+                    if (!this.historySearch.trim()) return this.transactions;
+                    let q = this.historySearch.toLowerCase();
+                    return this.transactions.filter(t => t.cashierName.toLowerCase().includes(q) || t.channel.toLowerCase().includes(q) || t.customerType.toLowerCase().includes(q));
+                },
+
+                get criticalStockCount() {
+                    return this.ingredients.filter(i => i.stock <= 5).length;
+                },
+
+                get isHappyHourActive() {
+                    if (!this.settings.enableHappyHour) return false;
+                    let currentHour = new Date().getHours();
+                    return currentHour >= 15 && currentHour <= 18;
+                },
+
                 increaseQty(index) { this.cart[index].quantity++; },
                 decreaseQty(index) {
                     if (this.cart[index].quantity > 1) { this.cart[index].quantity--; } else { this.cart.splice(index, 1); }
                 },
 
                 get subtotal() { return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0); },
-                get discountAmount() {
-                    if (!this.discountValue || this.discountValue <= 0) return 0;
-                    return this.discountType === 'percent' ? this.subtotal * (this.discountValue / 100) : Math.min(this.subtotal, this.discountValue);
+                
+                get vipDiscountAmount() {
+                    return this.customerType === 'VIP' ? this.subtotal * (this.settings.vipDiscountRate / 100) : 0;
                 },
+
+                get happyHourDiscountAmount() {
+                    return this.isHappyHourActive ? this.subtotal * (this.settings.happyHourDiscount / 100) : 0;
+                },
+
+                get paymentDiscountAmount() {
+                    if (this.settings.enablePaymentDiscount && this.paymentMethod !== 'Tunai') {
+                        let subAfterOtherDisc = this.subtotal - this.vipDiscountAmount - this.happyHourDiscountAmount;
+                        return subAfterOtherDisc * (this.settings.paymentDiscountRate / 100);
+                    }
+                    return 0;
+                },
+
+                get discountAmount() {
+                    let sub = this.subtotal - this.vipDiscountAmount - this.happyHourDiscountAmount - this.paymentDiscountAmount;
+                    let manualDisc = 0;
+                    if ((this.currentUser?.role === 'owner' || this.settings.allowCashierDiscount) && this.discountValue && this.discountValue > 0) {
+                        manualDisc = this.discountType === 'percent' ? sub * (this.discountValue / 100) : Math.min(sub, this.discountValue);
+                    }
+                    return this.vipDiscountAmount + this.happyHourDiscountAmount + this.paymentDiscountAmount + manualDisc;
+                },
+
                 get channelFee() {
                     let afterDisc = this.subtotal - this.discountAmount;
                     return this.salesChannel !== 'Offline' ? afterDisc * 0.20 : 0;
                 },
-                get grandTotal() { return (this.subtotal - this.discountAmount) + this.channelFee; },
+
+                get taxableBase() {
+                    let afterDisc = this.subtotal - this.discountAmount;
+                    return afterDisc + this.channelFee;
+                },
+
+                get taxAmount() {
+                    return this.settings.enableTax ? this.taxableBase * (this.settings.taxRate / 100) : 0; 
+                },
+
+                get serviceChargeAmount() {
+                    return this.settings.enableServiceCharge ? this.taxableBase * (this.settings.serviceChargeRate / 100) : 0;
+                },
+
+                get grandTotal() { 
+                    return this.taxableBase + this.taxAmount + this.serviceChargeAmount; 
+                },
 
                 formatRupiah(value) { return 'Rp ' + Math.round(value || 0).toLocaleString('id-ID'); },
 
@@ -1020,6 +1217,11 @@
                 },
 
                 checkout() {
+                    if (this.paymentMethod === 'Tunai' && this.cashReceived < this.grandTotal) {
+                        alert('Uang tunai yang diterima kurang dari total tagihan!');
+                        return;
+                    }
+
                     for (let item of this.cart) {
                         if (item.recipe) {
                             for (let rec of item.recipe) {
@@ -1031,42 +1233,103 @@
 
                     let totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
                     let totalHppCart = this.cart.reduce((sum, item) => sum + (item.baseHpp * item.quantity), 0);
+                    let changeAmount = this.paymentMethod === 'Tunai' ? Math.max(0, this.cashReceived - this.grandTotal) : 0;
                     
                     let newTrx = {
                         id: Date.now(),
                         date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+                        cashierName: this.currentUser?.name || 'Staff',
+                        customerType: this.customerType,
                         channel: this.salesChannel,
+                        paymentMethod: this.paymentMethod,
+                        cashReceived: this.paymentMethod === 'Tunai' ? this.cashReceived : this.grandTotal,
+                        cashChange: changeAmount,
                         totalItems: totalItems,
+                        taxAmount: this.taxAmount,
+                        taxRateUsed: this.settings.enableTax ? this.settings.taxRate : 0,
+                        serviceChargeAmount: this.serviceChargeAmount,
+                        serviceChargeRateUsed: this.settings.enableServiceCharge ? this.settings.serviceChargeRate : 0,
+                        paymentDiscountAmount: this.paymentDiscountAmount,
+                        paymentDiscountRateUsed: this.settings.enablePaymentDiscount ? this.settings.paymentDiscountRate : 0,
                         grandTotal: this.grandTotal,
                         totalHpp: totalHppCart,
                         items: [...this.cart]
                     };
 
                     this.transactions.unshift(newTrx);
-                    if (this.salesChannel === 'Offline') this.cashSalesTotal += this.grandTotal;
+                    if (this.salesChannel === 'Offline' && this.paymentMethod === 'Tunai') {
+                        this.cashSalesTotal += this.grandTotal;
+                    }
 
                     this.lastTrx = newTrx;
                     this.showReceiptModal = true;
                     this.cart = [];
                     this.discountValue = 0;
+                    this.cashReceived = 0;
+                    this.customerType = 'Regular';
                     this.saveData();
+                },
+
+                refundTransaction(id) {
+                    let pin = prompt('Masukkan PIN Otorisasi Manager/Owner untuk Retur (Default: 1234):');
+                    if (pin !== '1234') {
+                        alert('PIN salah! Retur dibatalkan.');
+                        return;
+                    }
+
+                    let idx = this.transactions.findIndex(t => t.id === id);
+                    if (idx !== -1) {
+                        let trx = this.transactions[idx];
+                        trx.items.forEach(item => {
+                            if (item.recipe) {
+                                item.recipe.forEach(rec => {
+                                    let ing = this.ingredients.find(i => i.id === rec.ingId);
+                                    if (ing) ing.stock += (rec.qty * item.quantity);
+                                });
+                            }
+                        });
+                        if (trx.channel === 'Offline' && trx.paymentMethod === 'Tunai') {
+                            this.cashSalesTotal -= trx.grandTotal;
+                        }
+                        this.transactions.splice(idx, 1);
+                        this.saveData();
+                        alert('Transaksi berhasil diretur dan stok dikembalikan.');
+                    }
                 },
 
                 shareWhatsApp() {
                     let text = `*STRUK PEMBAYARAN - WARUNG ES MAMBO & JUS*\n`;
                     text += `Waktu: ${this.lastTrx.date}\n`;
-                    text += `Kanal: ${this.lastTrx.channel}\n------------------\n`;
+                    text += `Kasir: ${this.lastTrx.cashierName}\n`;
+                    text += `Pelanggan: ${this.lastTrx.customerType}\n`;
+                    text += `Kanal: ${this.lastTrx.channel}\n`;
+                    text += `Pembayaran: ${this.lastTrx.paymentMethod}\n`;
+                    if (this.lastTrx.paymentMethod === 'Tunai') {
+                        text += `Tunai: ${this.formatRupiah(this.lastTrx.cashReceived)}\n`;
+                        text += `Kembali: ${this.formatRupiah(this.lastTrx.cashChange)}\n`;
+                    }
+                    text += `------------------\n`;
                     this.lastTrx.items.forEach(i => {
                         text += `${i.name} ${i.note ? '('+i.note+')' : ''} x${i.quantity} = ${this.formatRupiah(i.price * i.quantity)}\n`;
                     });
-                    text += `------------------\n*TOTAL: ${this.formatRupiah(this.lastTrx.grandTotal)}*\nTerima Kasih!`;
+                    text += `------------------\n`;
+                    if (this.lastTrx.taxAmount > 0) {
+                        text += `Pajak (${this.lastTrx.taxRateUsed}%): ${this.formatRupiah(this.lastTrx.taxAmount)}\n`;
+                    }
+                    if (this.lastTrx.serviceChargeAmount > 0) {
+                        text += `Biaya Layanan (${this.lastTrx.serviceChargeRateUsed}%): ${this.formatRupiah(this.lastTrx.serviceChargeAmount)}\n`;
+                    }
+                    if (this.lastTrx.paymentDiscountAmount > 0) {
+                        text += `Diskon Non-Tunai (${this.lastTrx.paymentDiscountRateUsed}%): -${this.formatRupiah(this.lastTrx.paymentDiscountAmount)}\n`;
+                    }
+                    text += `*TOTAL: ${this.formatRupiah(this.lastTrx.grandTotal)}*\nTerima Kasih!`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 },
 
                 exportToCSV() {
-                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Kanal,Total Item,Nilai Transaksi,Modal HPP\n";
+                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Kasir,Tipe Pelanggan,Kanal,Metode Pembayaran,Pajak,Biaya Layanan,Total Item,Nilai Transaksi,Modal HPP\n";
                     this.transactions.forEach(trx => {
-                        csvContent += `"${trx.date}","${trx.channel}",${trx.totalItems},${trx.grandTotal},${trx.totalHpp}\n`;
+                        csvContent += `"${trx.date}","${trx.cashierName}","${trx.customerType}","${trx.channel}","${trx.paymentMethod || 'Tunai'}",${trx.taxAmount},${trx.serviceChargeAmount || 0},${trx.totalItems},${trx.grandTotal},${trx.totalHpp}\n`;
                     });
                     let encodedUri = encodeURI(csvContent);
                     let link = document.createElement("a");
@@ -1075,6 +1338,32 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                },
+
+                exportDatabase() {
+                    let data = {
+                        products: this.products,
+                        ingredients: this.ingredients,
+                        transactions: this.transactions,
+                    };
+                    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+                    let dlAnchor = document.createElement('a');
+                    dlAnchor.setAttribute("href", dataStr);
+                    dlAnchor.setAttribute("download", "backup_pos_warung_es.json");
+                    document.body.appendChild(dlAnchor);
+                    dlAnchor.click();
+                    dlAnchor.remove();
+                },
+
+                factoryReset() {
+                    if (confirm('PERINGATAN: Semua data transaksi, kasbon, dan pengeluaran akan dihapus permanen! Lanjutkan?')) {
+                        localStorage.clear();
+                        location.reload();
+                    }
+                },
+
+                channelOmzet(ch) {
+                    return this.transactions.filter(t => t.channel === ch).reduce((s, t) => s + t.grandTotal, 0);
                 },
 
                 get totalOmzet() { return this.transactions.reduce((s, t) => s + t.grandTotal, 0); },
