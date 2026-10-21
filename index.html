@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Es Mambo & Jus - v15.0 Ultimate Sovereign POS</title>
+    <title>Warung Es Mambo & Jus - v16.0 Ultimate Sovereign POS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,7 +39,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v15.0</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Masuk ke Sistem POS v16.0</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pilih peran dan masukkan PIN akses Anda</p>
             </div>
             <div class="space-y-3 text-left">
@@ -75,7 +75,7 @@
                         <h1 class="text-base font-bold tracking-tight">Warung Es Mambo & Jus</h1>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase" x-text="currentUser?.role"></span>
                     </div>
-                    <p class="text-xs text-blue-100">Sovereign Suite (v15.0)</p>
+                    <p class="text-xs text-blue-100">Sovereign Suite (v16.0)</p>
                 </div>
             </div>
 
@@ -401,7 +401,7 @@
                                 <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold" x-text="formatRupiah(prod.price)"></td>
                                 <td class="p-3 text-right space-x-2">
                                     <button @click="printBarcode(prod)" class="text-blue-600 dark:text-blue-400 hover:underline text-xs font-semibold">Cetak Barcode</button>
-                                    <button @click="deleteProduct(idx)" class="text-rose-500 hover:text-rose-400 text-xs font-semibold">Hapus</button>
+                                    <button @click="deleteProduct(idx)" class="text-rose-500 dark:text-rose-400 text-xs font-semibold">Hapus</button>
                                 </td>
                             </tr>
                         </template>
@@ -848,7 +848,7 @@
 
     <!-- Footer dengan Nomor Versi Jelas -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800 mt-10">
-        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v15.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
+        Warung Es Mambo & Jus | <span class="font-bold text-blue-600 dark:text-blue-400">v16.0.0 Ultimate Sovereign POS</span> &copy; 2026 - All Rights Reserved
     </footer>
 
     <!-- Alpine.js Application Script -->
@@ -930,30 +930,30 @@
                 discountValue: 0,
 
                 init() {
-                    if (localStorage.getItem('es_mambo_products_v15')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v15'));
-                    if (localStorage.getItem('es_mambo_ingredients_v15')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v15'));
-                    if (localStorage.getItem('es_mambo_transactions_v15')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v15'));
-                    if (localStorage.getItem('es_mambo_expenses_v15')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v15'));
-                    if (localStorage.getItem('es_mambo_debts_v15')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v15'));
-                    if (localStorage.getItem('es_mambo_settings_v15')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v15'));
+                    if (localStorage.getItem('es_mambo_products_v16')) this.products = JSON.parse(localStorage.getItem('es_mambo_products_v16'));
+                    if (localStorage.getItem('es_mambo_ingredients_v16')) this.ingredients = JSON.parse(localStorage.getItem('es_mambo_ingredients_v16'));
+                    if (localStorage.getItem('es_mambo_transactions_v16')) this.transactions = JSON.parse(localStorage.getItem('es_mambo_transactions_v16'));
+                    if (localStorage.getItem('es_mambo_expenses_v16')) this.expenses = JSON.parse(localStorage.getItem('es_mambo_expenses_v16'));
+                    if (localStorage.getItem('es_mambo_debts_v16')) this.debts = JSON.parse(localStorage.getItem('es_mambo_debts_v16'));
+                    if (localStorage.getItem('es_mambo_settings_v16')) this.settings = JSON.parse(localStorage.getItem('es_mambo_settings_v16'));
                     if (localStorage.getItem('es_mambo_dark_mode')) this.darkMode = JSON.parse(localStorage.getItem('es_mambo_dark_mode'));
                     
-                    let savedUser = localStorage.getItem('es_mambo_current_user_v15');
+                    let savedUser = localStorage.getItem('es_mambo_current_user_v16');
                     if (savedUser) {
                         this.currentUser = JSON.parse(savedUser);
                     }
                 },
 
                 saveData() {
-                    localStorage.setItem('es_mambo_products_v15', JSON.stringify(this.products));
-                    localStorage.setItem('es_mambo_ingredients_v15', JSON.stringify(this.ingredients));
-                    localStorage.setItem('es_mambo_transactions_v15', JSON.stringify(this.transactions));
-                    localStorage.setItem('es_mambo_expenses_v15', JSON.stringify(this.expenses));
-                    localStorage.setItem('es_mambo_debts_v15', JSON.stringify(this.debts));
+                    localStorage.setItem('es_mambo_products_v16', JSON.stringify(this.products));
+                    localStorage.setItem('es_mambo_ingredients_v16', JSON.stringify(this.ingredients));
+                    localStorage.setItem('es_mambo_transactions_v16', JSON.stringify(this.transactions));
+                    localStorage.setItem('es_mambo_expenses_v16', JSON.stringify(this.expenses));
+                    localStorage.setItem('es_mambo_debts_v16', JSON.stringify(this.debts));
                 },
 
                 saveSettings() {
-                    localStorage.setItem('es_mambo_settings_v15', JSON.stringify(this.settings));
+                    localStorage.setItem('es_mambo_settings_v16', JSON.stringify(this.settings));
                 },
 
                 toggleDarkMode() {
@@ -964,7 +964,7 @@
                 handleLogin() {
                     if (this.loginPin === '1234' || this.loginPin === '') {
                         this.currentUser = { role: this.loginRole, name: this.loginRole === 'owner' ? 'E. Yuyus Syamsul F.' : 'Staff Kasir' };
-                        localStorage.setItem('es_mambo_current_user_v15', JSON.stringify(this.currentUser));
+                        localStorage.setItem('es_mambo_current_user_v16', JSON.stringify(this.currentUser));
                         this.loginPin = '';
                     } else {
                         alert('PIN salah! Gunakan PIN default: 1234');
@@ -973,7 +973,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('es_mambo_current_user_v15');
+                    localStorage.removeItem('es_mambo_current_user_v16');
                 },
 
                 scanBarcode() {
@@ -1239,25 +1239,29 @@
                 },
 
                 refundTransaction(id) {
-                    if (confirm('Yakin ingin membatalkan/retur transaksi ini? Stok bahan akan dikembalikan.')) {
-                        let idx = this.transactions.findIndex(t => t.id === id);
-                        if (idx !== -1) {
-                            let trx = this.transactions[idx];
-                            trx.items.forEach(item => {
-                                if (item.recipe) {
-                                    item.recipe.forEach(rec => {
-                                        let ing = this.ingredients.find(i => i.id === rec.ingId);
-                                        if (ing) ing.stock += (rec.qty * item.quantity);
-                                    });
-                                }
-                            });
-                            if (trx.channel === 'Offline' && trx.paymentMethod === 'Tunai') {
-                                this.cashSalesTotal -= trx.grandTotal;
+                    let pin = prompt('Masukkan PIN Otorisasi Manager/Owner untuk Retur (Default: 1234):');
+                    if (pin !== '1234') {
+                        alert('PIN salah! Retur dibatalkan.');
+                        return;
+                    }
+
+                    let idx = this.transactions.findIndex(t => t.id === id);
+                    if (idx !== -1) {
+                        let trx = this.transactions[idx];
+                        trx.items.forEach(item => {
+                            if (item.recipe) {
+                                item.recipe.forEach(rec => {
+                                    let ing = this.ingredients.find(i => i.id === rec.ingId);
+                                    if (ing) ing.stock += (rec.qty * item.quantity);
+                                });
                             }
-                            this.transactions.splice(idx, 1);
-                            this.saveData();
-                            alert('Transaksi berhasil diretur dan stok dikembalikan.');
+                        });
+                        if (trx.channel === 'Offline' && trx.paymentMethod === 'Tunai') {
+                            this.cashSalesTotal -= trx.grandTotal;
                         }
+                        this.transactions.splice(idx, 1);
+                        this.saveData();
+                        alert('Transaksi berhasil diretur dan stok dikembalikan.');
                     }
                 },
 
