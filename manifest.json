@@ -1,0 +1,10 @@
+{
+  "name": "CEO FRESH Cloud v71.1.1",
+  "short_name": "CEO FRESH",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f3f7f6",
+  "theme_color": "#0f766e",
+  "description": "Aplikasi web untuk mengelola penjualan, HPP, stok, pengeluaran dan laporan CEO FRESH.",
+  "version": "71.1.1"
+}
