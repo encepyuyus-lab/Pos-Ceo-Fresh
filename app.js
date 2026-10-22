@@ -1,4 +1,4 @@
-/* CEO FRESH v71.0.0: consolidated navigation, baseline stabilization, retained existing business modules */
+/* CEO FRESH v71.2.4: catalog-first cashier layout and product image management; cloud diagnostic safeguards retained */
 const cfg=window.CEO_FRES_CONFIG||{}; const hasCloud=!!(cfg.SUPABASE_URL&&cfg.SUPABASE_ANON_KEY); const sb=hasCloud?supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
 let session=null, profile=null, business=null, userPermissions=new Set(), db={products:[],sales:[],expenses:[],stock:[],recipeItems:[],suppliers:[],purchases:[],purchaseItems:[],supplierPayments:[],receivablePayments:[],customers:[],resellerPrices:[],cashClosings:[],salesReturns:[],salesRefunds:[],stockAdjustments:[],users:[],onlineCatalog:[],onlineOrders:[],onlineOrderItems:[],cashOpenings:[],cashWithdrawals:[],cashOperationalStatus:null,auditLogs:[],assets:[],purchaseAssets:[]}, currentPage='dashboard';
 function can(code){return userPermissions.has(String(code||''))}
@@ -200,6 +200,35 @@ function productCardImage(p,catalogRow=null){
   const src=productImageUrl(p,catalogRow);
   return src?`<img class="product-card-image" src="${esc(src)}" alt="${esc(catalogRow?.online_name||p?.name||'Produk')}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">` : '';
 }
+function canEditProductImage(){return profile?.role==='pemilik'||can('online_catalog.manage')||can('products.manage')}
+function normalizedImageUrl(raw){
+  let url=String(raw||'').trim();if(!url)return '';
+  const drive=url.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?.*id=)([A-Za-z0-9_-]+)/i);
+  if(drive)url='https://drive.google.com/uc?export=view&id='+drive[1];
+  if(!/^https:\/\//i.test(url))throw new Error('Tautan gambar harus diawali https://');
+  return url;
+}
+async function saveProductImage(productId,imageUrl){
+  if(!canEditProductImage())return alert('Hanya Pemilik atau akun yang diberi izin yang dapat mengganti gambar produk.');
+  const p=db.products.find(x=>String(x.id)===String(productId));if(!p)return alert('Produk tidak ditemukan.');
+  const old=(db.onlineCatalog||[]).find(x=>String(x.product_id)===String(productId));
+  const payload={business_id:profile.business_id,product_id:p.id,product_name:p.name,online_name:old?.online_name||p.name,price:Number(old?.price??p.price)||0,image_url:imageUrl||null,active:old?.active!==false};
+  const {error}=await sb.from('online_catalog').upsert(payload,{onConflict:'business_id,product_id'});
+  if(error)return alert('Gambar belum tersimpan: '+error.message);
+  await loadAll();render();
+}
+function changeProductImage(productId){
+  if(!canEditProductImage())return alert('Anda tidak memiliki izin mengganti gambar produk.');
+  const p=db.products.find(x=>String(x.id)===String(productId));if(!p)return;
+  const choice=prompt(`Ganti gambar: ${p.name}\nKetik L untuk pilih file dari komputer/HP, atau tempel URL gambar dari cloud/Google Drive.\nKosongkan URL untuk membatalkan.`, '');
+  if(choice===null)return;
+  if(choice.trim().toLowerCase()==='l'){
+    const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp,image/gif';
+    input.onchange=()=>{const file=input.files?.[0];if(!file)return;if(file.size>1024*1024)return alert('Ukuran gambar maksimal 1 MB. Kompres gambar terlebih dahulu.');const reader=new FileReader();reader.onload=()=>saveProductImage(productId,String(reader.result||''));reader.onerror=()=>alert('File gambar tidak dapat dibaca.');reader.readAsDataURL(file)};input.click();return;
+  }
+  if(!choice.trim())return;
+  try{saveProductImage(productId,normalizedImageUrl(choice))}catch(e){alert(e.message||'URL gambar tidak valid.')}
+}
 function productStockLabel(p){const n=productAvailableStock(p);return n===null?'<span class="stock-unknown">Stok perlu dikonfirmasi</span>':n>0?`<span class="stock-available">Tersedia ${fmtNum(n)} unit</span>`:'<span class="stock-empty">Stok habis</span>'}
 function chooseSaleCardProduct(id){const sel=$('sProd');if(!sel)return;sel.value=String(id);updateSalePrice();$('sQty')?.focus();document.getElementById('saleProductCards')?.querySelectorAll('[data-product-card]').forEach(el=>el.classList.toggle('selected',el.dataset.productCard===String(id)));}
 function addSaleCardToCart(id){chooseSaleCardProduct(id);const qtyEl=$(`saleCardQty_${id}`);const qty=Math.max(1,Math.floor(Number(qtyEl?.value)||1));if($('sQty'))$('sQty').value=qty;updateSalePricing();addToCartAdvanced();}
@@ -208,7 +237,7 @@ function renderSaleProductCards(){
   const q=String($('sSearch')?.value||'').trim().toLowerCase();
   const mode=$('sMode')?.value||'Normal';
   const list=db.products.filter(p=>p.active&&(!q||String(p.name||'').toLowerCase().includes(q)||String(p.sku||'').toLowerCase().includes(q))&&(mode!=='Reseller'||!!resellerRule(p.id))&&(mode!=='Promo'||!!fridayPromoConfig(p.name))).sort((a,b)=>a.name.localeCompare(b.name,'id',{sensitivity:'base'}));
-  host.innerHTML=list.map(p=>{const stock=productAvailableStock(p),src=productImageUrl(p);return `<article class="product-card" data-product-card="${p.id}" onclick="chooseSaleCardProduct('${p.id}')"><div class="product-image-wrap">${src?productCardImage(p):''}<div class="product-image-placeholder" ${src?'style="display:none"':''}>🥤<small>Foto produk</small></div></div><div class="product-card-body"><b>${esc(p.name)}</b><div class="product-card-price">${rup(p.price)}</div><div class="product-card-stock">${productStockLabel(p)}</div><div class="product-card-controls" onclick="event.stopPropagation()"><label class="qty-label">Jumlah<input id="saleCardQty_${p.id}" type="number" min="1" step="1" value="1" aria-label="Jumlah ${esc(p.name)}"></label><button type="button" class="btn small" onclick="addSaleCardToCart('${p.id}')">＋ Keranjang</button></div></div></article>`}).join('')||'<div class="empty">Produk tidak ditemukan.</div>';
+  host.innerHTML=list.map(p=>{const stock=productAvailableStock(p),src=productImageUrl(p);return `<article class="product-card" data-product-card="${p.id}" onclick="chooseSaleCardProduct('${p.id}')"><div class="product-image-wrap">${src?productCardImage(p):''}<div class="product-image-placeholder" ${src?'style="display:none"':''}>🥤<small>Foto produk</small></div></div><div class="product-card-body"><b>${esc(p.name)}</b><div class="product-card-price">${rup(p.price)}</div><div class="product-card-stock">${productStockLabel(p)}</div><div class="product-card-controls" onclick="event.stopPropagation()"><label class="qty-label">Jumlah<input id="saleCardQty_${p.id}" type="number" min="1" step="1" value="1" aria-label="Jumlah ${esc(p.name)}"></label><button type="button" class="btn small" onclick="addSaleCardToCart('${p.id}')">＋ Keranjang</button></div>${canEditProductImage()?`<button type="button" class="btn secondary small image-change-btn" onclick="event.stopPropagation();changeProductImage('${p.id}')">🖼️ Ganti gambar</button>`:''}</div></article>`}).join('')||'<div class="empty">Produk tidak ditemukan.</div>';
 }
 function sales(c){
   const active=[...db.products.filter(x=>x.active)].sort((a,b)=>a.name.localeCompare(b.name,'id',{sensitivity:'base'}));
@@ -216,7 +245,8 @@ function sales(c){
   const first=active[0]?.price||0;
   window.saleCart=[];window.saleSaveInProgress=false;
   const custOpts=[`<option value="">Umum / tanpa pelanggan</option>`,...db.customers.filter(x=>x.is_active!==false).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id',{sensitivity:'base'})).map(x=>`<option value="${x.id}">${esc(x.name)} — ${esc(x.customer_type||'Umum')}</option>`)].join('');
-  c.innerHTML=`<div class="card form">
+  c.innerHTML=`  <div class="section card"><div class="cardhead"><h2>Katalog Produk</h2><small class="muted">Pilih produk, lihat harga dan ketersediaan, lalu tentukan jumlah.</small></div><div id="saleProductCards" class="product-card-grid"></div></div>
+<div class="section card"><div class="cardhead"><h2>Kasir</h2><small class="muted">Pilih produk dari katalog di atas, lalu lengkapi transaksi di bawah.</small></div><div class="card form">
     <div><label>Tanggal<input id="sDate" type="date" value="${saleDefaultDate()}" onchange="updateSalePricing();updateFridayPromoUI()" ${['pemilik','supervisor'].includes(profile.role)?'':'readonly'}></label><small class="hint">${['pemilik','supervisor'].includes(profile.role)?'Pemilik/Supervisor dapat memilih tanggal sesuai kewenangan.':'Tanggal mengikuti hari berjalan dan tidak dapat diubah Kasir.'}</small></div>
     <div><label>Pelanggan / Reseller<select id="sCustomer" onchange="customerChanged()">${custOpts}</select></label><small id="customerHint" class="hint">Pilih pelanggan/reseller jika transaksi ingin dicatat atas nama pelanggan.</small></div>
     <div><label>Cari produk<input id="sSearch" type="search" placeholder="🔍 Ketik nama produk..." oninput="filterSaleProducts()" autocomplete="off"></label></div>
@@ -231,7 +261,7 @@ function sales(c){
     <div id="saleSummary" class="full"></div>
     <div class="full"><button class="btn secondary" onclick="addToCartAdvanced()">＋ Tambah ke Keranjang</button></div>
   </div>
-  <div class="section card"><div class="cardhead"><h2>Katalog Produk</h2><small class="muted">Pilih produk, lihat harga dan ketersediaan, lalu tentukan jumlah.</small></div><div id="saleProductCards" class="product-card-grid"></div></div>
+  </div>
   <div class="section card"><div class="cardhead"><h2>Keranjang Penjualan</h2><button class="btn small secondary" onclick="clearSaleCart()">Kosongkan</button></div><div id="saleCart"></div></div>
   <div class="section card form">
     <div><label>Pembayaran<select id="sPay" onchange="toggleCashPayment()"><option>Tunai</option><option>QRIS</option><option>Transfer</option><option>Piutang</option></select></label></div>

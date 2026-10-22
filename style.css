@@ -70,3 +70,8 @@
 .catalog-row-product small{display:block;color:#82928f;margin-top:3px}
 @media(max-width:700px){.product-card-grid,.marketplace-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.product-image-wrap{height:120px}.product-card-body{padding:10px}.product-card-body>b{font-size:13px;min-height:34px}.product-card-price{font-size:16px}.product-card-controls{flex-direction:column;align-items:stretch}.product-card-controls .btn{width:100%}}
 @media(max-width:390px){.product-card-grid,.marketplace-grid{grid-template-columns:1fr}.product-image-wrap{height:170px}}
+
+/* v71.2.4 catalog-first cashier and image editing */
+.image-change-btn{width:100%;margin-top:2px;font-size:12px}
+.product-card-controls{flex-wrap:wrap}
+@media(max-width:700px){.image-change-btn{font-size:11px;padding:8px 6px}.product-card-controls .qty-label{width:100%}}
