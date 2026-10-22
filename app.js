@@ -184,6 +184,14 @@ function productImageUrl(p, catalogRow=null){
 }
 function productAvailableStock(p){
   if(!p)return null;
+  // Sumber utama stok produk jadi adalah tabel stock: pembelian, stok opname,
+  // dan mutasi stok aplikasi sudah tercatat di sana. Cocokkan nama secara
+  // normalisasi agar Es Mambo/Es Cream/Es Gabus tidak tampil sebagai unknown.
+  const normStockName=v=>String(v||'').normalize('NFKC').trim().toLocaleLowerCase('id-ID').replace(/\s+/g,' ');
+  const finishedStock=(db.stock||[]).find(st=>normStockName(st.name)===normStockName(p.name));
+  if(finishedStock && finishedStock.qty!==undefined && finishedStock.qty!==null && finishedStock.qty!==''){
+    return Math.max(0,Number(finishedStock.qty)||0);
+  }
   for(const key of ['available_stock','stock_qty','current_stock','finished_stock','qty_stock']){
     const v=p[key]; if(v!==undefined&&v!==null&&v!=='')return Math.max(0,Number(v)||0);
   }
