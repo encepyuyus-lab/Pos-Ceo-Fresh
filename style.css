@@ -51,8 +51,9 @@
 .product-card{min-width:0;overflow:hidden;border:1px solid #e0eae8;border-radius:15px;background:#fff;box-shadow:0 3px 12px rgba(15,75,65,.05);transition:transform .15s,border-color .15s;cursor:pointer}
 .product-card:hover{transform:translateY(-2px);border-color:#83c9bd}
 .product-card.selected{outline:2px solid #12877d;border-color:#12877d}
-.product-image-wrap{height:150px;position:relative;overflow:hidden;background:#eef7f5}
-.product-card-image{width:100%;height:100%;object-fit:cover;display:block}
+.product-image-wrap{height:150px;position:relative;overflow:hidden;background:#f7fbfa;display:flex;align-items:center;justify-content:center;padding:5px;box-sizing:border-box}
+/* v71.2.5: tampilkan seluruh gambar tanpa memotong bagian atas/samping */
+.product-card-image{width:100%;height:100%;object-fit:contain;object-position:center center;display:block;min-width:0;min-height:0}
 .product-image-placeholder{height:100%;width:100%;display:grid;place-content:center;justify-items:center;gap:5px;color:#43877e;font-size:38px;background:linear-gradient(135deg,#edf8f5,#f8fbfa)}
 .product-image-placeholder small{font-size:11px;color:#81938f}
 .product-card-body{padding:13px;display:flex;flex-direction:column;gap:8px}
@@ -66,7 +67,7 @@
 .product-card-controls .btn{white-space:nowrap;align-self:end}
 .marketplace-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
 .catalog-row-product{display:flex;align-items:center;gap:10px;min-width:180px}
-.catalog-row-product img,.catalog-row-placeholder{width:54px;height:54px;object-fit:cover;border-radius:9px;background:#edf8f5;display:grid;place-items:center;font-size:24px}
+.catalog-row-product img,.catalog-row-placeholder{width:54px;height:54px;object-fit:contain;object-position:center center;border-radius:9px;background:#f7fbfa;display:grid;place-items:center;font-size:24px}
 .catalog-row-product small{display:block;color:#82928f;margin-top:3px}
 @media(max-width:700px){.product-card-grid,.marketplace-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.product-image-wrap{height:120px}.product-card-body{padding:10px}.product-card-body>b{font-size:13px;min-height:34px}.product-card-price{font-size:16px}.product-card-controls{flex-direction:column;align-items:stretch}.product-card-controls .btn{width:100%}}
 @media(max-width:390px){.product-card-grid,.marketplace-grid{grid-template-columns:1fr}.product-image-wrap{height:170px}}
@@ -75,3 +76,7 @@
 .image-change-btn{width:100%;margin-top:2px;font-size:12px}
 .product-card-controls{flex-wrap:wrap}
 @media(max-width:700px){.image-change-btn{font-size:11px;padding:8px 6px}.product-card-controls .qty-label{width:100%}}
+
+/* v71.2.5: konsistensi gambar di HP dan katalog marketplace */
+.product-image-wrap img{object-fit:contain!important;object-position:center center!important}
+.marketplace-product-card .product-image-wrap{background:#f7fbfa}
