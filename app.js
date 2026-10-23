@@ -62,6 +62,74 @@ function showLogin(){
   $('signup')?.classList.add('hidden'); $('login')?.classList.remove('hidden');
   const e=$('signupPhone')?.value.trim(); if(e&&$('email'))$('email').value=e;
 }
+
+// Pemulihan password Supabase: tampilkan formulir khusus, jangan langsung membuka dashboard.
+let passwordRecoveryMode = false;
+function showPasswordRecovery(){
+  passwordRecoveryMode = true;
+  $('login')?.classList.add('hidden');
+  $('signup')?.classList.add('hidden');
+  $('app')?.classList.add('hidden');
+
+  let box = $('passwordRecoveryBox');
+  if (!box) {
+    box = document.createElement('section');
+    box.id = 'passwordRecoveryBox';
+    box.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;background:#edf8f6;font-family:Arial,sans-serif;';
+    box.innerHTML = `
+      <div style="box-sizing:border-box;width:100%;max-width:430px;padding:28px;background:#fff;border-radius:20px;box-shadow:0 8px 32px #00000012">
+        <div style="font-size:13px;letter-spacing:2px;color:#087e75">CEO FRESH</div>
+        <h2 style="text-align:center;color:#173c3b;margin:18px 0 8px">Buat Password Baru</h2>
+        <p style="text-align:center;color:#718096;line-height:1.5">Masukkan password baru untuk akun kamu.</p>
+        <form id="passwordRecoveryForm">
+          <label for="recoveryPassword">Password baru</label>
+          <input id="recoveryPassword" type="password" minlength="6" autocomplete="new-password" required style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0 16px;border:1px solid #cbd5e1;border-radius:10px">
+          <label for="recoveryPasswordConfirm">Ulangi password baru</label>
+          <input id="recoveryPasswordConfirm" type="password" minlength="6" autocomplete="new-password" required style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0 12px;border:1px solid #cbd5e1;border-radius:10px">
+          <p id="passwordRecoveryMessage" role="status" aria-live="polite" style="min-height:20px;color:#b91c1c;font-size:14px"></p>
+          <button id="saveRecoveryPassword" type="submit" style="width:100%;padding:12px;border:0;border-radius:10px;background:#087e75;color:white;font-weight:bold;cursor:pointer">Simpan Password Baru</button>
+        </form>
+      </div>`;
+    document.body.appendChild(box);
+    $('passwordRecoveryForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const password = $('recoveryPassword').value;
+      const confirmation = $('recoveryPasswordConfirm').value;
+      const message = $('passwordRecoveryMessage');
+      const button = $('saveRecoveryPassword');
+      if (password.length < 6) { message.textContent = 'Password minimal 6 karakter.'; return; }
+      if (password !== confirmation) { message.textContent = 'Kedua password belum sama.'; return; }
+      button.disabled = true;
+      button.textContent = 'Menyimpan...';
+      message.style.color = '#64748b';
+      message.textContent = 'Sedang memperbarui password...';
+      try {
+        const { error } = await sb.auth.updateUser({ password });
+        if (error) throw error;
+        message.style.color = '#087e75';
+        message.textContent = 'Password berhasil diperbarui. Mengarahkan ke halaman login...';
+        // Tahan reload dari event SIGNED_OUT saat keluar dari sesi pemulihan.
+        await sb.auth.signOut();
+        session = null; profile = null; business = null;
+        history.replaceState(null, document.title, location.pathname + location.search);
+        passwordRecoveryMode = false;
+        box.remove();
+        $('app')?.classList.add('hidden');
+        $('signup')?.classList.add('hidden');
+        $('login')?.classList.remove('hidden');
+        if ($('password')) $('password').value = '';
+        msg('Password berhasil diperbarui. Silakan masuk menggunakan password baru.');
+      } catch (error) {
+        message.style.color = '#b91c1c';
+        message.textContent = 'Gagal memperbarui password: ' + (error?.message || 'Terjadi kesalahan. Jika tautan kedaluwarsa, minta tautan reset baru.');
+        button.disabled = false;
+        button.textContent = 'Simpan Password Baru';
+      }
+    });
+  }
+  box.style.display = 'flex';
+}
+
 async function signOut(){await sb?.auth.signOut();session=null;profile=null;business=null;location.reload()}
 function togglePassword(id,btn){const input=$(id);if(!input)return;const show=input.type==='password';input.type=show?'text':'password';if(btn){btn.textContent=show?'🙈':'👁';btn.setAttribute('aria-label',show?'Sembunyikan password':'Tampilkan password')}}
 async function start(s){
@@ -184,14 +252,6 @@ function productImageUrl(p, catalogRow=null){
 }
 function productAvailableStock(p){
   if(!p)return null;
-  // Sumber utama stok produk jadi adalah tabel stock: pembelian, stok opname,
-  // dan mutasi stok aplikasi sudah tercatat di sana. Cocokkan nama secara
-  // normalisasi agar Es Mambo/Es Cream/Es Gabus tidak tampil sebagai unknown.
-  const normStockName=v=>String(v||'').normalize('NFKC').trim().toLocaleLowerCase('id-ID').replace(/\s+/g,' ');
-  const finishedStock=(db.stock||[]).find(st=>normStockName(st.name)===normStockName(p.name));
-  if(finishedStock && finishedStock.qty!==undefined && finishedStock.qty!==null && finishedStock.qty!==''){
-    return Math.max(0,Number(finishedStock.qty)||0);
-  }
   for(const key of ['available_stock','stock_qty','current_stock','finished_stock','qty_stock']){
     const v=p[key]; if(v!==undefined&&v!==null&&v!=='')return Math.max(0,Number(v)||0);
   }
@@ -1173,21 +1233,9 @@ async function openCashPeriod(){
     if(hh*60+mm < openTime[0]*60+openTime[1])return alert(`Kas baru dapat dibuka mulai pukul ${String(openTime[0]).padStart(2,'0')}:${String(openTime[1]).padStart(2,'0')} WIB.`);
   }
   const status=await getCashOperationalStatus(date);if(status?.opened)return alert(`Kas ${date} sudah dibuka pada ${status.opened_at?new Date(status.opened_at).toLocaleString('id-ID'):'waktu yang tercatat'}.`);
-  const prev=previousClosing(date);
-  let opening=prev?Number(prev.actual_cash||0):Number(status?.previous_closing_actual||0);
-  // Pemulihan hanya untuk Pemilik: jika hari sebelumnya belum ditutup, jangan membuat saldo otomatis nol.
-  // Minta saldo awal fisik yang benar dan persetujuan eksplisit, agar tidak mengarang saldo.
-  const hasPreviousClose=!!prev || Number(status?.previous_closing_actual||0)!==0;
-  if(!hasPreviousClose && profile.role==='pemilik' && date<=today()){
-    const raw=prompt(`PEMULIHAN BUKA KAS\n\nTidak ditemukan penutupan kas sebelumnya untuk tanggal ${date}.\nPeriksa catatan kas dan uang fisik terlebih dahulu. Masukkan saldo awal fisik yang benar (angka rupiah), bukan perkiraan.\n\nSaldo awal kas:`,'');
-    if(raw===null)return;
-    const normalized=String(raw).trim().replace(/\./g,'').replace(/,/g,'.');
-    opening=Number(normalized);
-    if(!normalized || !Number.isFinite(opening) || opening<0)return alert('Saldo awal tidak valid. Kas tidak dibuka.');
-    if(!confirm(`Konfirmasi pemulihan kas ${date}\nSaldo awal yang akan dicatat: ${rup(opening)}\n\nPastikan angka ini sesuai uang fisik/catatan usaha. Lanjutkan?`))return;
-  }
+  const prev=previousClosing(date), opening=prev?Number(prev.actual_cash||0):Number(status?.previous_closing_actual||0);
   const {data,error}=await sb.rpc('open_cash_period',{p_business_id:profile.business_id,p_opening_date:date,p_opening_cash:opening});
-  if(error)return alert(`Gagal membuka kas: ${error.message}\n\nTidak ada perubahan yang diklaim berhasil. Jika pesan menyebut penutupan hari sebelumnya, jalankan migrasi perbaikan kas yang disertakan bersama paket ini.`);
+  if(error)return alert(`Gagal membuka kas: ${error.message}`);
   alert(`Kas ${date} berhasil dibuka. Saldo awal ${rup(opening)}.`);await loadAll();render();
 }
 
@@ -1251,7 +1299,7 @@ async function cashClosing(c){
   if(!requirePermission('cash.closing','menutup kas')){c.innerHTML='<div class="card"><h2>💰 Tutup Kas Harian</h2><p class="muted">Anda tidak memiliki izin untuk menutup kas.</p></div>';return;}
   const isOwnerLike=['pemilik','supervisor'].includes(profile.role);
   const date=window.cashClosingDate||today();
-  const operationalStatus=await getCashOperationalStatus(date);
+  const operationalStatus=db.cashOperationalStatus?.cash_date===date?db.cashOperationalStatus:null;
   const openingRec=(db.cashOpenings||[]).find(x=>String(x.opening_date)===String(date))||(operationalStatus?.opened?{opening_date:date,opening_cash:operationalStatus.opening_cash||0,opened_at:operationalStatus.opened_at}:null);
   const cashStatusDebug=JSON.stringify({role:profile?.role||null,date,raw:db.cashOperationalStatus||null,matched:!!operationalStatus,opened:operationalStatus?.opened??null});
   const existing=(db.cashClosings||[]).find(x=>x.closing_date===date)||(!isOwnerLike&&operationalStatus?.closed?{closing_date:date,actual_cash:operationalStatus.closing_actual_cash,expected_cash:operationalStatus.closing_expected_cash,difference:operationalStatus.closing_difference,opening_cash:operationalStatus.closing_opening_cash,notes:operationalStatus.closing_notes,closed_at:operationalStatus.closing_at}:null), prev=previousClosing(date);
@@ -1659,7 +1707,25 @@ async function backupAllData(){
 async function saveSettings(){if(!requirePermission('business.settings','mengubah pengaturan usaha'))return;const cashClosingTime=$('cashCloseTime')?.value||'22:00';const {error}=await sb.from('businesses').update({name:$('biz').value,address:$('addr').value,wa:$('wa').value,join_code:$('joinCode').value.toUpperCase(),cash_closing_time:cashClosingTime}).eq('id',profile.business_id);if(error)alert(error.message);else {business={...business,name:$('biz').value,address:$('addr').value,wa:$('wa').value,join_code:$('joinCode').value.toUpperCase(),cash_closing_time:cashClosingTime};alert(`Pengaturan tersimpan. Target tutup kas: ${cashClosingTime} WIB.`);render()}}
 async function del(table,id){const permissionMap={products:'products.manage',stock:'stock.adjust',expenses:'expenses.manage'};const code=permissionMap[table];if(code&&!requirePermission(code,'menghapus data'))return;if(!code&&profile.role!=='pemilik')return alert('Anda tidak memiliki izin untuk menghapus data ini.');if(!confirm('Hapus data ini?'))return;const {error}=await sb.from(table).delete().eq('id',id);if(error)alert(error.message);else await loadAll(),render()}
 $('menu').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
-(async()=>{if(!hasCloud){$('syncStatus').textContent='Mode setup';return}const {data}=await sb.auth.getSession();if(data.session)await start(data.session);sb.auth.onAuthStateChange((event,s)=>{if(event==='SIGNED_OUT')location.reload()})})();
+(async()=>{
+  if(!hasCloud){$('syncStatus').textContent='Mode setup';return}
+  const recoveryHash=/(?:^|[&#])type=recovery(?:&|$)/i.test(location.hash);
+  // Pasang listener sebelum membaca sesi supaya event pemulihan tidak terlewat.
+  sb.auth.onAuthStateChange((event,s)=>{
+    if(event==='PASSWORD_RECOVERY'){
+      showPasswordRecovery();
+      return;
+    }
+    if(event==='SIGNED_OUT'&&!passwordRecoveryMode) location.reload();
+  });
+  if(recoveryHash){
+    showPasswordRecovery();
+    return;
+  }
+  const {data,error}=await sb.auth.getSession();
+  if(error){console.error('Gagal memeriksa sesi:',error.message);return}
+  if(data.session) await start(data.session);
+})();
 
 
 
