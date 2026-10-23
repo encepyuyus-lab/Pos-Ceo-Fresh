@@ -1173,9 +1173,21 @@ async function openCashPeriod(){
     if(hh*60+mm < openTime[0]*60+openTime[1])return alert(`Kas baru dapat dibuka mulai pukul ${String(openTime[0]).padStart(2,'0')}:${String(openTime[1]).padStart(2,'0')} WIB.`);
   }
   const status=await getCashOperationalStatus(date);if(status?.opened)return alert(`Kas ${date} sudah dibuka pada ${status.opened_at?new Date(status.opened_at).toLocaleString('id-ID'):'waktu yang tercatat'}.`);
-  const prev=previousClosing(date), opening=prev?Number(prev.actual_cash||0):Number(status?.previous_closing_actual||0);
+  const prev=previousClosing(date);
+  let opening=prev?Number(prev.actual_cash||0):Number(status?.previous_closing_actual||0);
+  // Pemulihan hanya untuk Pemilik: jika hari sebelumnya belum ditutup, jangan membuat saldo otomatis nol.
+  // Minta saldo awal fisik yang benar dan persetujuan eksplisit, agar tidak mengarang saldo.
+  const hasPreviousClose=!!prev || Number(status?.previous_closing_actual||0)!==0;
+  if(!hasPreviousClose && profile.role==='pemilik' && date<=today()){
+    const raw=prompt(`PEMULIHAN BUKA KAS\n\nTidak ditemukan penutupan kas sebelumnya untuk tanggal ${date}.\nPeriksa catatan kas dan uang fisik terlebih dahulu. Masukkan saldo awal fisik yang benar (angka rupiah), bukan perkiraan.\n\nSaldo awal kas:`,'');
+    if(raw===null)return;
+    const normalized=String(raw).trim().replace(/\./g,'').replace(/,/g,'.');
+    opening=Number(normalized);
+    if(!normalized || !Number.isFinite(opening) || opening<0)return alert('Saldo awal tidak valid. Kas tidak dibuka.');
+    if(!confirm(`Konfirmasi pemulihan kas ${date}\nSaldo awal yang akan dicatat: ${rup(opening)}\n\nPastikan angka ini sesuai uang fisik/catatan usaha. Lanjutkan?`))return;
+  }
   const {data,error}=await sb.rpc('open_cash_period',{p_business_id:profile.business_id,p_opening_date:date,p_opening_cash:opening});
-  if(error)return alert(`Gagal membuka kas: ${error.message}`);
+  if(error)return alert(`Gagal membuka kas: ${error.message}\n\nTidak ada perubahan yang diklaim berhasil. Jika pesan menyebut penutupan hari sebelumnya, jalankan migrasi perbaikan kas yang disertakan bersama paket ini.`);
   alert(`Kas ${date} berhasil dibuka. Saldo awal ${rup(opening)}.`);await loadAll();render();
 }
 
@@ -1239,7 +1251,7 @@ async function cashClosing(c){
   if(!requirePermission('cash.closing','menutup kas')){c.innerHTML='<div class="card"><h2>💰 Tutup Kas Harian</h2><p class="muted">Anda tidak memiliki izin untuk menutup kas.</p></div>';return;}
   const isOwnerLike=['pemilik','supervisor'].includes(profile.role);
   const date=window.cashClosingDate||today();
-  const operationalStatus=db.cashOperationalStatus?.cash_date===date?db.cashOperationalStatus:null;
+  const operationalStatus=await getCashOperationalStatus(date);
   const openingRec=(db.cashOpenings||[]).find(x=>String(x.opening_date)===String(date))||(operationalStatus?.opened?{opening_date:date,opening_cash:operationalStatus.opening_cash||0,opened_at:operationalStatus.opened_at}:null);
   const cashStatusDebug=JSON.stringify({role:profile?.role||null,date,raw:db.cashOperationalStatus||null,matched:!!operationalStatus,opened:operationalStatus?.opened??null});
   const existing=(db.cashClosings||[]).find(x=>x.closing_date===date)||(!isOwnerLike&&operationalStatus?.closed?{closing_date:date,actual_cash:operationalStatus.closing_actual_cash,expected_cash:operationalStatus.closing_expected_cash,difference:operationalStatus.closing_difference,opening_cash:operationalStatus.closing_opening_cash,notes:operationalStatus.closing_notes,closed_at:operationalStatus.closing_at}:null), prev=previousClosing(date);
